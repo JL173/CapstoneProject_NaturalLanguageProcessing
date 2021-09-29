@@ -1,0 +1,40 @@
+---
+title: "Capstone"
+output: html_notebook
+---
+
+```{r}
+setwd("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing")
+
+library(tidyverse)
+library(ggplot2)
+library(ggthemes)
+library(tm)
+```
+
+```{r}
+# check number of lines in a file
+CheckLines <- function(file){
+  while (length(l <- readLines(file, 128, skipNul = TRUE)) >0 ){
+    nlines <- nlines + length(l)
+  }
+  nlines
+}
+
+# find max char length of a line in a file
+LineMaxCharLength <- function(file){
+  lines <- CheckLines(file)
+  
+  nchunk <- as.integer(lines / 1000) + 1
+  
+  lengths <- c()
+  for (index in 1:nchunk){
+    temp <- c()
+    for (jndex in 1:1000){
+      temp <- c(temp, nchar(readLines(file, 1, skipNul = TRUE)))
+    }
+    lengths <- c(lengths, max(temp))
+    lengths
+  }
+}
+```
