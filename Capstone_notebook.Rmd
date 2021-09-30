@@ -7,9 +7,13 @@ output: html_notebook
 setwd("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing")
 
 library(tidyverse)
+library(tidytext)
 library(ggplot2)
 library(ggthemes)
 library(tm)
+library(SnowballC)
+library(openNLP)
+library(forcats)
 ```
 
 ```{r}
@@ -37,4 +41,84 @@ LineMaxCharLength <- function(file){
     lengths
   }
 }
+```
+
+```{r}
+data(stop_words)
+
+filter_words <- read.table("text_filter.txt", header=FALSE, sep="", col.names = "word")
+
+filter_words <- full_join(filter_words, stop_words)
+
+thou_twitter <- readLines("data/en_US/en_US.twitter.txt", 1000, skipNul = TRUE)
+
+thou_news <- readLines("data/en_US/en_US.news.txt", 1000, skipNul = TRUE)
+
+thou_blogs <- readLines("data/en_US/en_US.blogs.txt", 1000, skipNul = TRUE)
+```
+
+```{r}
+CleanFile <- function(file, bookname = "book", file_length = NULL){
+  
+  if(is.null(file_length)){
+    file_length <- CheckLines(file)
+  }
+  
+  df_ <- tibble(line = 1:file_length,
+                text = file,
+                book = bookname)
+  
+  df_ <- unnest_tokens(df_, word, text)
+  df_ <- anti_join(df_, filter_words, by = "word")
+  df_ <- filter(df_, !grepl("\\d+", word))
+  df_
+}
+```
+
+```{r}
+df_twitter <- CleanFile(thou_twitter, bookname = "twitter", file_length = 1000)
+
+df_news <- CleanFile(thou_news, bookname = "news", file_length = 1000)
+
+df_blogs <- CleanFile(thou_blogs, bookname = "blogs", file_length = 1000)
+
+df <- rbind(df_twitter, df_news) %>% rbind(df_blogs)
+```
+
+```{r}
+df_words <- df %>% count(book, word, sort=TRUE)
+df_total <- df_words %>% group_by(book) %>% summarise(total = sum(n))
+df_book <- left_join(df_words, df_total)
+
+freq_by_rank <- df %>% group_by(book) %>% mutate(rank = row_number(), "term frequency" = n/total) %>% ungroup()
+```
+
+```{r}
+freq_by_rank %>% 
++     ggplot(aes(rank, `term frequency`, color = book)) + 
++     geom_line(size = 1.1, alpha = 0.8, show.legend = FALSE) + 
++     scale_x_log10() +
++     scale_y_log10()
+
+```
+
+
+
+```{r}
+book_tf_idf <- df_book %>% 
+  bind_tf_idf(word, book, n)
+
+book_tf_idf %>%
+     select(-total) %>%
+     arrange(desc(tf_idf))
+
+book_tf_idf %>%
+     group_by(book) %>%
+     slice_max(tf_idf, n = 15) %>%
+     ungroup() %>%
+     ggplot(aes(tf_idf, fct_reorder(word, tf_idf), fill = book)) +
+     geom_col(show.legend = FALSE) +
+     facet_wrap(~book, ncol = 2, scales = "free") +
+     labs(x = "tf-idf", y = NULL)
+
 ```
