@@ -8,9 +8,9 @@ setwd("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone
 
 library(tidyverse)
 library(tidytext)
+library(tm)
 library(ggplot2)
 library(ggthemes)
-library(tm)
 library(SnowballC)
 library(openNLP)
 library(forcats)
@@ -149,31 +149,5 @@ book_tf_idf %>% group_by(book) %>%
 ```
 
 ```{r}
-# n-grams (pairs / triplets of words)
-# function for cleaning the files
-CleanFileNGram <- function(file, bookname = "book", file_length = NULL, n = 1){
-  
-  if(is.null(file_length)){
-    file_length <- CheckLines(file)
-  }
-  
-  df_ <- data.frame(line = 1:file_length,
-                text = file,
-                book = bookname)
-  
-  df_ <- unnest_tokens(df_, word, text, token = "ngrams", n = n)
-  df_ <- anti_join(df_, filter_words, by = "word")
-  df_ <- filter(df_, !grepl("\\d+", word))
-  df_
-}
-
-df_twitter <- CleanFileNGram(thou_twitter, bookname = "twitter", file_length = 1000, n = 2)
-
-df_news <- CleanFileNGram(thou_news, bookname = "news", file_length = 1000, n = 2)
-
-df_blogs <- CleanFileNGram(thou_blogs, bookname = "blogs", file_length = 1000, n = 2)
-
-df_2gram <- rbind(df_twitter, df_news) %>% rbind(df_blogs)
-
 
 ```
