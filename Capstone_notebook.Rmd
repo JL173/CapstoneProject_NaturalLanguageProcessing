@@ -44,27 +44,29 @@ LineMaxCharLength <- function(file){
 ```
 
 ```{r}
+# load files and stop_words/filter_words
 data(stop_words)
 
 filter_words <- read.table("text_filter.txt", header=FALSE, sep="", col.names = "word")
 
 filter_words <- full_join(filter_words, stop_words)
 
-thou_twitter <- readLines("data/en_US/en_US.twitter.txt", 1000, skipNul = TRUE)
+thou_twitter <- readLines("data/en_US/en_US.twitter.txt", 1000, skipNul = TRUE, encoding = "UTF-8")
 
-thou_news <- readLines("data/en_US/en_US.news.txt", 1000, skipNul = TRUE)
+thou_news <- readLines("data/en_US/en_US.news.txt", 1000, skipNul = TRUE, encoding = "UTF-8")
 
-thou_blogs <- readLines("data/en_US/en_US.blogs.txt", 1000, skipNul = TRUE)
+thou_blogs <- readLines("data/en_US/en_US.blogs.txt", 1000, skipNul = TRUE, encoding = "UTF-8")
 ```
 
 ```{r}
+# function for cleaning the files
 CleanFile <- function(file, bookname = "book", file_length = NULL){
   
   if(is.null(file_length)){
     file_length <- CheckLines(file)
   }
   
-  df_ <- tibble(line = 1:file_length,
+  df_ <- data.frame(line = 1:file_length,
                 text = file,
                 book = bookname)
   
@@ -76,6 +78,7 @@ CleanFile <- function(file, bookname = "book", file_length = NULL){
 ```
 
 ```{r}
+# cleaning of the files and binding to one document
 df_twitter <- CleanFile(thou_twitter, bookname = "twitter", file_length = 1000)
 
 df_news <- CleanFile(thou_news, bookname = "news", file_length = 1000)
@@ -86,25 +89,32 @@ df <- rbind(df_twitter, df_news) %>% rbind(df_blogs)
 ```
 
 ```{r}
+# tidy data of frequency of words
 df_words <- df %>% count(book, word, sort=TRUE)
+
+# document term matrix of the above
+df_dtm <- cast_dtm(df_words, term = word, document = book, value = n)
+```
+
+```{r}
+# get frequencies and summaries
 df_total <- df_words %>% group_by(book) %>% summarise(total = sum(n))
 df_book <- left_join(df_words, df_total)
-
-freq_by_rank <- df %>% group_by(book) %>% mutate(rank = row_number(), "term frequency" = n/total) %>% ungroup()
 ```
-
 ```{r}
-freq_by_rank %>% 
-+     ggplot(aes(rank, `term frequency`, color = book)) + 
-+     geom_line(size = 1.1, alpha = 0.8, show.legend = FALSE) + 
-+     scale_x_log10() +
-+     scale_y_log10()
+df_book %>% group_by(book) %>% slice_max(n, n = 15) %>%
+  ungroup() %>%
+  arrange(n) %>%
+  ggplot(aes(x = n, y = fct_reorder(word, n), fill = book)) + 
+  geom_col() + 
+  facet_wrap(~book, scales = 'free') + 
+  labs(title = "Most frequent words per document", y = NULL, x = "Frequency")
 
 ```
-
 
 
 ```{r}
+# Term frequency and Inverse-Document-Frequency.
 book_tf_idf <- df_book %>% 
   bind_tf_idf(word, book, n)
 
@@ -118,7 +128,52 @@ book_tf_idf %>%
      ungroup() %>%
      ggplot(aes(tf_idf, fct_reorder(word, tf_idf), fill = book)) +
      geom_col(show.legend = FALSE) +
-     facet_wrap(~book, ncol = 2, scales = "free") +
-     labs(x = "tf-idf", y = NULL)
+     facet_wrap(~book, scales = "free") +
+     labs(title = "Most frequent words by TF-IDF", x = "tf-idf", y = NULL)
+
+```
+
+
+```{r}
+# number of words by frequency sorted dictionary to cover % of language
+
+book_tf_idf <- book_tf_idf %>% 
+	arrange(desc(tf)) %>% 
+	group_by(book) %>% 
+	mutate(cumulative_sum = cumsum(tf))
+
+book_tf_idf %>% group_by(book) %>%
+  summarise(Nwords_50 = sum(cumulative_sum <= 0.5),
+            Nwords_90 = sum(cumulative_sum <= 0.9),
+            Nwords_100 = n())
+```
+
+```{r}
+# n-grams (pairs / triplets of words)
+# function for cleaning the files
+CleanFileNGram <- function(file, bookname = "book", file_length = NULL, n = 1){
+  
+  if(is.null(file_length)){
+    file_length <- CheckLines(file)
+  }
+  
+  df_ <- data.frame(line = 1:file_length,
+                text = file,
+                book = bookname)
+  
+  df_ <- unnest_tokens(df_, word, text, token = "ngrams", n = n)
+  df_ <- anti_join(df_, filter_words, by = "word")
+  df_ <- filter(df_, !grepl("\\d+", word))
+  df_
+}
+
+df_twitter <- CleanFileNGram(thou_twitter, bookname = "twitter", file_length = 1000, n = 2)
+
+df_news <- CleanFileNGram(thou_news, bookname = "news", file_length = 1000, n = 2)
+
+df_blogs <- CleanFileNGram(thou_blogs, bookname = "blogs", file_length = 1000, n = 2)
+
+df_2gram <- rbind(df_twitter, df_news) %>% rbind(df_blogs)
+
 
 ```
