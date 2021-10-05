@@ -9,11 +9,8 @@ setwd("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone
 library(tidyverse)
 library(tidytext)
 library(tm)
-library(ggplot2)
 library(ggthemes)
-library(SnowballC)
 library(openNLP)
-library(forcats)
 ```
 
 ```{r}
@@ -149,5 +146,10 @@ book_tf_idf %>% group_by(book) %>%
 ```
 
 ```{r}
+dtm_1 <- cast_dtm(full_tidy_dtm_1, term = word, document = document, value = n)
+
+plot(dtm_1)
+Zipf_plot(dtm_1)
+Heaps_plot(dtm_1)
 
 ```

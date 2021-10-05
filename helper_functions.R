@@ -30,6 +30,7 @@ LoadFiles <- function(directory, pattern = "*.txt", n = -1L){
   document_list
 }
 
+
 # takes dataframe input with col.names "line", "text", "document"
 # returns a clean dataframe of tokens
 # n should equal 1, 2, or 3. 4-grams and higher not yet desired
@@ -99,6 +100,48 @@ CleanTokens <- function(unclean_df, n = 1, filter_df = NULL){
 
 }
 
+
+# creates summary data of the corpus
+# total word count
+# total unique word count
+# total line count
+# min, mean, max, range, sd number of words per line
+SummaryDoc <- function(doc_list, plot = FALSE){
+  
+  df_ <- doc_list[[1]]
+  for (index in 2:length(doc_list)){
+    df_ <- rbind(df_, doc_list[[index]])
+  }
+  
+  df_ <- df_ %>% mutate(n_words = sapply(strsplit(text, " "), length))
+  
+  df_sum1 <- df_ %>%
+    group_by(document) %>%
+    summarise(lines = n(),
+              total_words = sum(n_words),
+              mean_words = mean(n_words),
+              sd_words = sd(n_words),
+              min_words = min(n_words),
+              max_words = max(n_words))
+  
+  if (plot == TRUE){
+    
+    df_ %>%
+      ggplot(aes(x = n_words, fill = document)) + 
+      geom_histogram() + 
+      facet_wrap(~document, scales = 'free') + 
+      labs(title = "Distribution of words per line",
+           y = "Frequency",
+           x = "Number of words")
+    
+  } else {
+    
+    df_sum1
+  }
+  
+}
+
+
 # takes a list of dataframes from CleanTokens
 # returns a combined tidy dataframe with frequencies
 MergeDTM <- function(document_list){
@@ -113,3 +156,89 @@ MergeDTM <- function(document_list){
   df_ <- df_ %>% count(document, word, sort=TRUE)
   
 }
+
+# Find k most frequent 'words' and-if plot them
+MostFreqTerms <- function(tidy_dtm, k = 10, plot = FALSE){
+  
+  df_ <- tidy_dtm %>%
+    group_by(document) %>%
+    slice_max(n, n = k) %>%
+    ungroup() %>%
+    arrange(n)
+  
+  if (plot == TRUE){
+    
+     df_ %>%
+      ggplot(aes(x = n, y = fct_reorder(word, n), fill = document)) + 
+      geom_col() + 
+      facet_wrap(~document, scales = 'free') + 
+      labs(title = "Most frequent words per document",
+           y = NULL,
+           x = "Frequency")
+  } else {
+    df_
+  }
+}
+
+
+# Find k most frequent 'words' by tf-idf and-if plot them
+MostFreqTFIDF <- function(tidy_dtm, k = 10, plot = FALSE){
+  
+  df_tf_idf <- tidy_dtm %>% 
+    bind_tf_idf(word, document, n) %>%
+    arrange(desc(tf_idf))
+
+  if (plot == TRUE){
+    df_tf_idf %>%
+      group_by(document) %>%
+      slice_max(tf_idf, n = k) %>%
+      ungroup() %>%
+      ggplot(aes(tf_idf, fct_reorder(word, tf_idf), fill = document)) +
+      geom_col(show.legend = FALSE) +
+      facet_wrap(~document, scales = "free") +
+      labs(title = "Most frequent words by TF-IDF",
+           x = "tf-idf",
+           y = NULL)
+  } else {
+    df_tf_idf
+  }
+}
+
+
+# Percentage of 'words' to cover document
+# percent given as a decimal
+PercentLexicon <- function(tidy_dtm, percent = NULL){
+  
+  df_tf_idf <- tidy_dtm %>% 
+    bind_tf_idf(word, document, n) %>%
+    arrange(desc(tf))%>% 
+    group_by(document) %>% 
+    mutate(cumulative_sum = cumsum(tf))
+  
+  if (is.null(percent)){
+    df_tf_idf %>% group_by(document) %>%
+      summarise('n 25%' = sum(cumulative_sum <= 0.25),
+                'n 50%' = sum(cumulative_sum <= 0.5),
+                'n 75%' = sum(cumulative_sum <= 0.75),
+                'n 90%' = sum(cumulative_sum <= 0.9),
+                'n 100%'= n())
+  } else {
+    df_tf_idf %>% group_by(document) %>%
+      summarise(percent = sum(cumulative_sum <= percent))
+  }
+}
+
+
+### Building an n-gram model
+### Read 'Language Modeling' slides
+### need P(single word chosen)
+### need P(word, given one previous)
+### need P(word, given two previous)
+###
+### consider when one word of a unigram/bigram isn't in corpus
+### 1. choose most likely wihtin corpus?
+### (? > max(P), or a, ? > max(P))
+### 2. use previous word as indicator for next
+### (a, ? > max(P|a), or (?, a > max(P|a) [bigram model])) 
+###
+### consider efficiency methods of cutting corpus to PercentLexicon cover
