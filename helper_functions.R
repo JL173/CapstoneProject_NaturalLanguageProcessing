@@ -231,10 +231,26 @@ PercentLexicon <- function(tidy_dtm, percent = NULL){
 
 ### Building an n-gram model
 ### Read 'Language Modeling' slides
-### need P(single word chosen)
+### need P(single word chosen) x
+
+WordFreqProb <- function(tidy_dtm, n = NULL){
+  
+  words <- tidy_dtm %>%
+    group_by(word) %>%
+    summarise(freq = sum(n)) %>%
+    arrange(desc(freq)) %>%
+    mutate(p = freq / sum(freq))
+  
+  if (is.null(n) == FALSE){
+    words <- slice_head(words, n = n)
+  }
+  words
+}
+
 ### need P(word, given one previous)
 ### need P(word, given two previous)
-###
+### >>> check notes in book re: probs
+
 ### consider when one word of a unigram/bigram isn't in corpus
 ### 1. choose most likely wihtin corpus?
 ### (? > max(P), or a, ? > max(P))
