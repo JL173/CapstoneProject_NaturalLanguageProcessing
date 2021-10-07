@@ -249,7 +249,7 @@ WordFreqProb <- function(tidy_dtm, n = NULL){
 
 ### need P(word, given one previous)
 ### need P(word, given two previous)
-### >>> check notes in book re: probs
+### >>> check notebook in book re: probs
 
 ### consider when one word of a unigram/bigram isn't in corpus
 ### 1. choose most likely wihtin corpus?

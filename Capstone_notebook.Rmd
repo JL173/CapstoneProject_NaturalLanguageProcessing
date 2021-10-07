@@ -153,3 +153,37 @@ Zipf_plot(dtm_1)
 Heaps_plot(dtm_1)
 
 ```
+
+```{r}
+# calculating probabilities of 'next word'
+
+base_1000 <- LoadFiles("data/en_US/", n = 1000)
+tidy_1 <- lapply(base_1000, CleanTokens, n = 1) %>% MergeDTM()
+tidy_2 <- lapply(base_1000, CleanTokens, n = 2) %>% MergeDTM()
+tidy_3 <- lapply(base_1000, CleanTokens, n = 3) %>% MergeDTM()
+
+unigrams <- WordFreqProb(tidy_1, n = 2000)
+bigrams <- WordFreqProb(tidy_2)
+trigrams <- WordFreqProb(tidy_3)
+
+unigram_probs <- unigrams
+
+bigram_probs <- bigrams %>%
+  left_join(unigrams, by = c("word1" = "word"), suffix = c(".x", ".y")) %>% 
+  mutate(P = freq.x / freq.y) %>%
+  drop_na() %>%
+  select(-c("p.x", "p.y")) %>% 
+  arrange(word1, desc(P))
+
+trigram_probs <- separate(trigrams, word, c("word1", "word2", "word3"), sep = " ") %>% 
+  unite(col = word, word1, word2, sep = " ", na.rm = TRUE) %>%
+  left_join(unite(bigrams, col = word, word1, word2, sep = " "), by = c("word" = "word"), suffix = c(".x", ".y")) %>%
+  drop_na() %>%
+  mutate(P = freq.x / freq.y) %>%
+  select(-c("p.x", "p.y")) %>%
+  arrange(word, desc(P))
+
+
+
+
+```
