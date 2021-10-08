@@ -31,73 +31,125 @@ LoadFiles <- function(directory, pattern = "*.txt", n = -1L){
 }
 
 
+# split dataframe for efficiency
+SplitDF <- function(df, size = 5e6){
+  #5e6 = 50mb
+  chunks <- object.size(df) %>%
+    as.numeric()/size
+  chunks <- as.integer(chunks +1)
+  
+  N <- as.integer(nrow(df) / chunks) + 1
+  
+  df_chunks <- split(df, (as.numeric(rownames(df)) - 1) %/% N)
+  df_chunks
+}
+
+
+# takes list of lists of dataframes
+# turns into one list of dataframes
+# more efficient memory tasking for large dataframes
+UnlistDF <- function(df_list, size = 5e6){
+  list <- lapply(df_list, SplitDF, size) %>%
+    unlist(recursive = F)
+  list
+}
+
+
+
+## Parts Of Speech annotator for a string
+POSstring <- function(string){
+  initial_result = string %>% 
+    annotate(list(Maxent_Sent_Token_Annotator(),
+                  Maxent_Word_Token_Annotator())) %>% 
+    annotate(string, Maxent_POS_Tag_Annotator(), .) %>% 
+    subset(type=='word') 
+  
+  sapply(initial_result$features , '[[', "POS") %>%
+    paste(collapse = " ")
+}
+
+## POS summary
+## Takes a dataframe, calculates POS tags and summarises
+
+POSsumDF <- function(df){
+  options(java.parameters = "-Xmx8000m")
+  
+  df["text"] <- lapply(df["text"], POSstring)
+  
+  df_pos <- CleanTokens(df, n = 1) %>%
+    group_by(document, word) %>%
+    summarise(total = n())
+}
+
+
+
 # takes dataframe input with col.names "line", "text", "document"
 # returns a clean dataframe of tokens
 # n should equal 1, 2, or 3. 4-grams and higher not yet desired
 CleanTokens <- function(unclean_df, n = 1, filter_df = NULL){
   
   if (n == 1){
-      df_ <- unnest_tokens(tbl = unclean_df,
-                           output = word,
-                           input = text,
-                           token = "words",
-                           to_lower = TRUE)
-      
-      # apply filterwords if provided
-      if(!(is.null(filter_df))){
-        df_ <- df_ %>% anti_join(filter_df, by = "word")
-      }
-      
-    } else {
-      df_ <- unnest_tokens(tbl = unclean_df,
-                           output = word,
-                           input = text,
-                           token = "ngrams",
-                           n = n,
-                           to_lower = TRUE)
-      
-      # apply filterwords if provided
-      if(!(is.null(filter_df))){
-        if (n == 2){
-          
-          df_ <- df_ %>% separate(word,
-                                  c("word1", "word2"),
-                                  sep = " ")
-          
-          df_ <- df_ %>%
-            anti_join(filter_df, by = c("word1" = "word")) %>%
-            anti_join(filter_df, by = c("word2" = "word"))
-          
-          df_ <- df_ %>%
-            unite(word, word1, word2, sep = " ")
-          
-        } else if (n == 3){
-          
-          df_ <- df_ %>% separate(word,
-                                  c("word1", "word2", "word3"),
-                                  sep = " ")
-          
-          df_ <- df_ %>%
-            anti_join(filter_df, by = c("word1" = "word")) %>%
-            anti_join(filter_df, by = c("word2" = "word")) %>%
-            anti_join(filter_df, by = c("word3" = "word")) 
-          
-          df_ <- df_ %>%
-            unite(word, word1, word2, word3, sep = " ")
-          
-          }
-        }
-      
+    df_ <- unnest_tokens(tbl = unclean_df,
+                         output = word,
+                         input = text,
+                         token = "words",
+                         to_lower = TRUE)
+    
+    # apply filterwords if provided
+    if(!(is.null(filter_df))){
+      df_ <- df_ %>% anti_join(filter_df, by = "word")
     }
-
-    # remove entries with numbers present
-    df_ <- filter(df_, !grepl(".*\\d+.*", word))
     
-    # remove a common error
-    df_ <- filter(df_, !grepl("^NA$|^NA NA$|^NA NA NA$", word))
+  } else {
+    df_ <- unnest_tokens(tbl = unclean_df,
+                         output = word,
+                         input = text,
+                         token = "ngrams",
+                         n = n,
+                         to_lower = TRUE)
     
-    df_
-
+    # apply filterwords if provided
+    if(!(is.null(filter_df))){
+      if (n == 2){
+        
+        df_ <- df_ %>% separate(word,
+                                c("word1", "word2"),
+                                sep = " ")
+        
+        df_ <- df_ %>%
+          anti_join(filter_df, by = c("word1" = "word")) %>%
+          anti_join(filter_df, by = c("word2" = "word"))
+        
+        df_ <- df_ %>%
+          unite(word, word1, word2, sep = " ")
+        
+      } else if (n == 3){
+        
+        df_ <- df_ %>% separate(word,
+                                c("word1", "word2", "word3"),
+                                sep = " ")
+        
+        df_ <- df_ %>%
+          anti_join(filter_df, by = c("word1" = "word")) %>%
+          anti_join(filter_df, by = c("word2" = "word")) %>%
+          anti_join(filter_df, by = c("word3" = "word")) 
+        
+        df_ <- df_ %>%
+          unite(word, word1, word2, word3, sep = " ")
+        
+      }
+    }
+    
+  }
+  
+  # remove entries with numbers present
+  df_ <- filter(df_, !grepl(".*\\d+.*", word))
+  
+  # remove a common error
+  df_ <- filter(df_, !grepl("^NA$|^NA NA$|^NA NA NA$", word))
+  
+  df_
+  
 }
 
 
@@ -128,7 +180,8 @@ SummaryDoc <- function(doc_list, plot = FALSE){
     
     df_ %>%
       ggplot(aes(x = n_words, fill = document)) + 
-      geom_histogram() + 
+      geom_histogram(bins = 100) + 
+      xlim(0, 200) +
       facet_wrap(~document, scales = 'free') + 
       labs(title = "Distribution of words per line",
            y = "Frequency",
@@ -142,8 +195,8 @@ SummaryDoc <- function(doc_list, plot = FALSE){
 }
 
 
-# takes a list of dataframes from CleanTokens
-# returns a combined tidy dataframe with frequencies
+# takes a list of dataframes
+# returns a combined tidy dataframe
 MergeDTM <- function(document_list){
   
   df_ <- document_list[[1]]
@@ -153,7 +206,7 @@ MergeDTM <- function(document_list){
     
   }
   
-  df_ <- df_ %>% count(document, word, sort=TRUE)
+  df_
   
 }
 
@@ -168,7 +221,7 @@ MostFreqTerms <- function(tidy_dtm, k = 10, plot = FALSE){
   
   if (plot == TRUE){
     
-     df_ %>%
+    df_ %>%
       ggplot(aes(x = n, y = fct_reorder(word, n), fill = document)) + 
       geom_col() + 
       facet_wrap(~document, scales = 'free') + 
@@ -187,7 +240,7 @@ MostFreqTFIDF <- function(tidy_dtm, k = 10, plot = FALSE){
   df_tf_idf <- tidy_dtm %>% 
     bind_tf_idf(word, document, n) %>%
     arrange(desc(tf_idf))
-
+  
   if (plot == TRUE){
     df_tf_idf %>%
       group_by(document) %>%
