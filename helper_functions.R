@@ -22,6 +22,9 @@ LoadFiles <- function(directory, pattern = "*.txt", n = -1L){
                   text = document,
                   document = shortnames[index])
     
+    #data.table format
+    setDF(df_)
+    
     # list of dataframes
     document_list[[index]] <- df_
     
@@ -29,6 +32,7 @@ LoadFiles <- function(directory, pattern = "*.txt", n = -1L){
   
   document_list
 }
+
 
 
 # split dataframe for efficiency
@@ -43,6 +47,7 @@ SplitDF <- function(df, size = 5e6){
   df_chunks <- split(df, (as.numeric(rownames(df)) - 1) %/% N)
   df_chunks
 }
+
 
 
 # takes list of lists of dataframes
@@ -68,9 +73,10 @@ POSstring <- function(string){
     paste(collapse = " ")
 }
 
+
+
 ## POS summary
 ## Takes a dataframe, calculates POS tags and summarises
-
 POSsumDF <- function(df){
   options(java.parameters = "-Xmx8000m")
   
@@ -80,6 +86,55 @@ POSsumDF <- function(df){
     group_by(document, word) %>%
     summarise(total = n())
 }
+
+
+
+# Function to create POS_summary dataframe from file_folder
+# Memory constraints and time need consideration with size and chunks
+POSsummaryDF <- function(filepath, size = 1e5, chunks = 150){
+  
+  #create chunks to optimise memory usage
+  base_chunks <- UnlistDF(LoadFiles(filepath), size = 1e5)
+  
+  #create further chunks to optimise RAM for java.parameters
+  chunk_number = chunks
+  base_chunks_chunks <- split(base_chunks,
+                              cut(seq_along(base_chunks),
+                                  chunk_number,
+                                  labels = FALSE))
+  #remove uneeded temp files
+  rm(base_chunks)
+  
+  #initialise list
+  POS_summary_list <- list()
+  for (index in 1:length(base_chunks_chunks)){
+    gc()
+    options(java.parameters = "-Xmx16000m")
+    
+    temp_list_ <- lapply(base_chunks_chunks[[index]], POSsumDF)
+    
+    POS_summary_list <- c(POS_summary_list, MergeDTM(temp_list_))
+    rm(temp_list_)
+    print(index)
+  }
+  
+  length <- length(POS_summary_list)/3 - 1
+  
+  #initialise dataframe
+  df_ <- data.table(document = POS_summary_list[[1]],
+                    POS = POS_summary_list[[2]],
+                    total = POS_summary_list[[3]])
+  
+  for (index in 1:length){
+    temp_df <- data.table(document = POS_summary_list[[3*index+1]],
+                          POS = POS_summary_list[[3*index+2]],
+                          total = POS_summary_list[[3*index+3]])
+    
+    df_ <- rbind(df_, temp_df)
+  }
+  df_
+}
+
 
 
 
@@ -153,6 +208,7 @@ CleanTokens <- function(unclean_df, n = 1, filter_df = NULL){
 }
 
 
+
 # creates summary data of the corpus
 # total word count
 # total unique word count
@@ -195,6 +251,7 @@ SummaryDoc <- function(doc_list, plot = FALSE){
 }
 
 
+
 # takes a list of dataframes
 # returns a combined tidy dataframe
 MergeDTM <- function(document_list){
@@ -209,6 +266,8 @@ MergeDTM <- function(document_list){
   df_
   
 }
+
+
 
 # Find k most frequent 'words' and-if plot them
 MostFreqTerms <- function(tidy_dtm, k = 10, plot = FALSE){
@@ -232,6 +291,7 @@ MostFreqTerms <- function(tidy_dtm, k = 10, plot = FALSE){
     df_
   }
 }
+
 
 
 # Find k most frequent 'words' by tf-idf and-if plot them
@@ -258,6 +318,7 @@ MostFreqTFIDF <- function(tidy_dtm, k = 10, plot = FALSE){
 }
 
 
+
 # Percentage of 'words' to cover document
 # percent given as a decimal
 PercentLexicon <- function(tidy_dtm, percent = NULL){
@@ -282,10 +343,10 @@ PercentLexicon <- function(tidy_dtm, percent = NULL){
 }
 
 
+
 ### Building an n-gram model
 ### Read 'Language Modeling' slides
 ### need P(single word chosen) x
-
 WordFreqProb <- function(tidy_dtm, n = NULL){
   
   words <- tidy_dtm %>%

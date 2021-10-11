@@ -5,15 +5,31 @@ output:
     df_print: paged
 ---
 
-```{r results='hide', message=FALSE, echo=FALSE}
+```{r results='hide', message=FALSE, echo=FALSE, warning=FALSE}
+# working directory
 setwd("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing")
 
+# modules
 library(tidyverse)
 library(tidytext)
 library(tm)
 library(openNLP)
+library(data.table)
+library(parallel)
+library(doParallel)
 
+# helper functions
 source("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/helper_functions.R")
+
+# Load tidy dtm
+load("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/full_tidy_dtm_ALL.RData")
+
+setDT(full_tidy_dtm_1)
+setDT(full_tidy_dtm_2)
+setDT(full_tidy_dtm_3)
+
+# Load POS_summary_df dataframe
+load("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/POS_summary_df.Rda")
 ```
 
 # Data
@@ -24,44 +40,76 @@ Restricting ourselves to the "English" data, we have three documents. Twitter, B
 
 We can see some distinct differences between these documents with the following summary.
 
-```{r cache=TRUE, message=FALSE}
+```{r cache=TRUE, message=FALSE, echo=FALSE, warning=FALSE}
 base_files <- LoadFiles("data/en_US/")
 ```
 
-```{r cache = TRUE}
+```{r cache = TRUE, echo=FALSE, warning=FALSE}
 SummaryDoc(base_files)
 ```
 Blogs has the most words, yet the second-most entries, and with the largest mean number of words per entry. That is, the entries tend to have more words than any other document. However the high standard-deviation means they are more variable overall. Understandably, Twitter is the most restricted, however the ease of collection means we have the most entries. This restriction also reflects the smaller standard-deviation in number of words.
 
 We can see these differences in distributions better with the following plot.
 
-```{r cache = TRUE}
+```{r cache = TRUE, echo = FALSE, fig.height=5, fig.width=8}
 SummaryDoc(base_files, plot = TRUE)
 ```
 
 We can also investigate the most frequently used words for each document.
 
-```{r cache = TRUE, message=FALSE}
+```{r cache = TRUE, echo=FALSE, fig.height=5, fig.width=8, warning=FALSE}
+full_tidy_dtm_1 %>% group_by(document) %>% slice_max(n, n = 15) %>%
+  ungroup() %>%
+  arrange(n) %>%
+  ggplot(aes(x = n, y = fct_reorder(word, n), fill = document)) + 
+  geom_col() + 
+  facet_wrap(~document, scales = 'free') + 
+  labs(title = "Most frequent words per document", y = NULL, x = "Frequency")
 
 ```
 
 We can see that ################
 
-Looking further at most frequent bigrams and trigrams, we create complementary plots for analysis.
+Looking further at most frequent bigrams and trigrams, we can create complementary plots for analysis.
 
-```{r cache= TRUE}
-
+```{r cache= TRUE, echo=FALSE, fig.height=5, fig.width=12, warning=FALSE}
+full_tidy_dtm_2 %>% group_by(document) %>% slice_max(n, n = 15) %>%
+  ungroup() %>%
+  arrange(n) %>%
+  ggplot(aes(x = n, y = fct_reorder(word, n), fill = document)) + 
+  geom_col() + 
+  facet_wrap(~document, scales = 'free') + 
+  labs(title = "Most frequent Bigrams per document", y = NULL, x = "Frequency")
 ```
+
+
+```{r cache= TRUE, echo=FALSE, fig.height=5, fig.width=16, warning=FALSE}
+full_tidy_dtm_3 %>% group_by(document) %>% slice_max(n, n = 15) %>%
+  ungroup() %>%
+  arrange(n) %>%
+  ggplot(aes(x = n, y = fct_reorder(word, n), fill = document)) + 
+  geom_col() + 
+  facet_wrap(~document, scales = 'free') + 
+  labs(title = "Most frequent Trigrams per document", y = NULL, x = "Frequency")
+```
+
 
 We can see that ###############
 
 Looking at the 'Term-Frequency / Inverse-Term-Frequency' (how "unique" a word is to that document) for each document, we have the following.
 
-```{r cache = TRUE, message = FALSE}
-
+```{r cache = TRUE, message = FALSE, echo=FALSE, fig.height=5, fig.width=8, warning=FALSE}
+MostFreqTFIDF(full_tidy_dtm_1, plot = TRUE)
 ```
 
 We can see that #################
+
+```{r cache=TRUE, echo=FALSE, warning=FALSE}
+PercentLexicon(full_tidy_dtm_1)
+```
+
+This table shows us the number of words, sorted by frequency, needed to cover the whole document. Twitter needs the fewest words to cover half of the document, but all converge to relatively similar amounts to attain the higher percentage coverage. It may be possible to improve this, but including a dictionary of the most common words of the English language, on top of these documents. However, we'll leave that as exploration for future optimisation.
+
 
 Lastly, if we inspect the Parts Of Speech for each document, we can gain a further insight into the types of writing that occurs in each. We can use the following table to understand each 'tag'.
 
@@ -69,9 +117,16 @@ Lastly, if we inspect the Parts Of Speech for each document, we can gain a furth
 
 Plotting the counts of each of these,
 
-```{r cache= TRUE, message=FALSE}
-
+```{r cache= TRUE, message=FALSE, fig.height=5, fig.width=8, warning=FALSE}
+POS_summary_df %>% group_by(document) %>%
+  mutate(PFreq = total/n()) %>%
+  arrange(PFreq) %>%
+  ggplot(aes(x = PFreq, y = fct_reorder(POS, PFreq), fill = document)) + 
+  geom_col() + 
+  facet_wrap(~document, scales = 'fixed') + 
+  labs(title = "Most frequent POS per line per document", y = NULL, x = "Frequency")
 ```
+
 
 We can see that ##################
 
