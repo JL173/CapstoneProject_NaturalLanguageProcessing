@@ -29,3 +29,6 @@ Milestone_01_cache/html/unnamed-chunk-6_3be1435972e411d644bbc25cd568800a.RData
 *.rdb
 *.rdx
 *.RData
+output/full_tidy_dtm_1.csv
+output/full_tidy_dtm_2.csv
+output/full_tidy_dtm_3.csv
