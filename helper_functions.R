@@ -35,6 +35,61 @@ LoadFiles <- function(directory, pattern = "*.txt", n = -1L){
 
 
 
+# LoadFiles with sampling
+SampleLoadFiles <- function(directory, pattern = "*.txt", n = 1000, seed = NULL){
+  filenames <- list.files(directory, pattern = pattern, full.names = TRUE)
+  shortnames <- list.files(directory, pattern = pattern, full.names = FALSE)
+  
+  document_list <- list()
+  
+  for(index in 1:length(filenames)){
+    
+    #find length of document
+    nlines <- countLines(filenames[index])
+    
+    
+    #generate sample indicies
+    if (!is.null(seed)){
+      set.seed(seed)
+    }
+    sample <- as.integer(runif(n, min = 1, max = nlines))
+    
+    document <- c()
+    
+    #sample reading
+    for (jndex in sample){
+      
+      #reading
+      document_line <- read_lines(filenames[index],
+                                  skip = jndex-1,
+                                  skip_empty_rows = TRUE,
+                                  n_max = 1,
+                                  locale = default_locale())
+      
+      #stemming
+      document_line <- stemDocument(document_line)
+      
+      document <- c(document, document_line)
+    }
+    
+    #dataframe
+    df_ <- tibble(line = 1:length(document),
+                  text = document,
+                  document = shortnames[index])
+    
+    #data.table format
+    setDF(df_)
+    
+    # list of dataframes
+    document_list[[index]] <- df_
+    
+  }
+  
+  document_list
+} 
+  
+
+
 # split dataframe for efficiency
 SplitDF <- function(df, size = 5e6){
   #5e6 = 50mb
@@ -347,16 +402,16 @@ PercentLexicon <- function(tidy_dtm, percent = NULL){
 ### Building an n-gram model
 ### Read 'Language Modeling' slides
 ### need P(single word chosen) x
-WordFreqProb <- function(tidy_dtm, n = NULL){
+WordFreqProb <- function(tidy_dtm, k = NULL){
   
   words <- tidy_dtm %>%
     group_by(word) %>%
-    summarise(freq = sum(n)) %>%
+    summarise(freq = sum(n())) %>%
     arrange(desc(freq)) %>%
     mutate(p = freq / sum(freq))
   
-  if (is.null(n) == FALSE){
-    words <- slice_head(words, n = n)
+  if (is.null(k) == FALSE){
+    words <- slice_head(words, n = k)
   }
   words
 }

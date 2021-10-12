@@ -162,28 +162,44 @@ tidy_1 <- lapply(base_1000, CleanTokens, n = 1) %>% MergeDTM()
 tidy_2 <- lapply(base_1000, CleanTokens, n = 2) %>% MergeDTM()
 tidy_3 <- lapply(base_1000, CleanTokens, n = 3) %>% MergeDTM()
 
-unigrams <- WordFreqProb(tidy_1, n = 2000)
+unigrams <- WordFreqProb(tidy_1, k = 2000)
 bigrams <- WordFreqProb(tidy_2)
 trigrams <- WordFreqProb(tidy_3)
 
 unigram_probs <- unigrams
 
+
+# split bigram word into two words
+# join on the first word with unigram
+# add freq columns of first word and second
+# calculate probability
+# sort
 bigram_probs <- bigrams %>%
+  separate(word, c("word1", "word2"), sep = " ") %>% 
   left_join(unigrams, by = c("word1" = "word"), suffix = c(".x", ".y")) %>% 
   mutate(P = freq.x / freq.y) %>%
   drop_na() %>%
   select(-c("p.x", "p.y")) %>% 
   arrange(word1, desc(P))
 
-trigram_probs <- separate(trigrams, word, c("word1", "word2", "word3"), sep = " ") %>% 
+
+# split trigram word into three words
+# unite the first two words to match bigram
+# join on the two words with bigram
+# add freq columns of first word and second
+# calculate probability
+# sort
+trigram_probs <- trigrams %>%
+  separate(word, c("word1", "word2", "word3"), sep = " ") %>% 
   unite(col = word, word1, word2, sep = " ", na.rm = TRUE) %>%
-  left_join(unite(bigrams, col = word, word1, word2, sep = " "), by = c("word" = "word"), suffix = c(".x", ".y")) %>%
+  left_join(bigrams, by = c("word" = "word"), suffix = c(".x", ".y")) %>%
   drop_na() %>%
   mutate(P = freq.x / freq.y) %>%
   select(-c("p.x", "p.y")) %>%
   arrange(word, desc(P))
 
 
-
+# possible size save, only store the most likely
+# predictions. Top 5? 10? 20? for each predictor
 
 ```

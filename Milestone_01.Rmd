@@ -32,11 +32,15 @@ setDT(full_tidy_dtm_3)
 load("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/POS_summary_df.Rda")
 ```
 
-# Data
+# Milestone Report One - JLG Oct 21
+
+A progress report on a Natural Language Processing capstone project
+
+## Data
 
 Restricting ourselves to the "English" data, we have three documents. Twitter, Blogs, and News. Each file contains a string per line, where each line is an 'entry'. For all files, the length of these strings varies, however we should note that Twitter entries, 'tweets' are limited to 280-characters (140 prior to the increase)
 
-# Exploratory Analysis
+## Exploratory Analysis
 
 We can see some distinct differences between these documents with the following summary.
 
@@ -55,7 +59,7 @@ We can see these differences in distributions better with the following plot.
 SummaryDoc(base_files, plot = TRUE)
 ```
 
-We can also investigate the most frequently used words for each document.
+For all documents, we have a large number of documents with very few words. Whilst this is expected for Twitter, both Blogs and News have large peaks at the lower numbers also. This is most likely due to summaries and titles that have been obtained, over full articles. We can also investigate the most frequently used words for each document.
 
 ```{r cache = TRUE, echo=FALSE, fig.height=5, fig.width=8, warning=FALSE}
 full_tidy_dtm_1 %>% group_by(document) %>% slice_max(n, n = 15) %>%
@@ -68,7 +72,7 @@ full_tidy_dtm_1 %>% group_by(document) %>% slice_max(n, n = 15) %>%
 
 ```
 
-We can see that ################
+We can see that Blogs have a focus on time (time, day, start) and on personal connections (love, people, life, feel). News also has a focus on time (time, day, season) but more business (citi, percent, season, team) and culture links (people, school, home). Twitter, much alike Blogs, has a strong focus on time (time, day), personal (happi, people, hope, feel) and inter-account connections (rt [retweet], follow). As one may expect, both Twitter and Blogs appear much more personal than the News.
 
 Looking further at most frequent bigrams and trigrams, we can create complementary plots for analysis.
 
@@ -94,15 +98,15 @@ full_tidy_dtm_3 %>% group_by(document) %>% slice_max(n, n = 15) %>%
 ```
 
 
-We can see that ###############
+We can see that both Twitter and Blogs still focus on personal and time-like n-grams, and News becomes even more so politically and financially focused. Trigrams are mostly dominated by holidays and special-occasions for Twitter. However, for blogs, this is dominated by sponsorship and tags of popular sites commonly used for hosting blogs.
 
-Looking at the 'Term-Frequency / Inverse-Term-Frequency' (how "unique" a word is to that document) for each document, we have the following.
+Looking at the 'Term-Frequency / Inverse-Document-Frequency' (how "unique" a word is to that document) for each document, we have the following.
 
 ```{r cache = TRUE, message = FALSE, echo=FALSE, fig.height=5, fig.width=8, warning=FALSE}
 MostFreqTFIDF(full_tidy_dtm_1, plot = TRUE)
 ```
 
-We can see that #################
+We can see that congratulatory words and condolences are most unique to Twitter. Where messages are short and concise. Blogs have personal words most unique to them, such as 'favourite', but also 'colour' and 'flavour' which form part of many art-like blogs and opinion pieces. News is the most distinct of the three. It has very specific and select words most unique to it. From the wide range of topics that could be covered in the news, it should not be surprising that these words are unfamiliar.
 
 ```{r cache=TRUE, echo=FALSE, warning=FALSE}
 PercentLexicon(full_tidy_dtm_1)
@@ -124,20 +128,21 @@ POS_summary_df %>% group_by(document) %>%
   ggplot(aes(x = PFreq, y = fct_reorder(POS, PFreq), fill = document)) + 
   geom_col() + 
   facet_wrap(~document, scales = 'fixed') + 
-  labs(title = "Most frequent POS per line per document", y = NULL, x = "Frequency")
+  labs(title = "Most frequent POS per document", y = NULL, x = "Frequency - Normalised by document length")
 ```
 
 
-We can see that ##################
+We can see that all three documents follow the same general pattern of language, but it is in the subtle differences that are most interesting. Such as the much lower levels of 'prp' (Personal Pronouns) used in News. This is expected as the News is designed to be impersonal and written in a standard format. This is a clear identification of a sentence belonging to the News document. Simiarly, Blogs has a much lower level of 'nnp' (Proper Noun, plural) that the other documents. Possibly due to the personal nature of Blogs, that the lower level of 'plurality' in the use of nouns. Twitter has a larger number of 'vb' (Verb Base form) than the other two documents. Likely due to the nature of tweets, the short format forces simpler language to be used to maximise the use of a tweet.
 
 
-# Goals
+## Goals
 
 From calculating the above, we already have a lot of functions that are useful going forward. Especially so with the fact that one goal is to be able to apply this method to any folder of text documents. To present these clearly, the following goals are kept in mind
 
 - Utilise functions to ensure reproducibility
 - Employ efficient algorithms to counteract file size
 - Calculate Markov Chain probabilities of unigrams, bigrams, and trigrams for modelling
-- Create a function that uses the above to predict the enext word from a string of any length
+- Create a function that uses the above to predict the next word from a string of any length
 - Create a function that can append a 'list of strings' to the probabilities matrix and 'update' it
+- Possible sentiment analysis from a line of text, leading to overall sentiment analysis of a document.
 - Research appropriate ways to measure accuracy of predictions
