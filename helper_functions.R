@@ -1,6 +1,6 @@
 # Read in all txt files from a directory as a list of files
 # Returns a list of dataframes
-LoadFiles <- function(directory, pattern = "*.txt", n = -1L){
+LoadFiles <- function(directory, pattern = "*.txt", stem = TRUE, n = -1L){
   filenames <- list.files(directory, pattern = pattern, full.names = TRUE)
   shortnames <- list.files(directory, pattern = pattern, full.names = FALSE)
   
@@ -15,7 +15,9 @@ LoadFiles <- function(directory, pattern = "*.txt", n = -1L){
                           encoding = "UTF-8")
     
     #stemming
-    document <- stemDocument(document)
+    if (stem == TRUE){
+      document <- stemDocument(document)
+    }
     
     #dataframe
     df_ <- tibble(line = 1:length(document),
@@ -36,7 +38,7 @@ LoadFiles <- function(directory, pattern = "*.txt", n = -1L){
 
 
 # LoadFiles with sampling
-SampleLoadFiles <- function(directory, pattern = "*.txt", n = 1000, seed = NULL){
+SampleLoadFiles <- function(directory, pattern = "*.txt", stem = TRUE, n = 1000, seed = NULL){
   filenames <- list.files(directory, pattern = pattern, full.names = TRUE)
   shortnames <- list.files(directory, pattern = pattern, full.names = FALSE)
   
@@ -67,7 +69,9 @@ SampleLoadFiles <- function(directory, pattern = "*.txt", n = 1000, seed = NULL)
                                   locale = default_locale())
       
       #stemming
-      document_line <- stemDocument(document_line)
+      if (stem == TRUE){
+        document_line <- stemDocument(document_line)
+      }
       
       document <- c(document, document_line)
     }
@@ -376,7 +380,7 @@ MostFreqTFIDF <- function(tidy_dtm, k = 10, plot = FALSE){
 
 # Percentage of 'words' to cover document
 # percent given as a decimal
-PercentLexicon <- function(tidy_dtm, percent = NULL){
+PercentDocLexicon <- function(tidy_dtm, percent = NULL){
   
   df_tf_idf <- tidy_dtm %>% 
     bind_tf_idf(word, document, n) %>%
@@ -408,7 +412,7 @@ WordFreqProb <- function(tidy_dtm, k = NULL){
     group_by(word) %>%
     summarise(freq = sum(n())) %>%
     arrange(desc(freq)) %>%
-    mutate(p = freq / sum(freq))
+    mutate(P = freq / sum(freq))
   
   if (is.null(k) == FALSE){
     words <- slice_head(words, n = k)
@@ -416,14 +420,234 @@ WordFreqProb <- function(tidy_dtm, k = NULL){
   words
 }
 
-### need P(word, given one previous)
-### need P(word, given two previous)
-### >>> check notebook in book re: probs
 
-### consider when one word of a unigram/bigram isn't in corpus
-### 1. choose most likely wihtin corpus?
-### (? > max(P), or a, ? > max(P))
-### 2. use previous word as indicator for next
-### (a, ? > max(P|a), or (?, a > max(P|a) [bigram model])) 
-###
-### consider efficiency methods of cutting corpus to PercentLexicon cover
+
+# Significant memory storage save by collecting only top n entries
+TopNProbFreq <- function(df, k = 3){
+  
+  if ("word4" %in% colnames(df)){
+    df <- df %>% group_by(word1, word2, word3) %>%
+      slice_max(order_by = P, n = k) %>%
+      arrange(desc(P))
+    
+  } else if ("word3" %in% colnames(df)){
+    df <- df %>% group_by(word1, word2) %>%
+      slice_max(order_by = P, n = k) %>%
+      arrange(desc(P))
+    
+  } else if ("word2" %in% colnames(df)){
+    df <- df %>% group_by(word1) %>%
+      slice_max(order_by = P, n = k) %>%
+      arrange(desc(P))
+  }
+  
+  df
+}
+
+
+
+# Create probability table
+CreateProbTable <- function(unigram, bigram, trigram){
+  
+  # split bigram word into two words
+  # join on the first word with unigram
+  # add freq columns of first word and second
+  # calculate probability
+  # sort
+  bigram_probs <- bigram %>%
+    separate(word, c("word1", "word2"), sep = " ") %>%
+    left_join(unigram, by = c("word1" = "word"), suffix = c(".x", ".y")) %>% 
+    mutate(P = freq.x / freq.y) %>%
+    drop_na() %>%
+    select(-c("P.x", "P.y")) %>% 
+    arrange(word1, desc(freq.y))
+  
+  # split trigram word into three words
+  # unite the first two words to match bigram
+  # join on the two words with bigram
+  # add freq columns of first word and second
+  # calculate probability
+  # sort
+  trigram_probs <- trigram %>%
+    separate(word, c("word1", "word2", "word3"), sep = " ") %>% 
+    unite(col = word, word1, word2, sep = " ", na.rm = TRUE) %>%
+    left_join(bigram, by = c("word" = "word"), suffix = c(".x", ".y")) %>%
+    drop_na() %>%
+    mutate(P = freq.x / freq.y) %>%
+    select(-c("P.x", "P.y")) %>%
+    arrange(word, desc(freq.y))
+  
+  # formatting
+  unigram_probs <- rename(unigram, word1 = word)
+  unigram_probs <- unigram_probs %>%
+    select(c("word1", "P")) %>%
+    drop_na()
+  unigram_probs[, "word2"] <- NA
+  unigram_probs[, "word3"] <- NA
+  
+  # formatting
+  bigram_probs <- bigram_probs %>%
+    select(c("word1", "word2", "P")) %>%
+    drop_na()
+  bigram_probs[, "word3"] <- NA
+  
+  # formatting
+  trigram_probs <- trigram_probs %>%
+    separate(word, c("word1", "word2")) %>%
+    select(c("word1", "word2", "word3", "P")) %>%
+    drop_na()
+  
+  # store only top '3' results of each
+  bigram_probs <- bigram_probs %>% TopNProbFreq(k = 3)
+  trigram_probs <- trigram_probs %>% TopNProbFreq(k = 3)
+  
+  # combine prob tables of all three
+  prob_table <- rbind(unigram_probs, bigram_probs, trigram_probs) %>%
+    select(order(colnames(.)))
+  
+  prob_table
+}
+
+
+
+# Random 'k' word1 from unigrams
+RandomUnigram <- function(unigram_ptable, k = 3){
+  sample <- sample(seq_len(nrow(unigram_ptable)),
+                   size = k,
+                   prob = unigram_ptable$P)
+  unigram_ptable[sample, "word1", order("P")]
+}
+
+
+
+# Take a string and find last 3,2,1 words for searching
+StringTailngram <- function(string, ngram = 3){
+  
+  str <- removePunctuation(string)
+  
+  #split string into separate tokens
+  str <- as.list(strsplit(str, '\\s+')[[1]])
+  
+  str_len <- length(string)
+  
+  if (ngram == 3 | str_len >= 3){
+    search_list <- tail(str, 3)
+    
+  } else if (ngram == 2 | str_len == 2){
+    search_list <- tail(str, 2)
+    
+  } else if(ngram == 1 | str_len == 1){
+    search_list <- tail(str, 1)
+    
+  }
+  search_list
+}
+
+
+
+# Match on a string and return a predicted word from a probability table
+MatchStringPredict <- function(string, ptable, ngram = 3, preds = 3, ReturnString = FALSE){
+  
+  # check ptable format
+  if (!(identical(sort(colnames(ptable)), c("P", "word1", "word2", "word3")))){
+    stop("ptable must have colnames 'P', 'word1', 'word2', 'word3'")
+  } 
+  
+  # obtain unigram objects from ptable
+  uniptable <- prob_table %>%
+    filter(is.na(word2)) %>%
+    filter(is.na(word3))
+  
+  # get string search parameters
+  search<- tail(StringTailngram(string, ngram), 2)
+  
+  str_len <- length(search)
+  
+  # filter ptable for prediction
+  if (str_len == 2){
+    pred_table <- ptable %>%
+      filter(word1 == search[1]) %>%
+      filter(word2 == search[2]) %>%
+      drop_na() %>%
+      head(3)
+    
+    prediction <- pred_table$word3
+    
+    if (nrow(pred_table) == 0){
+      pred_table <- ptable %>%
+        filter(word1 == search[2]) %>%
+        drop_na() %>%
+        head(3)
+      
+      prediction <- pred_table$word2
+      
+      if (nrow(pred_table) == 0){
+        prediction <- RandomUnigram(uniptable, k = preds)
+      }
+    }
+    
+  } else if (str_len == 1){
+    pred_table <- ptable %>%
+      filter(word1 == search[1]) %>%
+      drop_na() %>%
+      head(3)
+    
+    predictions <- pred_table$word2
+    
+    if (nrow(pred_table) == 0){
+      prediction <- RandomUnigram(uniptable, k = preds)
+    }
+    
+  } else if (str_len == 0){
+    prediction <- RandomUnigram(uniptable, k = preds)
+  }
+  
+  # return original string with prediction appended
+  if (ReturnString == TRUE){
+    prediction = paste(string, prediction[1], sep = " ")
+  }
+  prediction
+}
+
+
+
+# This script is for one function to call all other functions to create
+# the final model. This should form the basis for an object class
+CallAll <- function(filepath,
+                    size,
+                    sample = FALSE,
+                    seed = 17373,
+                    stem = TRUE,
+                    coverage = 0.5,
+                    filter = NULL){
+  
+  if (sample == TRUE){
+    base_ <- SampleLoadFiles(filepath,
+                             n = size,
+                             seed = seed,
+                             stem = stem)
+  } else {
+    base_ <- LoadFiles(filepath,
+                       n = size,
+                       stem = stem)
+  }
+  
+  tidy_1_ <- lapply(base_, CleanTokens, n = 1) %>% MergeDTM()
+  tidy_2_ <- lapply(base_, CleanTokens, n = 2) %>% MergeDTM()
+  tidy_3_ <- lapply(base_, CleanTokens, n = 3) %>% MergeDTM()
+  
+  unigram_ <- WordFreqProb(tidy_1_)
+  bigram_ <- WordFreqProb(tidy_2_)
+  trigram_ <- WordFreqProb(tidy_3_)
+  
+  vocab_n_ <- unigram_ %>%
+    mutate(cumsum = cumsum(P)) %>%
+    summarise(vocab = sum(cumsum <= coverage))%>%
+    as.integer()
+  
+  unigram_ <- unigram_ %>% slice_head(n = vocab_n_)
+  
+  prob_table_ <- CreateProbTable(unigram_, bigram_, trigram_)
+  
+  prob_table_
+}

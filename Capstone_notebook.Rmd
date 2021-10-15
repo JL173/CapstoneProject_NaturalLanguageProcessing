@@ -11,138 +11,9 @@ library(tidytext)
 library(tm)
 library(ggthemes)
 library(openNLP)
-```
-
-```{r}
-# check number of lines in a file
-CheckLines <- function(file){
-  while (length(l <- readLines(file, 128, skipNul = TRUE)) >0 ){
-    nlines <- nlines + length(l)
-  }
-  nlines
-}
-
-# find max char length of a line in a file
-LineMaxCharLength <- function(file){
-  lines <- CheckLines(file)
-  
-  nchunk <- as.integer(lines / 1000) + 1
-  
-  lengths <- c()
-  for (index in 1:nchunk){
-    temp <- c()
-    for (jndex in 1:1000){
-      temp <- c(temp, nchar(readLines(file, 1, skipNul = TRUE)))
-    }
-    lengths <- c(lengths, max(temp))
-    lengths
-  }
-}
-```
-
-```{r}
-# load files and stop_words/filter_words
-data(stop_words)
-
-filter_words <- read.table("text_filter.txt", header=FALSE, sep="", col.names = "word")
-
-filter_words <- full_join(filter_words, stop_words)
-
-thou_twitter <- readLines("data/en_US/en_US.twitter.txt", 1000, skipNul = TRUE, encoding = "UTF-8")
-
-thou_news <- readLines("data/en_US/en_US.news.txt", 1000, skipNul = TRUE, encoding = "UTF-8")
-
-thou_blogs <- readLines("data/en_US/en_US.blogs.txt", 1000, skipNul = TRUE, encoding = "UTF-8")
-```
-
-```{r}
-# function for cleaning the files
-CleanFile <- function(file, bookname = "book", file_length = NULL){
-  
-  if(is.null(file_length)){
-    file_length <- CheckLines(file)
-  }
-  
-  df_ <- data.frame(line = 1:file_length,
-                text = file,
-                book = bookname)
-  
-  df_ <- unnest_tokens(df_, word, text)
-  df_ <- anti_join(df_, filter_words, by = "word")
-  df_ <- filter(df_, !grepl("\\d+", word))
-  df_
-}
-```
-
-```{r}
-# cleaning of the files and binding to one document
-df_twitter <- CleanFile(thou_twitter, bookname = "twitter", file_length = 1000)
-
-df_news <- CleanFile(thou_news, bookname = "news", file_length = 1000)
-
-df_blogs <- CleanFile(thou_blogs, bookname = "blogs", file_length = 1000)
-
-df <- rbind(df_twitter, df_news) %>% rbind(df_blogs)
-```
-
-```{r}
-# tidy data of frequency of words
-df_words <- df %>% count(book, word, sort=TRUE)
-
-# document term matrix of the above
-df_dtm <- cast_dtm(df_words, term = word, document = book, value = n)
-```
-
-```{r}
-# get frequencies and summaries
-df_total <- df_words %>% group_by(book) %>% summarise(total = sum(n))
-df_book <- left_join(df_words, df_total)
-```
-```{r}
-df_book %>% group_by(book) %>% slice_max(n, n = 15) %>%
-  ungroup() %>%
-  arrange(n) %>%
-  ggplot(aes(x = n, y = fct_reorder(word, n), fill = book)) + 
-  geom_col() + 
-  facet_wrap(~book, scales = 'free') + 
-  labs(title = "Most frequent words per document", y = NULL, x = "Frequency")
-
-```
-
-
-```{r}
-# Term frequency and Inverse-Document-Frequency.
-book_tf_idf <- df_book %>% 
-  bind_tf_idf(word, book, n)
-
-book_tf_idf %>%
-     select(-total) %>%
-     arrange(desc(tf_idf))
-
-book_tf_idf %>%
-     group_by(book) %>%
-     slice_max(tf_idf, n = 15) %>%
-     ungroup() %>%
-     ggplot(aes(tf_idf, fct_reorder(word, tf_idf), fill = book)) +
-     geom_col(show.legend = FALSE) +
-     facet_wrap(~book, scales = "free") +
-     labs(title = "Most frequent words by TF-IDF", x = "tf-idf", y = NULL)
-
-```
-
-
-```{r}
-# number of words by frequency sorted dictionary to cover % of language
-
-book_tf_idf <- book_tf_idf %>% 
-	arrange(desc(tf)) %>% 
-	group_by(book) %>% 
-	mutate(cumulative_sum = cumsum(tf))
-
-book_tf_idf %>% group_by(book) %>%
-  summarise(Nwords_50 = sum(cumulative_sum <= 0.5),
-            Nwords_90 = sum(cumulative_sum <= 0.9),
-            Nwords_100 = n())
+library(R.utils)
+library(data.table)
+library(doParallel)
 ```
 
 ```{r}
@@ -154,17 +25,21 @@ Heaps_plot(dtm_1)
 
 ```
 
-```{r}
+```{r cache=TRUE}
 # calculating probabilities of 'next word'
 
-base_1000 <- LoadFiles("data/en_US/", n = 1000)
-tidy_1 <- lapply(base_1000, CleanTokens, n = 1) %>% MergeDTM()
-tidy_2 <- lapply(base_1000, CleanTokens, n = 2) %>% MergeDTM()
-tidy_3 <- lapply(base_1000, CleanTokens, n = 3) %>% MergeDTM()
+sample_1000 <- SampleLoadFiles("data/en_US/", n = 1000, seed = 37)
+tidy_1 <- lapply(sample_1000, CleanTokens, n = 1) %>% MergeDTM()
+tidy_2 <- lapply(sample_1000, CleanTokens, n = 2) %>% MergeDTM()
+tidy_3 <- lapply(sample_1000, CleanTokens, n = 3) %>% MergeDTM()
 
-unigrams <- WordFreqProb(tidy_1, k = 2000)
+unigrams <- WordFreqProb(tidy_1)
 bigrams <- WordFreqProb(tidy_2)
 trigrams <- WordFreqProb(tidy_3)
+```
+
+
+```{r}
 
 unigram_probs <- unigrams
 
@@ -180,7 +55,7 @@ bigram_probs <- bigrams %>%
   mutate(P = freq.x / freq.y) %>%
   drop_na() %>%
   select(-c("p.x", "p.y")) %>% 
-  arrange(word1, desc(P))
+  arrange(word1, desc(freq.y))
 
 
 # split trigram word into three words
@@ -196,10 +71,90 @@ trigram_probs <- trigrams %>%
   drop_na() %>%
   mutate(P = freq.x / freq.y) %>%
   select(-c("p.x", "p.y")) %>%
-  arrange(word, desc(P))
+  arrange(word, desc(freq.y))
 
+```
 
-# possible size save, only store the most likely
-# predictions. Top 5? 10? 20? for each predictor
+```{r}
+unigram_probs <- rename(unigram_probs, word1 = word, P = p)
+unigram_probs <- unigram_probs %>%
+  select(c("word1", "P")) %>%
+  drop_na()
+unigram_probs[, "word2"] <- NA
+unigram_probs[, "word3"] <- NA
 
+bigram_probs <- bigram_probs %>% select(c("word1", "word2", "P")) %>% drop_na()
+bigram_probs[, "word3"] <- NA
+
+trigram_probs <- trigram_probs %>% separate(word, c("word1", "word2")) %>% select(c("word1", "word2", "word3", "P")) %>% drop_na()
+
+bigram_probs <- bigram_probs %>% TopNProbFreq(n = 3)
+trigram_probs <- trigram_probs %>% TopNProbFreq(n = 3)
+```
+```{r}
+prob_table <- rbind(unigram_probs, bigram_probs, trigram_probs) %>% select(order(colnames(.)))
+```
+
+```{r}
+# Create probability table
+CreateProbTable <- function(unigram, bigram, trigam){
+  
+  # split bigram word into two words
+  # join on the first word with unigram
+  # add freq columns of first word and second
+  # calculate probability
+  # sort
+  bigram_probs <- bigram %>%
+    separate(word, c("word1", "word2"), sep = " ") %>%
+    left_join(unigram, by = c("word1" = "word"), suffix = c(".x", ".y")) %>% 
+    mutate(P = freq.x / freq.y) %>%
+    drop_na() %>%
+    select(-c("p.x", "p.y")) %>% 
+    arrange(word1, desc(freq.y))
+
+  # split trigram word into three words
+  # unite the first two words to match bigram
+  # join on the two words with bigram
+  # add freq columns of first word and second
+  # calculate probability
+  # sort
+  trigram_probs <- trigram %>%
+    separate(word, c("word1", "word2", "word3"), sep = " ") %>% 
+    unite(col = word, word1, word2, sep = " ", na.rm = TRUE) %>%
+    left_join(bigram, by = c("word" = "word"), suffix = c(".x", ".y")) %>%
+    drop_na() %>%
+    mutate(P = freq.x / freq.y) %>%
+    select(-c("p.x", "p.y")) %>%
+    arrange(word, desc(freq.y))
+  
+  # formatting
+  unigram_probs <- rename(unigram, word1 = word, P = p)
+  unigram_probs <- unigram_probs %>%
+    select(c("word1", "P")) %>%
+    drop_na()
+  unigram_probs[, "word2"] <- NA
+  unigram_probs[, "word3"] <- NA
+
+  # formatting
+  bigram_probs <- bigram_probs %>%
+    select(c("word1", "word2", "P")) %>%
+    drop_na()
+  bigram_probs[, "word3"] <- NA
+  
+  # formatting
+  trigram_probs <- trigram_probs %>%
+    separate(word, c("word1", "word2")) %>%
+    select(c("word1", "word2", "word3", "P")) %>%
+    drop_na()
+  
+  # store only top '3' results of each
+  bigram_probs <- bigram_probs %>% TopNProbFreq(n = 3)
+  trigram_probs <- trigram_probs %>% TopNProbFreq(n = 3)
+  
+  # combine prob tables of all three
+  prob_table <- rbind(unigram_probs, bigram_probs, trigram_probs) %>%
+    select(order(colnames(.)))
+  
+  prob_table
+}
 ```

@@ -217,170 +217,17 @@ pre code {
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2V0d2QoXCJDOi9Vc2Vycy9KTC9EZXNrdG9wL1N0dWR5L0NvdXJzZXJhL0pvaG5zIEhvcGtpbnMgRGF0YSBTY2llbmNlLzEwIGNhcHN0b25lL0NhcHN0b25lUHJvamVjdF9OYXR1cmFsTGFuZ3VhZ2VQcm9jZXNzaW5nXCIpXG5cbmxpYnJhcnkodGlkeXZlcnNlKVxubGlicmFyeSh0aWR5dGV4dClcbmxpYnJhcnkodG0pXG5saWJyYXJ5KGdndGhlbWVzKVxubGlicmFyeShvcGVuTkxQKVxuYGBgIn0= -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2V0d2QoXCJDOi9Vc2Vycy9KTC9EZXNrdG9wL1N0dWR5L0NvdXJzZXJhL0pvaG5zIEhvcGtpbnMgRGF0YSBTY2llbmNlLzEwIGNhcHN0b25lL0NhcHN0b25lUHJvamVjdF9OYXR1cmFsTGFuZ3VhZ2VQcm9jZXNzaW5nXCIpXG5cbmxpYnJhcnkodGlkeXZlcnNlKVxubGlicmFyeSh0aWR5dGV4dClcbmxpYnJhcnkodG0pXG5saWJyYXJ5KGdndGhlbWVzKVxubGlicmFyeShvcGVuTkxQKVxubGlicmFyeShSLnV0aWxzKVxubGlicmFyeShkYXRhLnRhYmxlKVxubGlicmFyeShkb1BhcmFsbGVsKVxuYGBgIn0= -->
 <pre class="r"><code>setwd(&quot;C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing&quot;)
 
 library(tidyverse)
 library(tidytext)
 library(tm)
 library(ggthemes)
-library(openNLP)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBjaGVjayBudW1iZXIgb2YgbGluZXMgaW4gYSBmaWxlXG5DaGVja0xpbmVzIDwtIGZ1bmN0aW9uKGZpbGUpe1xuICB3aGlsZSAobGVuZ3RoKGwgPC0gcmVhZExpbmVzKGZpbGUsIDEyOCwgc2tpcE51bCA9IFRSVUUpKSA+MCApe1xuICAgIG5saW5lcyA8LSBubGluZXMgKyBsZW5ndGgobClcbiAgfVxuICBubGluZXNcbn1cblxuIyBmaW5kIG1heCBjaGFyIGxlbmd0aCBvZiBhIGxpbmUgaW4gYSBmaWxlXG5MaW5lTWF4Q2hhckxlbmd0aCA8LSBmdW5jdGlvbihmaWxlKXtcbiAgbGluZXMgPC0gQ2hlY2tMaW5lcyhmaWxlKVxuICBcbiAgbmNodW5rIDwtIGFzLmludGVnZXIobGluZXMgLyAxMDAwKSArIDFcbiAgXG4gIGxlbmd0aHMgPC0gYygpXG4gIGZvciAoaW5kZXggaW4gMTpuY2h1bmspe1xuICAgIHRlbXAgPC0gYygpXG4gICAgZm9yIChqbmRleCBpbiAxOjEwMDApe1xuICAgICAgdGVtcCA8LSBjKHRlbXAsIG5jaGFyKHJlYWRMaW5lcyhmaWxlLCAxLCBza2lwTnVsID0gVFJVRSkpKVxuICAgIH1cbiAgICBsZW5ndGhzIDwtIGMobGVuZ3RocywgbWF4KHRlbXApKVxuICAgIGxlbmd0aHNcbiAgfVxufVxuYGBgIn0= -->
-<pre class="r"><code># check number of lines in a file
-CheckLines &lt;- function(file){
-  while (length(l &lt;- readLines(file, 128, skipNul = TRUE)) &gt;0 ){
-    nlines &lt;- nlines + length(l)
-  }
-  nlines
-}
-
-# find max char length of a line in a file
-LineMaxCharLength &lt;- function(file){
-  lines &lt;- CheckLines(file)
-  
-  nchunk &lt;- as.integer(lines / 1000) + 1
-  
-  lengths &lt;- c()
-  for (index in 1:nchunk){
-    temp &lt;- c()
-    for (jndex in 1:1000){
-      temp &lt;- c(temp, nchar(readLines(file, 1, skipNul = TRUE)))
-    }
-    lengths &lt;- c(lengths, max(temp))
-    lengths
-  }
-}</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBsb2FkIGZpbGVzIGFuZCBzdG9wX3dvcmRzL2ZpbHRlcl93b3Jkc1xuZGF0YShzdG9wX3dvcmRzKVxuXG5maWx0ZXJfd29yZHMgPC0gcmVhZC50YWJsZShcInRleHRfZmlsdGVyLnR4dFwiLCBoZWFkZXI9RkFMU0UsIHNlcD1cIlwiLCBjb2wubmFtZXMgPSBcIndvcmRcIilcblxuZmlsdGVyX3dvcmRzIDwtIGZ1bGxfam9pbihmaWx0ZXJfd29yZHMsIHN0b3Bfd29yZHMpXG5cbnRob3VfdHdpdHRlciA8LSByZWFkTGluZXMoXCJkYXRhL2VuX1VTL2VuX1VTLnR3aXR0ZXIudHh0XCIsIDEwMDAsIHNraXBOdWwgPSBUUlVFLCBlbmNvZGluZyA9IFwiVVRGLThcIilcblxudGhvdV9uZXdzIDwtIHJlYWRMaW5lcyhcImRhdGEvZW5fVVMvZW5fVVMubmV3cy50eHRcIiwgMTAwMCwgc2tpcE51bCA9IFRSVUUsIGVuY29kaW5nID0gXCJVVEYtOFwiKVxuXG50aG91X2Jsb2dzIDwtIHJlYWRMaW5lcyhcImRhdGEvZW5fVVMvZW5fVVMuYmxvZ3MudHh0XCIsIDEwMDAsIHNraXBOdWwgPSBUUlVFLCBlbmNvZGluZyA9IFwiVVRGLThcIilcbmBgYCJ9 -->
-<pre class="r"><code># load files and stop_words/filter_words
-data(stop_words)
-
-filter_words &lt;- read.table(&quot;text_filter.txt&quot;, header=FALSE, sep=&quot;&quot;, col.names = &quot;word&quot;)
-
-filter_words &lt;- full_join(filter_words, stop_words)
-
-thou_twitter &lt;- readLines(&quot;data/en_US/en_US.twitter.txt&quot;, 1000, skipNul = TRUE, encoding = &quot;UTF-8&quot;)
-
-thou_news &lt;- readLines(&quot;data/en_US/en_US.news.txt&quot;, 1000, skipNul = TRUE, encoding = &quot;UTF-8&quot;)
-
-thou_blogs &lt;- readLines(&quot;data/en_US/en_US.blogs.txt&quot;, 1000, skipNul = TRUE, encoding = &quot;UTF-8&quot;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBmdW5jdGlvbiBmb3IgY2xlYW5pbmcgdGhlIGZpbGVzXG5DbGVhbkZpbGUgPC0gZnVuY3Rpb24oZmlsZSwgYm9va25hbWUgPSBcImJvb2tcIiwgZmlsZV9sZW5ndGggPSBOVUxMKXtcbiAgXG4gIGlmKGlzLm51bGwoZmlsZV9sZW5ndGgpKXtcbiAgICBmaWxlX2xlbmd0aCA8LSBDaGVja0xpbmVzKGZpbGUpXG4gIH1cbiAgXG4gIGRmXyA8LSBkYXRhLmZyYW1lKGxpbmUgPSAxOmZpbGVfbGVuZ3RoLFxuICAgICAgICAgICAgICAgIHRleHQgPSBmaWxlLFxuICAgICAgICAgICAgICAgIGJvb2sgPSBib29rbmFtZSlcbiAgXG4gIGRmXyA8LSB1bm5lc3RfdG9rZW5zKGRmXywgd29yZCwgdGV4dClcbiAgZGZfIDwtIGFudGlfam9pbihkZl8sIGZpbHRlcl93b3JkcywgYnkgPSBcIndvcmRcIilcbiAgZGZfIDwtIGZpbHRlcihkZl8sICFncmVwbChcIlxcXFxkK1wiLCB3b3JkKSlcbiAgZGZfXG59XG5gYGAifQ== -->
-<pre class="r"><code># function for cleaning the files
-CleanFile &lt;- function(file, bookname = &quot;book&quot;, file_length = NULL){
-  
-  if(is.null(file_length)){
-    file_length &lt;- CheckLines(file)
-  }
-  
-  df_ &lt;- data.frame(line = 1:file_length,
-                text = file,
-                book = bookname)
-  
-  df_ &lt;- unnest_tokens(df_, word, text)
-  df_ &lt;- anti_join(df_, filter_words, by = &quot;word&quot;)
-  df_ &lt;- filter(df_, !grepl(&quot;\\d+&quot;, word))
-  df_
-}</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBjbGVhbmluZyBvZiB0aGUgZmlsZXMgYW5kIGJpbmRpbmcgdG8gb25lIGRvY3VtZW50XG5kZl90d2l0dGVyIDwtIENsZWFuRmlsZSh0aG91X3R3aXR0ZXIsIGJvb2tuYW1lID0gXCJ0d2l0dGVyXCIsIGZpbGVfbGVuZ3RoID0gMTAwMClcblxuZGZfbmV3cyA8LSBDbGVhbkZpbGUodGhvdV9uZXdzLCBib29rbmFtZSA9IFwibmV3c1wiLCBmaWxlX2xlbmd0aCA9IDEwMDApXG5cbmRmX2Jsb2dzIDwtIENsZWFuRmlsZSh0aG91X2Jsb2dzLCBib29rbmFtZSA9IFwiYmxvZ3NcIiwgZmlsZV9sZW5ndGggPSAxMDAwKVxuXG5kZiA8LSByYmluZChkZl90d2l0dGVyLCBkZl9uZXdzKSAlPiUgcmJpbmQoZGZfYmxvZ3MpXG5gYGAifQ== -->
-<pre class="r"><code># cleaning of the files and binding to one document
-df_twitter &lt;- CleanFile(thou_twitter, bookname = &quot;twitter&quot;, file_length = 1000)
-
-df_news &lt;- CleanFile(thou_news, bookname = &quot;news&quot;, file_length = 1000)
-
-df_blogs &lt;- CleanFile(thou_blogs, bookname = &quot;blogs&quot;, file_length = 1000)
-
-df &lt;- rbind(df_twitter, df_news) %&gt;% rbind(df_blogs)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyB0aWR5IGRhdGEgb2YgZnJlcXVlbmN5IG9mIHdvcmRzXG5kZl93b3JkcyA8LSBkZiAlPiUgY291bnQoYm9vaywgd29yZCwgc29ydD1UUlVFKVxuXG4jIGRvY3VtZW50IHRlcm0gbWF0cml4IG9mIHRoZSBhYm92ZVxuZGZfZHRtIDwtIGNhc3RfZHRtKGRmX3dvcmRzLCB0ZXJtID0gd29yZCwgZG9jdW1lbnQgPSBib29rLCB2YWx1ZSA9IG4pXG5gYGAifQ== -->
-<pre class="r"><code># tidy data of frequency of words
-df_words &lt;- df %&gt;% count(book, word, sort=TRUE)
-
-# document term matrix of the above
-df_dtm &lt;- cast_dtm(df_words, term = word, document = book, value = n)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBnZXQgZnJlcXVlbmNpZXMgYW5kIHN1bW1hcmllc1xuZGZfdG90YWwgPC0gZGZfd29yZHMgJT4lIGdyb3VwX2J5KGJvb2spICU+JSBzdW1tYXJpc2UodG90YWwgPSBzdW0obikpXG5kZl9ib29rIDwtIGxlZnRfam9pbihkZl93b3JkcywgZGZfdG90YWwpXG5gYGAifQ== -->
-<pre class="r"><code># get frequencies and summaries
-df_total &lt;- df_words %&gt;% group_by(book) %&gt;% summarise(total = sum(n))
-df_book &lt;- left_join(df_words, df_total)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGZfYm9vayAlPiUgZ3JvdXBfYnkoYm9vaykgJT4lIHNsaWNlX21heChuLCBuID0gMTUpICU+JVxuICB1bmdyb3VwKCkgJT4lXG4gIGFycmFuZ2UobikgJT4lXG4gIGdncGxvdChhZXMoeCA9IG4sIHkgPSBmY3RfcmVvcmRlcih3b3JkLCBuKSwgZmlsbCA9IGJvb2spKSArIFxuICBnZW9tX2NvbCgpICsgXG4gIGZhY2V0X3dyYXAofmJvb2ssIHNjYWxlcyA9ICdmcmVlJykgKyBcbiAgbGFicyh0aXRsZSA9IFwiTW9zdCBmcmVxdWVudCB3b3JkcyBwZXIgZG9jdW1lbnRcIiwgeSA9IE5VTEwsIHggPSBcIkZyZXF1ZW5jeVwiKVxuXG5gYGAifQ== -->
-<pre class="r"><code>df_book %&gt;% group_by(book) %&gt;% slice_max(n, n = 15) %&gt;%
-  ungroup() %&gt;%
-  arrange(n) %&gt;%
-  ggplot(aes(x = n, y = fct_reorder(word, n), fill = book)) + 
-  geom_col() + 
-  facet_wrap(~book, scales = &#39;free&#39;) + 
-  labs(title = &quot;Most frequent words per document&quot;, y = NULL, x = &quot;Frequency&quot;)
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBUZXJtIGZyZXF1ZW5jeSBhbmQgSW52ZXJzZS1Eb2N1bWVudC1GcmVxdWVuY3kuXG5ib29rX3RmX2lkZiA8LSBkZl9ib29rICU+JSBcbiAgYmluZF90Zl9pZGYod29yZCwgYm9vaywgbilcblxuYm9va190Zl9pZGYgJT4lXG4gICAgIHNlbGVjdCgtdG90YWwpICU+JVxuICAgICBhcnJhbmdlKGRlc2ModGZfaWRmKSlcblxuYm9va190Zl9pZGYgJT4lXG4gICAgIGdyb3VwX2J5KGJvb2spICU+JVxuICAgICBzbGljZV9tYXgodGZfaWRmLCBuID0gMTUpICU+JVxuICAgICB1bmdyb3VwKCkgJT4lXG4gICAgIGdncGxvdChhZXModGZfaWRmLCBmY3RfcmVvcmRlcih3b3JkLCB0Zl9pZGYpLCBmaWxsID0gYm9vaykpICtcbiAgICAgZ2VvbV9jb2woc2hvdy5sZWdlbmQgPSBGQUxTRSkgK1xuICAgICBmYWNldF93cmFwKH5ib29rLCBzY2FsZXMgPSBcImZyZWVcIikgK1xuICAgICBsYWJzKHRpdGxlID0gXCJNb3N0IGZyZXF1ZW50IHdvcmRzIGJ5IFRGLUlERlwiLCB4ID0gXCJ0Zi1pZGZcIiwgeSA9IE5VTEwpXG5cbmBgYCJ9 -->
-<pre class="r"><code># Term frequency and Inverse-Document-Frequency.
-book_tf_idf &lt;- df_book %&gt;% 
-  bind_tf_idf(word, book, n)
-
-book_tf_idf %&gt;%
-     select(-total) %&gt;%
-     arrange(desc(tf_idf))
-
-book_tf_idf %&gt;%
-     group_by(book) %&gt;%
-     slice_max(tf_idf, n = 15) %&gt;%
-     ungroup() %&gt;%
-     ggplot(aes(tf_idf, fct_reorder(word, tf_idf), fill = book)) +
-     geom_col(show.legend = FALSE) +
-     facet_wrap(~book, scales = &quot;free&quot;) +
-     labs(title = &quot;Most frequent words by TF-IDF&quot;, x = &quot;tf-idf&quot;, y = NULL)
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBudW1iZXIgb2Ygd29yZHMgYnkgZnJlcXVlbmN5IHNvcnRlZCBkaWN0aW9uYXJ5IHRvIGNvdmVyICUgb2YgbGFuZ3VhZ2VcblxuYm9va190Zl9pZGYgPC0gYm9va190Zl9pZGYgJT4lIFxuXHRhcnJhbmdlKGRlc2ModGYpKSAlPiUgXG5cdGdyb3VwX2J5KGJvb2spICU+JSBcblx0bXV0YXRlKGN1bXVsYXRpdmVfc3VtID0gY3Vtc3VtKHRmKSlcblxuYm9va190Zl9pZGYgJT4lIGdyb3VwX2J5KGJvb2spICU+JVxuICBzdW1tYXJpc2UoTndvcmRzXzUwID0gc3VtKGN1bXVsYXRpdmVfc3VtIDw9IDAuNSksXG4gICAgICAgICAgICBOd29yZHNfOTAgPSBzdW0oY3VtdWxhdGl2ZV9zdW0gPD0gMC45KSxcbiAgICAgICAgICAgIE53b3Jkc18xMDAgPSBuKCkpXG5gYGAifQ== -->
-<pre class="r"><code># number of words by frequency sorted dictionary to cover % of language
-
-book_tf_idf &lt;- book_tf_idf %&gt;% 
-    arrange(desc(tf)) %&gt;% 
-    group_by(book) %&gt;% 
-    mutate(cumulative_sum = cumsum(tf))
-
-book_tf_idf %&gt;% group_by(book) %&gt;%
-  summarise(Nwords_50 = sum(cumulative_sum &lt;= 0.5),
-            Nwords_90 = sum(cumulative_sum &lt;= 0.9),
-            Nwords_100 = n())</code></pre>
+library(openNLP)
+library(R.utils)
+library(data.table)
+library(doParallel)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -398,28 +245,47 @@ Heaps_plot(dtm_1)
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBjYWxjdWxhdGluZyBwcm9iYWJpbGl0aWVzIG9mICduZXh0IHdvcmQnXG5cbmJhc2VfMTAwMCA8LSBMb2FkRmlsZXMoXCJkYXRhL2VuX1VTL1wiLCBuID0gMTAwMClcbnRpZHlfMSA8LSBsYXBwbHkoYmFzZV8xMDAwLCBDbGVhblRva2VucywgbiA9IDEpICU+JSBNZXJnZURUTSgpXG50aWR5XzIgPC0gbGFwcGx5KGJhc2VfMTAwMCwgQ2xlYW5Ub2tlbnMsIG4gPSAyKSAlPiUgTWVyZ2VEVE0oKVxudGlkeV8zIDwtIGxhcHBseShiYXNlXzEwMDAsIENsZWFuVG9rZW5zLCBuID0gMykgJT4lIE1lcmdlRFRNKClcblxudW5pZ3JhbXMgPC0gV29yZEZyZXFQcm9iKHRpZHlfMSwgayA9IDIwMDApXG5iaWdyYW1zIDwtIFdvcmRGcmVxUHJvYih0aWR5XzIpXG50cmlncmFtcyA8LSBXb3JkRnJlcVByb2IodGlkeV8zKVxuXG51bmlncmFtX3Byb2JzIDwtIHVuaWdyYW1zXG5cbmJpZ3JhbV9wcm9icyA8LSBiaWdyYW1zICU+JVxuICBzZXBhcmF0ZSh3b3JkLCBjKFwid29yZDFcIiwgXCJ3b3JkMlwiKSwgc2VwID0gXCIgXCIpICU+JSBcbiAgbGVmdF9qb2luKHVuaWdyYW1zLCBieSA9IGMoXCJ3b3JkMVwiID0gXCJ3b3JkXCIpLCBzdWZmaXggPSBjKFwiLnhcIiwgXCIueVwiKSkgJT4lIFxuICBtdXRhdGUoUCA9IGZyZXEueCAvIGZyZXEueSkgJT4lXG4gIGRyb3BfbmEoKSAlPiVcbiAgc2VsZWN0KC1jKFwicC54XCIsIFwicC55XCIpKSAlPiUgXG4gIGFycmFuZ2Uod29yZDEsIGRlc2MoUCkpXG5cbnRyaWdyYW1fcHJvYnMgPC0gdHJpZ3JhbXMgJT4lXG4gIHNlcGFyYXRlKHdvcmQsIGMoXCJ3b3JkMVwiLCBcIndvcmQyXCIsIFwid29yZDNcIiksIHNlcCA9IFwiIFwiKSAlPiUgXG4gIHVuaXRlKGNvbCA9IHdvcmQsIHdvcmQxLCB3b3JkMiwgc2VwID0gXCIgXCIsIG5hLnJtID0gVFJVRSkgJT4lXG4gIGxlZnRfam9pbihiaWdyYW1zLCBieSA9IGMoXCJ3b3JkXCIgPSBcIndvcmRcIiksIHN1ZmZpeCA9IGMoXCIueFwiLCBcIi55XCIpKSAlPiVcbiAgZHJvcF9uYSgpICU+JVxuICBtdXRhdGUoUCA9IGZyZXEueCAvIGZyZXEueSkgJT4lXG4gIHNlbGVjdCgtYyhcInAueFwiLCBcInAueVwiKSkgJT4lXG4gIGFycmFuZ2Uod29yZCwgZGVzYyhQKSlcblxuXG5cblxuYGBgIn0= -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBjYWxjdWxhdGluZyBwcm9iYWJpbGl0aWVzIG9mICduZXh0IHdvcmQnXG5cbnNhbXBsZV8xMDAwIDwtIFNhbXBsZUxvYWRGaWxlcyhcImRhdGEvZW5fVVMvXCIsIG4gPSAxMDAwLCBzZWVkID0gMzcpXG50aWR5XzEgPC0gbGFwcGx5KHNhbXBsZV8xMDAwLCBDbGVhblRva2VucywgbiA9IDEpICU+JSBNZXJnZURUTSgpXG50aWR5XzIgPC0gbGFwcGx5KHNhbXBsZV8xMDAwLCBDbGVhblRva2VucywgbiA9IDIpICU+JSBNZXJnZURUTSgpXG50aWR5XzMgPC0gbGFwcGx5KHNhbXBsZV8xMDAwLCBDbGVhblRva2VucywgbiA9IDMpICU+JSBNZXJnZURUTSgpXG5cbnVuaWdyYW1zIDwtIFdvcmRGcmVxUHJvYih0aWR5XzEpXG5iaWdyYW1zIDwtIFdvcmRGcmVxUHJvYih0aWR5XzIpXG50cmlncmFtcyA8LSBXb3JkRnJlcVByb2IodGlkeV8zKVxuYGBgIn0= -->
 <pre class="r"><code># calculating probabilities of &#39;next word&#39;
 
-base_1000 &lt;- LoadFiles(&quot;data/en_US/&quot;, n = 1000)
-tidy_1 &lt;- lapply(base_1000, CleanTokens, n = 1) %&gt;% MergeDTM()
-tidy_2 &lt;- lapply(base_1000, CleanTokens, n = 2) %&gt;% MergeDTM()
-tidy_3 &lt;- lapply(base_1000, CleanTokens, n = 3) %&gt;% MergeDTM()
+sample_1000 &lt;- SampleLoadFiles(&quot;data/en_US/&quot;, n = 1000, seed = 37)
+tidy_1 &lt;- lapply(sample_1000, CleanTokens, n = 1) %&gt;% MergeDTM()
+tidy_2 &lt;- lapply(sample_1000, CleanTokens, n = 2) %&gt;% MergeDTM()
+tidy_3 &lt;- lapply(sample_1000, CleanTokens, n = 3) %&gt;% MergeDTM()
 
-unigrams &lt;- WordFreqProb(tidy_1, k = 2000)
+unigrams &lt;- WordFreqProb(tidy_1)
 bigrams &lt;- WordFreqProb(tidy_2)
-trigrams &lt;- WordFreqProb(tidy_3)
-
+trigrams &lt;- WordFreqProb(tidy_3)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG51bmlncmFtX3Byb2JzIDwtIHVuaWdyYW1zXG5cblxuIyBzcGxpdCBiaWdyYW0gd29yZCBpbnRvIHR3byB3b3Jkc1xuIyBqb2luIG9uIHRoZSBmaXJzdCB3b3JkIHdpdGggdW5pZ3JhbVxuIyBhZGQgZnJlcSBjb2x1bW5zIG9mIGZpcnN0IHdvcmQgYW5kIHNlY29uZFxuIyBjYWxjdWxhdGUgcHJvYmFiaWxpdHlcbiMgc29ydFxuYmlncmFtX3Byb2JzIDwtIGJpZ3JhbXMgJT4lXG4gIHNlcGFyYXRlKHdvcmQsIGMoXCJ3b3JkMVwiLCBcIndvcmQyXCIpLCBzZXAgPSBcIiBcIikgJT4lIFxuICBsZWZ0X2pvaW4odW5pZ3JhbXMsIGJ5ID0gYyhcIndvcmQxXCIgPSBcIndvcmRcIiksIHN1ZmZpeCA9IGMoXCIueFwiLCBcIi55XCIpKSAlPiUgXG4gIG11dGF0ZShQID0gZnJlcS54IC8gZnJlcS55KSAlPiVcbiAgZHJvcF9uYSgpICU+JVxuICBzZWxlY3QoLWMoXCJwLnhcIiwgXCJwLnlcIikpICU+JSBcbiAgYXJyYW5nZSh3b3JkMSwgZGVzYyhmcmVxLnkpKVxuXG5cbiMgc3BsaXQgdHJpZ3JhbSB3b3JkIGludG8gdGhyZWUgd29yZHNcbiMgdW5pdGUgdGhlIGZpcnN0IHR3byB3b3JkcyB0byBtYXRjaCBiaWdyYW1cbiMgam9pbiBvbiB0aGUgdHdvIHdvcmRzIHdpdGggYmlncmFtXG4jIGFkZCBmcmVxIGNvbHVtbnMgb2YgZmlyc3Qgd29yZCBhbmQgc2Vjb25kXG4jIGNhbGN1bGF0ZSBwcm9iYWJpbGl0eVxuIyBzb3J0XG50cmlncmFtX3Byb2JzIDwtIHRyaWdyYW1zICU+JVxuICBzZXBhcmF0ZSh3b3JkLCBjKFwid29yZDFcIiwgXCJ3b3JkMlwiLCBcIndvcmQzXCIpLCBzZXAgPSBcIiBcIikgJT4lIFxuICB1bml0ZShjb2wgPSB3b3JkLCB3b3JkMSwgd29yZDIsIHNlcCA9IFwiIFwiLCBuYS5ybSA9IFRSVUUpICU+JVxuICBsZWZ0X2pvaW4oYmlncmFtcywgYnkgPSBjKFwid29yZFwiID0gXCJ3b3JkXCIpLCBzdWZmaXggPSBjKFwiLnhcIiwgXCIueVwiKSkgJT4lXG4gIGRyb3BfbmEoKSAlPiVcbiAgbXV0YXRlKFAgPSBmcmVxLnggLyBmcmVxLnkpICU+JVxuICBzZWxlY3QoLWMoXCJwLnhcIiwgXCJwLnlcIikpICU+JVxuICBhcnJhbmdlKHdvcmQsIGRlc2MoZnJlcS55KSlcblxuYGBgIn0= -->
+<pre class="r"><code>
 unigram_probs &lt;- unigrams
 
+
+# split bigram word into two words
+# join on the first word with unigram
+# add freq columns of first word and second
+# calculate probability
+# sort
 bigram_probs &lt;- bigrams %&gt;%
   separate(word, c(&quot;word1&quot;, &quot;word2&quot;), sep = &quot; &quot;) %&gt;% 
   left_join(unigrams, by = c(&quot;word1&quot; = &quot;word&quot;), suffix = c(&quot;.x&quot;, &quot;.y&quot;)) %&gt;% 
   mutate(P = freq.x / freq.y) %&gt;%
   drop_na() %&gt;%
   select(-c(&quot;p.x&quot;, &quot;p.y&quot;)) %&gt;% 
-  arrange(word1, desc(P))
+  arrange(word1, desc(freq.y))
 
+
+# split trigram word into three words
+# unite the first two words to match bigram
+# join on the two words with bigram
+# add freq columns of first word and second
+# calculate probability
+# sort
 trigram_probs &lt;- trigrams %&gt;%
   separate(word, c(&quot;word1&quot;, &quot;word2&quot;, &quot;word3&quot;), sep = &quot; &quot;) %&gt;% 
   unite(col = word, word1, word2, sep = &quot; &quot;, na.rm = TRUE) %&gt;%
@@ -427,12 +293,104 @@ trigram_probs &lt;- trigrams %&gt;%
   drop_na() %&gt;%
   mutate(P = freq.x / freq.y) %&gt;%
   select(-c(&quot;p.x&quot;, &quot;p.y&quot;)) %&gt;%
-  arrange(word, desc(P))
+  arrange(word, desc(freq.y))
 </code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudW5pZ3JhbV9wcm9icyA8LSByZW5hbWUodW5pZ3JhbV9wcm9icywgd29yZDEgPSB3b3JkLCBQID0gcClcbnVuaWdyYW1fcHJvYnMgPC0gdW5pZ3JhbV9wcm9icyAlPiVcbiAgc2VsZWN0KGMoXCJ3b3JkMVwiLCBcIlBcIikpICU+JVxuICBkcm9wX25hKClcbnVuaWdyYW1fcHJvYnNbLCBcIndvcmQyXCJdIDwtIE5BXG51bmlncmFtX3Byb2JzWywgXCJ3b3JkM1wiXSA8LSBOQVxuXG5iaWdyYW1fcHJvYnMgPC0gYmlncmFtX3Byb2JzICU+JSBzZWxlY3QoYyhcIndvcmQxXCIsIFwid29yZDJcIiwgXCJQXCIpKSAlPiUgZHJvcF9uYSgpXG5iaWdyYW1fcHJvYnNbLCBcIndvcmQzXCJdIDwtIE5BXG5cbnRyaWdyYW1fcHJvYnMgPC0gdHJpZ3JhbV9wcm9icyAlPiUgc2VwYXJhdGUod29yZCwgYyhcIndvcmQxXCIsIFwid29yZDJcIikpICU+JSBzZWxlY3QoYyhcIndvcmQxXCIsIFwid29yZDJcIiwgXCJ3b3JkM1wiLCBcIlBcIikpICU+JSBkcm9wX25hKClcblxuYmlncmFtX3Byb2JzIDwtIGJpZ3JhbV9wcm9icyAlPiUgVG9wTlByb2JGcmVxKG4gPSAzKVxudHJpZ3JhbV9wcm9icyA8LSB0cmlncmFtX3Byb2JzICU+JSBUb3BOUHJvYkZyZXEobiA9IDMpXG5gYGAifQ== -->
+<pre class="r"><code>unigram_probs &lt;- rename(unigram_probs, word1 = word, P = p)
+unigram_probs &lt;- unigram_probs %&gt;%
+  select(c(&quot;word1&quot;, &quot;P&quot;)) %&gt;%
+  drop_na()
+unigram_probs[, &quot;word2&quot;] &lt;- NA
+unigram_probs[, &quot;word3&quot;] &lt;- NA
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNhcHN0b25lIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NCg0KYGBge3J9DQpzZXR3ZCgiQzovVXNlcnMvSkwvRGVza3RvcC9TdHVkeS9Db3Vyc2VyYS9Kb2hucyBIb3BraW5zIERhdGEgU2NpZW5jZS8xMCBjYXBzdG9uZS9DYXBzdG9uZVByb2plY3RfTmF0dXJhbExhbmd1YWdlUHJvY2Vzc2luZyIpDQoNCmxpYnJhcnkodGlkeXZlcnNlKQ0KbGlicmFyeSh0aWR5dGV4dCkNCmxpYnJhcnkodG0pDQpsaWJyYXJ5KGdndGhlbWVzKQ0KbGlicmFyeShvcGVuTkxQKQ0KYGBgDQoNCmBgYHtyfQ0KIyBjaGVjayBudW1iZXIgb2YgbGluZXMgaW4gYSBmaWxlDQpDaGVja0xpbmVzIDwtIGZ1bmN0aW9uKGZpbGUpew0KICB3aGlsZSAobGVuZ3RoKGwgPC0gcmVhZExpbmVzKGZpbGUsIDEyOCwgc2tpcE51bCA9IFRSVUUpKSA+MCApew0KICAgIG5saW5lcyA8LSBubGluZXMgKyBsZW5ndGgobCkNCiAgfQ0KICBubGluZXMNCn0NCg0KIyBmaW5kIG1heCBjaGFyIGxlbmd0aCBvZiBhIGxpbmUgaW4gYSBmaWxlDQpMaW5lTWF4Q2hhckxlbmd0aCA8LSBmdW5jdGlvbihmaWxlKXsNCiAgbGluZXMgPC0gQ2hlY2tMaW5lcyhmaWxlKQ0KICANCiAgbmNodW5rIDwtIGFzLmludGVnZXIobGluZXMgLyAxMDAwKSArIDENCiAgDQogIGxlbmd0aHMgPC0gYygpDQogIGZvciAoaW5kZXggaW4gMTpuY2h1bmspew0KICAgIHRlbXAgPC0gYygpDQogICAgZm9yIChqbmRleCBpbiAxOjEwMDApew0KICAgICAgdGVtcCA8LSBjKHRlbXAsIG5jaGFyKHJlYWRMaW5lcyhmaWxlLCAxLCBza2lwTnVsID0gVFJVRSkpKQ0KICAgIH0NCiAgICBsZW5ndGhzIDwtIGMobGVuZ3RocywgbWF4KHRlbXApKQ0KICAgIGxlbmd0aHMNCiAgfQ0KfQ0KYGBgDQoNCmBgYHtyfQ0KIyBsb2FkIGZpbGVzIGFuZCBzdG9wX3dvcmRzL2ZpbHRlcl93b3Jkcw0KZGF0YShzdG9wX3dvcmRzKQ0KDQpmaWx0ZXJfd29yZHMgPC0gcmVhZC50YWJsZSgidGV4dF9maWx0ZXIudHh0IiwgaGVhZGVyPUZBTFNFLCBzZXA9IiIsIGNvbC5uYW1lcyA9ICJ3b3JkIikNCg0KZmlsdGVyX3dvcmRzIDwtIGZ1bGxfam9pbihmaWx0ZXJfd29yZHMsIHN0b3Bfd29yZHMpDQoNCnRob3VfdHdpdHRlciA8LSByZWFkTGluZXMoImRhdGEvZW5fVVMvZW5fVVMudHdpdHRlci50eHQiLCAxMDAwLCBza2lwTnVsID0gVFJVRSwgZW5jb2RpbmcgPSAiVVRGLTgiKQ0KDQp0aG91X25ld3MgPC0gcmVhZExpbmVzKCJkYXRhL2VuX1VTL2VuX1VTLm5ld3MudHh0IiwgMTAwMCwgc2tpcE51bCA9IFRSVUUsIGVuY29kaW5nID0gIlVURi04IikNCg0KdGhvdV9ibG9ncyA8LSByZWFkTGluZXMoImRhdGEvZW5fVVMvZW5fVVMuYmxvZ3MudHh0IiwgMTAwMCwgc2tpcE51bCA9IFRSVUUsIGVuY29kaW5nID0gIlVURi04IikNCmBgYA0KDQpgYGB7cn0NCiMgZnVuY3Rpb24gZm9yIGNsZWFuaW5nIHRoZSBmaWxlcw0KQ2xlYW5GaWxlIDwtIGZ1bmN0aW9uKGZpbGUsIGJvb2tuYW1lID0gImJvb2siLCBmaWxlX2xlbmd0aCA9IE5VTEwpew0KICANCiAgaWYoaXMubnVsbChmaWxlX2xlbmd0aCkpew0KICAgIGZpbGVfbGVuZ3RoIDwtIENoZWNrTGluZXMoZmlsZSkNCiAgfQ0KICANCiAgZGZfIDwtIGRhdGEuZnJhbWUobGluZSA9IDE6ZmlsZV9sZW5ndGgsDQogICAgICAgICAgICAgICAgdGV4dCA9IGZpbGUsDQogICAgICAgICAgICAgICAgYm9vayA9IGJvb2tuYW1lKQ0KICANCiAgZGZfIDwtIHVubmVzdF90b2tlbnMoZGZfLCB3b3JkLCB0ZXh0KQ0KICBkZl8gPC0gYW50aV9qb2luKGRmXywgZmlsdGVyX3dvcmRzLCBieSA9ICJ3b3JkIikNCiAgZGZfIDwtIGZpbHRlcihkZl8sICFncmVwbCgiXFxkKyIsIHdvcmQpKQ0KICBkZl8NCn0NCmBgYA0KDQpgYGB7cn0NCiMgY2xlYW5pbmcgb2YgdGhlIGZpbGVzIGFuZCBiaW5kaW5nIHRvIG9uZSBkb2N1bWVudA0KZGZfdHdpdHRlciA8LSBDbGVhbkZpbGUodGhvdV90d2l0dGVyLCBib29rbmFtZSA9ICJ0d2l0dGVyIiwgZmlsZV9sZW5ndGggPSAxMDAwKQ0KDQpkZl9uZXdzIDwtIENsZWFuRmlsZSh0aG91X25ld3MsIGJvb2tuYW1lID0gIm5ld3MiLCBmaWxlX2xlbmd0aCA9IDEwMDApDQoNCmRmX2Jsb2dzIDwtIENsZWFuRmlsZSh0aG91X2Jsb2dzLCBib29rbmFtZSA9ICJibG9ncyIsIGZpbGVfbGVuZ3RoID0gMTAwMCkNCg0KZGYgPC0gcmJpbmQoZGZfdHdpdHRlciwgZGZfbmV3cykgJT4lIHJiaW5kKGRmX2Jsb2dzKQ0KYGBgDQoNCmBgYHtyfQ0KIyB0aWR5IGRhdGEgb2YgZnJlcXVlbmN5IG9mIHdvcmRzDQpkZl93b3JkcyA8LSBkZiAlPiUgY291bnQoYm9vaywgd29yZCwgc29ydD1UUlVFKQ0KDQojIGRvY3VtZW50IHRlcm0gbWF0cml4IG9mIHRoZSBhYm92ZQ0KZGZfZHRtIDwtIGNhc3RfZHRtKGRmX3dvcmRzLCB0ZXJtID0gd29yZCwgZG9jdW1lbnQgPSBib29rLCB2YWx1ZSA9IG4pDQpgYGANCg0KYGBge3J9DQojIGdldCBmcmVxdWVuY2llcyBhbmQgc3VtbWFyaWVzDQpkZl90b3RhbCA8LSBkZl93b3JkcyAlPiUgZ3JvdXBfYnkoYm9vaykgJT4lIHN1bW1hcmlzZSh0b3RhbCA9IHN1bShuKSkNCmRmX2Jvb2sgPC0gbGVmdF9qb2luKGRmX3dvcmRzLCBkZl90b3RhbCkNCmBgYA0KYGBge3J9DQpkZl9ib29rICU+JSBncm91cF9ieShib29rKSAlPiUgc2xpY2VfbWF4KG4sIG4gPSAxNSkgJT4lDQogIHVuZ3JvdXAoKSAlPiUNCiAgYXJyYW5nZShuKSAlPiUNCiAgZ2dwbG90KGFlcyh4ID0gbiwgeSA9IGZjdF9yZW9yZGVyKHdvcmQsIG4pLCBmaWxsID0gYm9vaykpICsgDQogIGdlb21fY29sKCkgKyANCiAgZmFjZXRfd3JhcCh+Ym9vaywgc2NhbGVzID0gJ2ZyZWUnKSArIA0KICBsYWJzKHRpdGxlID0gIk1vc3QgZnJlcXVlbnQgd29yZHMgcGVyIGRvY3VtZW50IiwgeSA9IE5VTEwsIHggPSAiRnJlcXVlbmN5IikNCg0KYGBgDQoNCg0KYGBge3J9DQojIFRlcm0gZnJlcXVlbmN5IGFuZCBJbnZlcnNlLURvY3VtZW50LUZyZXF1ZW5jeS4NCmJvb2tfdGZfaWRmIDwtIGRmX2Jvb2sgJT4lIA0KICBiaW5kX3RmX2lkZih3b3JkLCBib29rLCBuKQ0KDQpib29rX3RmX2lkZiAlPiUNCiAgICAgc2VsZWN0KC10b3RhbCkgJT4lDQogICAgIGFycmFuZ2UoZGVzYyh0Zl9pZGYpKQ0KDQpib29rX3RmX2lkZiAlPiUNCiAgICAgZ3JvdXBfYnkoYm9vaykgJT4lDQogICAgIHNsaWNlX21heCh0Zl9pZGYsIG4gPSAxNSkgJT4lDQogICAgIHVuZ3JvdXAoKSAlPiUNCiAgICAgZ2dwbG90KGFlcyh0Zl9pZGYsIGZjdF9yZW9yZGVyKHdvcmQsIHRmX2lkZiksIGZpbGwgPSBib29rKSkgKw0KICAgICBnZW9tX2NvbChzaG93LmxlZ2VuZCA9IEZBTFNFKSArDQogICAgIGZhY2V0X3dyYXAofmJvb2ssIHNjYWxlcyA9ICJmcmVlIikgKw0KICAgICBsYWJzKHRpdGxlID0gIk1vc3QgZnJlcXVlbnQgd29yZHMgYnkgVEYtSURGIiwgeCA9ICJ0Zi1pZGYiLCB5ID0gTlVMTCkNCg0KYGBgDQoNCg0KYGBge3J9DQojIG51bWJlciBvZiB3b3JkcyBieSBmcmVxdWVuY3kgc29ydGVkIGRpY3Rpb25hcnkgdG8gY292ZXIgJSBvZiBsYW5ndWFnZQ0KDQpib29rX3RmX2lkZiA8LSBib29rX3RmX2lkZiAlPiUgDQoJYXJyYW5nZShkZXNjKHRmKSkgJT4lIA0KCWdyb3VwX2J5KGJvb2spICU+JSANCgltdXRhdGUoY3VtdWxhdGl2ZV9zdW0gPSBjdW1zdW0odGYpKQ0KDQpib29rX3RmX2lkZiAlPiUgZ3JvdXBfYnkoYm9vaykgJT4lDQogIHN1bW1hcmlzZShOd29yZHNfNTAgPSBzdW0oY3VtdWxhdGl2ZV9zdW0gPD0gMC41KSwNCiAgICAgICAgICAgIE53b3Jkc185MCA9IHN1bShjdW11bGF0aXZlX3N1bSA8PSAwLjkpLA0KICAgICAgICAgICAgTndvcmRzXzEwMCA9IG4oKSkNCmBgYA0KDQpgYGB7cn0NCmR0bV8xIDwtIGNhc3RfZHRtKGZ1bGxfdGlkeV9kdG1fMSwgdGVybSA9IHdvcmQsIGRvY3VtZW50ID0gZG9jdW1lbnQsIHZhbHVlID0gbikNCg0KcGxvdChkdG1fMSkNClppcGZfcGxvdChkdG1fMSkNCkhlYXBzX3Bsb3QoZHRtXzEpDQoNCmBgYA0KDQpgYGB7cn0NCiMgY2FsY3VsYXRpbmcgcHJvYmFiaWxpdGllcyBvZiAnbmV4dCB3b3JkJw0KDQpiYXNlXzEwMDAgPC0gTG9hZEZpbGVzKCJkYXRhL2VuX1VTLyIsIG4gPSAxMDAwKQ0KdGlkeV8xIDwtIGxhcHBseShiYXNlXzEwMDAsIENsZWFuVG9rZW5zLCBuID0gMSkgJT4lIE1lcmdlRFRNKCkNCnRpZHlfMiA8LSBsYXBwbHkoYmFzZV8xMDAwLCBDbGVhblRva2VucywgbiA9IDIpICU+JSBNZXJnZURUTSgpDQp0aWR5XzMgPC0gbGFwcGx5KGJhc2VfMTAwMCwgQ2xlYW5Ub2tlbnMsIG4gPSAzKSAlPiUgTWVyZ2VEVE0oKQ0KDQp1bmlncmFtcyA8LSBXb3JkRnJlcVByb2IodGlkeV8xLCBrID0gMjAwMCkNCmJpZ3JhbXMgPC0gV29yZEZyZXFQcm9iKHRpZHlfMikNCnRyaWdyYW1zIDwtIFdvcmRGcmVxUHJvYih0aWR5XzMpDQoNCnVuaWdyYW1fcHJvYnMgPC0gdW5pZ3JhbXMNCg0KDQojIHNwbGl0IGJpZ3JhbSB3b3JkIGludG8gdHdvIHdvcmRzDQojIGpvaW4gb24gdGhlIGZpcnN0IHdvcmQgd2l0aCB1bmlncmFtDQojIGFkZCBmcmVxIGNvbHVtbnMgb2YgZmlyc3Qgd29yZCBhbmQgc2Vjb25kDQojIGNhbGN1bGF0ZSBwcm9iYWJpbGl0eQ0KIyBzb3J0DQpiaWdyYW1fcHJvYnMgPC0gYmlncmFtcyAlPiUNCiAgc2VwYXJhdGUod29yZCwgYygid29yZDEiLCAid29yZDIiKSwgc2VwID0gIiAiKSAlPiUgDQogIGxlZnRfam9pbih1bmlncmFtcywgYnkgPSBjKCJ3b3JkMSIgPSAid29yZCIpLCBzdWZmaXggPSBjKCIueCIsICIueSIpKSAlPiUgDQogIG11dGF0ZShQID0gZnJlcS54IC8gZnJlcS55KSAlPiUNCiAgZHJvcF9uYSgpICU+JQ0KICBzZWxlY3QoLWMoInAueCIsICJwLnkiKSkgJT4lIA0KICBhcnJhbmdlKHdvcmQxLCBkZXNjKFApKQ0KDQoNCiMgc3BsaXQgdHJpZ3JhbSB3b3JkIGludG8gdGhyZWUgd29yZHMNCiMgdW5pdGUgdGhlIGZpcnN0IHR3byB3b3JkcyB0byBtYXRjaCBiaWdyYW0NCiMgam9pbiBvbiB0aGUgdHdvIHdvcmRzIHdpdGggYmlncmFtDQojIGFkZCBmcmVxIGNvbHVtbnMgb2YgZmlyc3Qgd29yZCBhbmQgc2Vjb25kDQojIGNhbGN1bGF0ZSBwcm9iYWJpbGl0eQ0KIyBzb3J0DQp0cmlncmFtX3Byb2JzIDwtIHRyaWdyYW1zICU+JQ0KICBzZXBhcmF0ZSh3b3JkLCBjKCJ3b3JkMSIsICJ3b3JkMiIsICJ3b3JkMyIpLCBzZXAgPSAiICIpICU+JSANCiAgdW5pdGUoY29sID0gd29yZCwgd29yZDEsIHdvcmQyLCBzZXAgPSAiICIsIG5hLnJtID0gVFJVRSkgJT4lDQogIGxlZnRfam9pbihiaWdyYW1zLCBieSA9IGMoIndvcmQiID0gIndvcmQiKSwgc3VmZml4ID0gYygiLngiLCAiLnkiKSkgJT4lDQogIGRyb3BfbmEoKSAlPiUNCiAgbXV0YXRlKFAgPSBmcmVxLnggLyBmcmVxLnkpICU+JQ0KICBzZWxlY3QoLWMoInAueCIsICJwLnkiKSkgJT4lDQogIGFycmFuZ2Uod29yZCwgZGVzYyhQKSkNCg0KDQojIHBvc3NpYmxlIHNpemUgc2F2ZSwgb25seSBzdG9yZSB0aGUgbW9zdCBsaWtlbHkNCiMgcHJlZGljdGlvbnMuIFRvcCA1PyAxMD8gMjA/IGZvciBlYWNoIHByZWRpY3Rvcg0KDQpgYGA=</div>
+bigram_probs &lt;- bigram_probs %&gt;% select(c(&quot;word1&quot;, &quot;word2&quot;, &quot;P&quot;)) %&gt;% drop_na()
+bigram_probs[, &quot;word3&quot;] &lt;- NA
+
+trigram_probs &lt;- trigram_probs %&gt;% separate(word, c(&quot;word1&quot;, &quot;word2&quot;)) %&gt;% select(c(&quot;word1&quot;, &quot;word2&quot;, &quot;word3&quot;, &quot;P&quot;)) %&gt;% drop_na()
+
+bigram_probs &lt;- bigram_probs %&gt;% TopNProbFreq(n = 3)
+trigram_probs &lt;- trigram_probs %&gt;% TopNProbFreq(n = 3)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucHJvYl90YWJsZSA8LSByYmluZCh1bmlncmFtX3Byb2JzLCBiaWdyYW1fcHJvYnMsIHRyaWdyYW1fcHJvYnMpICU+JSBzZWxlY3Qob3JkZXIoY29sbmFtZXMoLikpKVxuYGBgIn0= -->
+<pre class="r"><code>prob_table &lt;- rbind(unigram_probs, bigram_probs, trigram_probs) %&gt;% select(order(colnames(.)))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBDcmVhdGUgcHJvYmFiaWxpdHkgdGFibGVcbkNyZWF0ZVByb2JUYWJsZSA8LSBmdW5jdGlvbih1bmlncmFtLCBiaWdyYW0sIHRyaWdhbSl7XG4gIFxuICAjIHNwbGl0IGJpZ3JhbSB3b3JkIGludG8gdHdvIHdvcmRzXG4gICMgam9pbiBvbiB0aGUgZmlyc3Qgd29yZCB3aXRoIHVuaWdyYW1cbiAgIyBhZGQgZnJlcSBjb2x1bW5zIG9mIGZpcnN0IHdvcmQgYW5kIHNlY29uZFxuICAjIGNhbGN1bGF0ZSBwcm9iYWJpbGl0eVxuICAjIHNvcnRcbiAgYmlncmFtX3Byb2JzIDwtIGJpZ3JhbSAlPiVcbiAgICBzZXBhcmF0ZSh3b3JkLCBjKFwid29yZDFcIiwgXCJ3b3JkMlwiKSwgc2VwID0gXCIgXCIpICU+JVxuICAgIGxlZnRfam9pbih1bmlncmFtLCBieSA9IGMoXCJ3b3JkMVwiID0gXCJ3b3JkXCIpLCBzdWZmaXggPSBjKFwiLnhcIiwgXCIueVwiKSkgJT4lIFxuICAgIG11dGF0ZShQID0gZnJlcS54IC8gZnJlcS55KSAlPiVcbiAgICBkcm9wX25hKCkgJT4lXG4gICAgc2VsZWN0KC1jKFwicC54XCIsIFwicC55XCIpKSAlPiUgXG4gICAgYXJyYW5nZSh3b3JkMSwgZGVzYyhmcmVxLnkpKVxuXG4gICMgc3BsaXQgdHJpZ3JhbSB3b3JkIGludG8gdGhyZWUgd29yZHNcbiAgIyB1bml0ZSB0aGUgZmlyc3QgdHdvIHdvcmRzIHRvIG1hdGNoIGJpZ3JhbVxuICAjIGpvaW4gb24gdGhlIHR3byB3b3JkcyB3aXRoIGJpZ3JhbVxuICAjIGFkZCBmcmVxIGNvbHVtbnMgb2YgZmlyc3Qgd29yZCBhbmQgc2Vjb25kXG4gICMgY2FsY3VsYXRlIHByb2JhYmlsaXR5XG4gICMgc29ydFxuICB0cmlncmFtX3Byb2JzIDwtIHRyaWdyYW0gJT4lXG4gICAgc2VwYXJhdGUod29yZCwgYyhcIndvcmQxXCIsIFwid29yZDJcIiwgXCJ3b3JkM1wiKSwgc2VwID0gXCIgXCIpICU+JSBcbiAgICB1bml0ZShjb2wgPSB3b3JkLCB3b3JkMSwgd29yZDIsIHNlcCA9IFwiIFwiLCBuYS5ybSA9IFRSVUUpICU+JVxuICAgIGxlZnRfam9pbihiaWdyYW0sIGJ5ID0gYyhcIndvcmRcIiA9IFwid29yZFwiKSwgc3VmZml4ID0gYyhcIi54XCIsIFwiLnlcIikpICU+JVxuICAgIGRyb3BfbmEoKSAlPiVcbiAgICBtdXRhdGUoUCA9IGZyZXEueCAvIGZyZXEueSkgJT4lXG4gICAgc2VsZWN0KC1jKFwicC54XCIsIFwicC55XCIpKSAlPiVcbiAgICBhcnJhbmdlKHdvcmQsIGRlc2MoZnJlcS55KSlcbiAgXG4gICMgZm9ybWF0dGluZ1xuICB1bmlncmFtX3Byb2JzIDwtIHJlbmFtZSh1bmlncmFtLCB3b3JkMSA9IHdvcmQsIFAgPSBwKVxuICB1bmlncmFtX3Byb2JzIDwtIHVuaWdyYW1fcHJvYnMgJT4lXG4gICAgc2VsZWN0KGMoXCJ3b3JkMVwiLCBcIlBcIikpICU+JVxuICAgIGRyb3BfbmEoKVxuICB1bmlncmFtX3Byb2JzWywgXCJ3b3JkMlwiXSA8LSBOQVxuICB1bmlncmFtX3Byb2JzWywgXCJ3b3JkM1wiXSA8LSBOQVxuXG4gICMgZm9ybWF0dGluZ1xuICBiaWdyYW1fcHJvYnMgPC0gYmlncmFtX3Byb2JzICU+JVxuICAgIHNlbGVjdChjKFwid29yZDFcIiwgXCJ3b3JkMlwiLCBcIlBcIikpICU+JVxuICAgIGRyb3BfbmEoKVxuICBiaWdyYW1fcHJvYnNbLCBcIndvcmQzXCJdIDwtIE5BXG4gIFxuICAjIGZvcm1hdHRpbmdcbiAgdHJpZ3JhbV9wcm9icyA8LSB0cmlncmFtX3Byb2JzICU+JVxuICAgIHNlcGFyYXRlKHdvcmQsIGMoXCJ3b3JkMVwiLCBcIndvcmQyXCIpKSAlPiVcbiAgICBzZWxlY3QoYyhcIndvcmQxXCIsIFwid29yZDJcIiwgXCJ3b3JkM1wiLCBcIlBcIikpICU+JVxuICAgIGRyb3BfbmEoKVxuICBcbiAgIyBzdG9yZSBvbmx5IHRvcCAnMycgcmVzdWx0cyBvZiBlYWNoXG4gIGJpZ3JhbV9wcm9icyA8LSBiaWdyYW1fcHJvYnMgJT4lIFRvcE5Qcm9iRnJlcShuID0gMylcbiAgdHJpZ3JhbV9wcm9icyA8LSB0cmlncmFtX3Byb2JzICU+JSBUb3BOUHJvYkZyZXEobiA9IDMpXG4gIFxuICAjIGNvbWJpbmUgcHJvYiB0YWJsZXMgb2YgYWxsIHRocmVlXG4gIHByb2JfdGFibGUgPC0gcmJpbmQodW5pZ3JhbV9wcm9icywgYmlncmFtX3Byb2JzLCB0cmlncmFtX3Byb2JzKSAlPiVcbiAgICBzZWxlY3Qob3JkZXIoY29sbmFtZXMoLikpKVxuICBcbiAgcHJvYl90YWJsZVxufVxuYGBgIn0= -->
+<pre class="r"><code># Create probability table
+CreateProbTable &lt;- function(unigram, bigram, trigam){
+  
+  # split bigram word into two words
+  # join on the first word with unigram
+  # add freq columns of first word and second
+  # calculate probability
+  # sort
+  bigram_probs &lt;- bigram %&gt;%
+    separate(word, c(&quot;word1&quot;, &quot;word2&quot;), sep = &quot; &quot;) %&gt;%
+    left_join(unigram, by = c(&quot;word1&quot; = &quot;word&quot;), suffix = c(&quot;.x&quot;, &quot;.y&quot;)) %&gt;% 
+    mutate(P = freq.x / freq.y) %&gt;%
+    drop_na() %&gt;%
+    select(-c(&quot;p.x&quot;, &quot;p.y&quot;)) %&gt;% 
+    arrange(word1, desc(freq.y))
+
+  # split trigram word into three words
+  # unite the first two words to match bigram
+  # join on the two words with bigram
+  # add freq columns of first word and second
+  # calculate probability
+  # sort
+  trigram_probs &lt;- trigram %&gt;%
+    separate(word, c(&quot;word1&quot;, &quot;word2&quot;, &quot;word3&quot;), sep = &quot; &quot;) %&gt;% 
+    unite(col = word, word1, word2, sep = &quot; &quot;, na.rm = TRUE) %&gt;%
+    left_join(bigram, by = c(&quot;word&quot; = &quot;word&quot;), suffix = c(&quot;.x&quot;, &quot;.y&quot;)) %&gt;%
+    drop_na() %&gt;%
+    mutate(P = freq.x / freq.y) %&gt;%
+    select(-c(&quot;p.x&quot;, &quot;p.y&quot;)) %&gt;%
+    arrange(word, desc(freq.y))
+  
+  # formatting
+  unigram_probs &lt;- rename(unigram, word1 = word, P = p)
+  unigram_probs &lt;- unigram_probs %&gt;%
+    select(c(&quot;word1&quot;, &quot;P&quot;)) %&gt;%
+    drop_na()
+  unigram_probs[, &quot;word2&quot;] &lt;- NA
+  unigram_probs[, &quot;word3&quot;] &lt;- NA
+
+  # formatting
+  bigram_probs &lt;- bigram_probs %&gt;%
+    select(c(&quot;word1&quot;, &quot;word2&quot;, &quot;P&quot;)) %&gt;%
+    drop_na()
+  bigram_probs[, &quot;word3&quot;] &lt;- NA
+  
+  # formatting
+  trigram_probs &lt;- trigram_probs %&gt;%
+    separate(word, c(&quot;word1&quot;, &quot;word2&quot;)) %&gt;%
+    select(c(&quot;word1&quot;, &quot;word2&quot;, &quot;word3&quot;, &quot;P&quot;)) %&gt;%
+    drop_na()
+  
+  # store only top &#39;3&#39; results of each
+  bigram_probs &lt;- bigram_probs %&gt;% TopNProbFreq(n = 3)
+  trigram_probs &lt;- trigram_probs %&gt;% TopNProbFreq(n = 3)
+  
+  # combine prob tables of all three
+  prob_table &lt;- rbind(unigram_probs, bigram_probs, trigram_probs) %&gt;%
+    select(order(colnames(.)))
+  
+  prob_table
+}</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNhcHN0b25lIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NCg0KYGBge3J9DQpzZXR3ZCgiQzovVXNlcnMvSkwvRGVza3RvcC9TdHVkeS9Db3Vyc2VyYS9Kb2hucyBIb3BraW5zIERhdGEgU2NpZW5jZS8xMCBjYXBzdG9uZS9DYXBzdG9uZVByb2plY3RfTmF0dXJhbExhbmd1YWdlUHJvY2Vzc2luZyIpDQoNCmxpYnJhcnkodGlkeXZlcnNlKQ0KbGlicmFyeSh0aWR5dGV4dCkNCmxpYnJhcnkodG0pDQpsaWJyYXJ5KGdndGhlbWVzKQ0KbGlicmFyeShvcGVuTkxQKQ0KbGlicmFyeShSLnV0aWxzKQ0KbGlicmFyeShkYXRhLnRhYmxlKQ0KbGlicmFyeShkb1BhcmFsbGVsKQ0KYGBgDQoNCmBgYHtyfQ0KZHRtXzEgPC0gY2FzdF9kdG0oZnVsbF90aWR5X2R0bV8xLCB0ZXJtID0gd29yZCwgZG9jdW1lbnQgPSBkb2N1bWVudCwgdmFsdWUgPSBuKQ0KDQpwbG90KGR0bV8xKQ0KWmlwZl9wbG90KGR0bV8xKQ0KSGVhcHNfcGxvdChkdG1fMSkNCg0KYGBgDQoNCmBgYHtyIGNhY2hlPVRSVUV9DQojIGNhbGN1bGF0aW5nIHByb2JhYmlsaXRpZXMgb2YgJ25leHQgd29yZCcNCg0Kc2FtcGxlXzEwMDAgPC0gU2FtcGxlTG9hZEZpbGVzKCJkYXRhL2VuX1VTLyIsIG4gPSAxMDAwLCBzZWVkID0gMzcpDQp0aWR5XzEgPC0gbGFwcGx5KHNhbXBsZV8xMDAwLCBDbGVhblRva2VucywgbiA9IDEpICU+JSBNZXJnZURUTSgpDQp0aWR5XzIgPC0gbGFwcGx5KHNhbXBsZV8xMDAwLCBDbGVhblRva2VucywgbiA9IDIpICU+JSBNZXJnZURUTSgpDQp0aWR5XzMgPC0gbGFwcGx5KHNhbXBsZV8xMDAwLCBDbGVhblRva2VucywgbiA9IDMpICU+JSBNZXJnZURUTSgpDQoNCnVuaWdyYW1zIDwtIFdvcmRGcmVxUHJvYih0aWR5XzEpDQpiaWdyYW1zIDwtIFdvcmRGcmVxUHJvYih0aWR5XzIpDQp0cmlncmFtcyA8LSBXb3JkRnJlcVByb2IodGlkeV8zKQ0KYGBgDQoNCg0KYGBge3J9DQoNCnVuaWdyYW1fcHJvYnMgPC0gdW5pZ3JhbXMNCg0KDQojIHNwbGl0IGJpZ3JhbSB3b3JkIGludG8gdHdvIHdvcmRzDQojIGpvaW4gb24gdGhlIGZpcnN0IHdvcmQgd2l0aCB1bmlncmFtDQojIGFkZCBmcmVxIGNvbHVtbnMgb2YgZmlyc3Qgd29yZCBhbmQgc2Vjb25kDQojIGNhbGN1bGF0ZSBwcm9iYWJpbGl0eQ0KIyBzb3J0DQpiaWdyYW1fcHJvYnMgPC0gYmlncmFtcyAlPiUNCiAgc2VwYXJhdGUod29yZCwgYygid29yZDEiLCAid29yZDIiKSwgc2VwID0gIiAiKSAlPiUgDQogIGxlZnRfam9pbih1bmlncmFtcywgYnkgPSBjKCJ3b3JkMSIgPSAid29yZCIpLCBzdWZmaXggPSBjKCIueCIsICIueSIpKSAlPiUgDQogIG11dGF0ZShQID0gZnJlcS54IC8gZnJlcS55KSAlPiUNCiAgZHJvcF9uYSgpICU+JQ0KICBzZWxlY3QoLWMoInAueCIsICJwLnkiKSkgJT4lIA0KICBhcnJhbmdlKHdvcmQxLCBkZXNjKGZyZXEueSkpDQoNCg0KIyBzcGxpdCB0cmlncmFtIHdvcmQgaW50byB0aHJlZSB3b3Jkcw0KIyB1bml0ZSB0aGUgZmlyc3QgdHdvIHdvcmRzIHRvIG1hdGNoIGJpZ3JhbQ0KIyBqb2luIG9uIHRoZSB0d28gd29yZHMgd2l0aCBiaWdyYW0NCiMgYWRkIGZyZXEgY29sdW1ucyBvZiBmaXJzdCB3b3JkIGFuZCBzZWNvbmQNCiMgY2FsY3VsYXRlIHByb2JhYmlsaXR5DQojIHNvcnQNCnRyaWdyYW1fcHJvYnMgPC0gdHJpZ3JhbXMgJT4lDQogIHNlcGFyYXRlKHdvcmQsIGMoIndvcmQxIiwgIndvcmQyIiwgIndvcmQzIiksIHNlcCA9ICIgIikgJT4lIA0KICB1bml0ZShjb2wgPSB3b3JkLCB3b3JkMSwgd29yZDIsIHNlcCA9ICIgIiwgbmEucm0gPSBUUlVFKSAlPiUNCiAgbGVmdF9qb2luKGJpZ3JhbXMsIGJ5ID0gYygid29yZCIgPSAid29yZCIpLCBzdWZmaXggPSBjKCIueCIsICIueSIpKSAlPiUNCiAgZHJvcF9uYSgpICU+JQ0KICBtdXRhdGUoUCA9IGZyZXEueCAvIGZyZXEueSkgJT4lDQogIHNlbGVjdCgtYygicC54IiwgInAueSIpKSAlPiUNCiAgYXJyYW5nZSh3b3JkLCBkZXNjKGZyZXEueSkpDQoNCmBgYA0KDQpgYGB7cn0NCnVuaWdyYW1fcHJvYnMgPC0gcmVuYW1lKHVuaWdyYW1fcHJvYnMsIHdvcmQxID0gd29yZCwgUCA9IHApDQp1bmlncmFtX3Byb2JzIDwtIHVuaWdyYW1fcHJvYnMgJT4lDQogIHNlbGVjdChjKCJ3b3JkMSIsICJQIikpICU+JQ0KICBkcm9wX25hKCkNCnVuaWdyYW1fcHJvYnNbLCAid29yZDIiXSA8LSBOQQ0KdW5pZ3JhbV9wcm9ic1ssICJ3b3JkMyJdIDwtIE5BDQoNCmJpZ3JhbV9wcm9icyA8LSBiaWdyYW1fcHJvYnMgJT4lIHNlbGVjdChjKCJ3b3JkMSIsICJ3b3JkMiIsICJQIikpICU+JSBkcm9wX25hKCkNCmJpZ3JhbV9wcm9ic1ssICJ3b3JkMyJdIDwtIE5BDQoNCnRyaWdyYW1fcHJvYnMgPC0gdHJpZ3JhbV9wcm9icyAlPiUgc2VwYXJhdGUod29yZCwgYygid29yZDEiLCAid29yZDIiKSkgJT4lIHNlbGVjdChjKCJ3b3JkMSIsICJ3b3JkMiIsICJ3b3JkMyIsICJQIikpICU+JSBkcm9wX25hKCkNCg0KYmlncmFtX3Byb2JzIDwtIGJpZ3JhbV9wcm9icyAlPiUgVG9wTlByb2JGcmVxKG4gPSAzKQ0KdHJpZ3JhbV9wcm9icyA8LSB0cmlncmFtX3Byb2JzICU+JSBUb3BOUHJvYkZyZXEobiA9IDMpDQpgYGANCmBgYHtyfQ0KcHJvYl90YWJsZSA8LSByYmluZCh1bmlncmFtX3Byb2JzLCBiaWdyYW1fcHJvYnMsIHRyaWdyYW1fcHJvYnMpICU+JSBzZWxlY3Qob3JkZXIoY29sbmFtZXMoLikpKQ0KYGBgDQoNCmBgYHtyfQ0KIyBDcmVhdGUgcHJvYmFiaWxpdHkgdGFibGUNCkNyZWF0ZVByb2JUYWJsZSA8LSBmdW5jdGlvbih1bmlncmFtLCBiaWdyYW0sIHRyaWdhbSl7DQogIA0KICAjIHNwbGl0IGJpZ3JhbSB3b3JkIGludG8gdHdvIHdvcmRzDQogICMgam9pbiBvbiB0aGUgZmlyc3Qgd29yZCB3aXRoIHVuaWdyYW0NCiAgIyBhZGQgZnJlcSBjb2x1bW5zIG9mIGZpcnN0IHdvcmQgYW5kIHNlY29uZA0KICAjIGNhbGN1bGF0ZSBwcm9iYWJpbGl0eQ0KICAjIHNvcnQNCiAgYmlncmFtX3Byb2JzIDwtIGJpZ3JhbSAlPiUNCiAgICBzZXBhcmF0ZSh3b3JkLCBjKCJ3b3JkMSIsICJ3b3JkMiIpLCBzZXAgPSAiICIpICU+JQ0KICAgIGxlZnRfam9pbih1bmlncmFtLCBieSA9IGMoIndvcmQxIiA9ICJ3b3JkIiksIHN1ZmZpeCA9IGMoIi54IiwgIi55IikpICU+JSANCiAgICBtdXRhdGUoUCA9IGZyZXEueCAvIGZyZXEueSkgJT4lDQogICAgZHJvcF9uYSgpICU+JQ0KICAgIHNlbGVjdCgtYygicC54IiwgInAueSIpKSAlPiUgDQogICAgYXJyYW5nZSh3b3JkMSwgZGVzYyhmcmVxLnkpKQ0KDQogICMgc3BsaXQgdHJpZ3JhbSB3b3JkIGludG8gdGhyZWUgd29yZHMNCiAgIyB1bml0ZSB0aGUgZmlyc3QgdHdvIHdvcmRzIHRvIG1hdGNoIGJpZ3JhbQ0KICAjIGpvaW4gb24gdGhlIHR3byB3b3JkcyB3aXRoIGJpZ3JhbQ0KICAjIGFkZCBmcmVxIGNvbHVtbnMgb2YgZmlyc3Qgd29yZCBhbmQgc2Vjb25kDQogICMgY2FsY3VsYXRlIHByb2JhYmlsaXR5DQogICMgc29ydA0KICB0cmlncmFtX3Byb2JzIDwtIHRyaWdyYW0gJT4lDQogICAgc2VwYXJhdGUod29yZCwgYygid29yZDEiLCAid29yZDIiLCAid29yZDMiKSwgc2VwID0gIiAiKSAlPiUgDQogICAgdW5pdGUoY29sID0gd29yZCwgd29yZDEsIHdvcmQyLCBzZXAgPSAiICIsIG5hLnJtID0gVFJVRSkgJT4lDQogICAgbGVmdF9qb2luKGJpZ3JhbSwgYnkgPSBjKCJ3b3JkIiA9ICJ3b3JkIiksIHN1ZmZpeCA9IGMoIi54IiwgIi55IikpICU+JQ0KICAgIGRyb3BfbmEoKSAlPiUNCiAgICBtdXRhdGUoUCA9IGZyZXEueCAvIGZyZXEueSkgJT4lDQogICAgc2VsZWN0KC1jKCJwLngiLCAicC55IikpICU+JQ0KICAgIGFycmFuZ2Uod29yZCwgZGVzYyhmcmVxLnkpKQ0KICANCiAgIyBmb3JtYXR0aW5nDQogIHVuaWdyYW1fcHJvYnMgPC0gcmVuYW1lKHVuaWdyYW0sIHdvcmQxID0gd29yZCwgUCA9IHApDQogIHVuaWdyYW1fcHJvYnMgPC0gdW5pZ3JhbV9wcm9icyAlPiUNCiAgICBzZWxlY3QoYygid29yZDEiLCAiUCIpKSAlPiUNCiAgICBkcm9wX25hKCkNCiAgdW5pZ3JhbV9wcm9ic1ssICJ3b3JkMiJdIDwtIE5BDQogIHVuaWdyYW1fcHJvYnNbLCAid29yZDMiXSA8LSBOQQ0KDQogICMgZm9ybWF0dGluZw0KICBiaWdyYW1fcHJvYnMgPC0gYmlncmFtX3Byb2JzICU+JQ0KICAgIHNlbGVjdChjKCJ3b3JkMSIsICJ3b3JkMiIsICJQIikpICU+JQ0KICAgIGRyb3BfbmEoKQ0KICBiaWdyYW1fcHJvYnNbLCAid29yZDMiXSA8LSBOQQ0KICANCiAgIyBmb3JtYXR0aW5nDQogIHRyaWdyYW1fcHJvYnMgPC0gdHJpZ3JhbV9wcm9icyAlPiUNCiAgICBzZXBhcmF0ZSh3b3JkLCBjKCJ3b3JkMSIsICJ3b3JkMiIpKSAlPiUNCiAgICBzZWxlY3QoYygid29yZDEiLCAid29yZDIiLCAid29yZDMiLCAiUCIpKSAlPiUNCiAgICBkcm9wX25hKCkNCiAgDQogICMgc3RvcmUgb25seSB0b3AgJzMnIHJlc3VsdHMgb2YgZWFjaA0KICBiaWdyYW1fcHJvYnMgPC0gYmlncmFtX3Byb2JzICU+JSBUb3BOUHJvYkZyZXEobiA9IDMpDQogIHRyaWdyYW1fcHJvYnMgPC0gdHJpZ3JhbV9wcm9icyAlPiUgVG9wTlByb2JGcmVxKG4gPSAzKQ0KICANCiAgIyBjb21iaW5lIHByb2IgdGFibGVzIG9mIGFsbCB0aHJlZQ0KICBwcm9iX3RhYmxlIDwtIHJiaW5kKHVuaWdyYW1fcHJvYnMsIGJpZ3JhbV9wcm9icywgdHJpZ3JhbV9wcm9icykgJT4lDQogICAgc2VsZWN0KG9yZGVyKGNvbG5hbWVzKC4pKSkNCiAgDQogIHByb2JfdGFibGUNCn0NCmBgYA==</div>
 
 
 
