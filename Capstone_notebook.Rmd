@@ -29,21 +29,25 @@ data("stop_words")
 
 What we've learned is that the predictive model is Highly dependent on the training data. And so, it must be representative of the whole dataset to predict accurately. The bottleneck of this model is the reading in/loading of the text files. Especially with the SampleLoadFiles function. 
 
+To counteract this, created samples of each document and stored in separate folder/txt_files: 10, 25, 50, 75 percent respectively.
 
 
-```{r, time_it = TRUE}
+
+```{r warning=FALSE}
 # this has 4-gram, can predict off three words
-model <- CallAll("data/en_US/10/",
+model <- CallAll("data/en_US/25/",    # % sample each doc
+                 size = -1L,
                  coverage = 0.90,
-                 filter = stop_words)
+                 stem = TRUE)
+                 #filter = stop_words)
 ```
 
 ```{r}
-for (string in test_strings){
-  print(MatchStringPredict(string,
+for (index in 1:10){
+  print(MatchStringPredict(test_strings[index],
                            model,
-                           stem = TRUE,
-                           filter = stop_words))
+                           stem = FALSE)
+                           #filter = stop_words))
 }
 ```
 

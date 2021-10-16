@@ -199,8 +199,11 @@ POSsummaryDF <- function(filepath, size = 1e5, chunks = 150){
 
 # takes dataframe input with col.names "line", "text", "document"
 # returns a clean dataframe of tokens
-# n should equal 1, 2, or 3. 4-grams and higher not yet desired
+# n should equal 1, 2, 3, 4
 CleanTokens <- function(unclean_df, n = 1, filter_df = NULL){
+  
+  # remove puntuation
+  unclean_df$text <- removePunctuation(unclean_df$text)
   
   if (n == 1){
     df_ <- unnest_tokens(tbl = unclean_df,
@@ -251,7 +254,20 @@ CleanTokens <- function(unclean_df, n = 1, filter_df = NULL){
         df_ <- df_ %>%
           unite(word, word1, word2, word3, sep = " ")
         
-      }
+      } else if (n == 4){
+        
+        df_ <- df_ %>% separate(word,
+                                c("word1", "word2", "word3", "word4"),
+                                sep = " ")
+        
+        df_ <- df_ %>%
+          anti_join(filter_df, by = c("word1" = "word")) %>%
+          anti_join(filter_df, by = c("word2" = "word")) %>%
+          anti_join(filter_df, by = c("word3" = "word")) %>%
+          anti_join(filter_df, by = c("word4" = "word")) 
+        
+        df_ <- df_ %>%
+          unite(word, word1, word2, word3, word4, sep = " ")
     }
     
   }
@@ -260,8 +276,9 @@ CleanTokens <- function(unclean_df, n = 1, filter_df = NULL){
   df_ <- filter(df_, !grepl(".*\\d+.*", word))
   
   # remove a common error
-  df_ <- filter(df_, !grepl("^NA$|^NA NA$|^NA NA NA$", word))
+  df_ <- filter(df_, !grepl("^NA$|^NA NA$|^NA NA NA$|^NA NA NA NA$", word))
   
+  }
   df_
   
 }
@@ -626,6 +643,8 @@ MatchStringPredict <- function(string,
     
     prediction <- pred_table$word4
     
+    # this is implementation of 'back-off'
+    # reducing n-gram prediction if nothing is found
     if (nrow(pred_table) == 0){
       pred_table2 <- ptable %>%
         filter(word1 == search[2],
@@ -726,6 +745,9 @@ CallAll <- function(filepath,
   bigram_ <- WordFreqProb(tidy_2_)
   trigram_ <- WordFreqProb(tidy_3_)
   quagram_ <- WordFreqProb(tidy_4_)
+  
+  # we shoud be able to filter by frequency, say 
+  # n=2:k=10, n=3:k=5, n=4:k=2
   
   vocab_n_ <- unigram_ %>%
     mutate(cumsum = cumsum(P)) %>%

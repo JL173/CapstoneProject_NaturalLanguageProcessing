@@ -246,47 +246,34 @@ data(&quot;stop_words&quot;)
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>What we’ve learned is that the predictive model is Highly dependent on the training data. And so, it must be representative of the whole dataset to predict accurately. The bottleneck of this model is the reading in/loading of the text files. Especially with the SampleLoadFiles function.</p>
+<p>To counteract this, created samples of each document and stored in separate folder/txt_files: 10, 25, 50, 75 percent respectively.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyB0aGlzIGhhcyA0LWdyYW0sIGNhbiBwcmVkaWN0IG9mZiB0aHJlZSB3b3Jkc1xubW9kZWwgPC0gQ2FsbEFsbChcImRhdGEvZW5fVVMvMTAvXCIsXG4gICAgICAgICAgICAgICAgIGNvdmVyYWdlID0gMC45MCxcbiAgICAgICAgICAgICAgICAgZmlsdGVyID0gc3RvcF93b3JkcylcbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyB0aGlzIGhhcyA0LWdyYW0sIGNhbiBwcmVkaWN0IG9mZiB0aHJlZSB3b3Jkc1xubW9kZWwgPC0gQ2FsbEFsbChcImRhdGEvZW5fVVMvMjUvXCIsICAgICMgJSBzYW1wbGUgZWFjaCBkb2NcbiAgICAgICAgICAgICAgICAgc2l6ZSA9IC0xTCxcbiAgICAgICAgICAgICAgICAgY292ZXJhZ2UgPSAwLjkwLFxuICAgICAgICAgICAgICAgICBzdGVtID0gVFJVRSlcbiAgICAgICAgICAgICAgICAgI2ZpbHRlciA9IHN0b3Bfd29yZHMpXG5gYGAifQ== -->
 <pre class="r"><code># this has 4-gram, can predict off three words
-model &lt;- CallAll(&quot;data/en_US/10/&quot;,
+model &lt;- CallAll(&quot;data/en_US/25/&quot;,    # % sample each doc
+                 size = -1L,
                  coverage = 0.90,
-                 filter = stop_words)</code></pre>
+                 stem = TRUE)
+                 #filter = stop_words)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gQ2FsbEFsbChcImRhdGEvZW5fVVMvMTAvXCIsIGNvdmVyYWdlID0gMC45LCBmaWx0ZXIgPSBzdG9wX3dvcmRzKSA6IFxuICBjb3VsZCBub3QgZmluZCBmdW5jdGlvbiBcIkNhbGxBbGxcIlxuIn0= -->
-<pre><code>Error in CallAll(&quot;data/en_US/10/&quot;, coverage = 0.9, filter = stop_words) : 
-  could not find function &quot;CallAll&quot;</code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZm9yIChzdHJpbmcgaW4gdGVzdF9zdHJpbmdzKXtcbiAgcHJpbnQoTWF0Y2hTdHJpbmdQcmVkaWN0KHN0cmluZyxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgIG1vZGVsLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgc3RlbSA9IFRSVUUsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICBmaWx0ZXIgPSBzdG9wX3dvcmRzKSlcbn1cbmBgYCJ9 -->
-<pre class="r"><code>for (string in test_strings){
-  print(MatchStringPredict(string,
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZm9yIChpbmRleCBpbiAxOjEwKXtcbiAgcHJpbnQoTWF0Y2hTdHJpbmdQcmVkaWN0KHRlc3Rfc3RyaW5nc1tpbmRleF0sXG4gICAgICAgICAgICAgICAgICAgICAgICAgICBtb2RlbCxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgIHN0ZW0gPSBGQUxTRSlcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICNmaWx0ZXIgPSBzdG9wX3dvcmRzKSlcbn1cbmBgYCJ9 -->
+<pre class="r"><code>for (index in 1:10){
+  print(MatchStringPredict(test_strings[index],
                            model,
-                           stem = TRUE,
-                           filter = stop_words))
+                           stem = FALSE)
+                           #filter = stop_words))
 }</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiaWRrXCIgIFwic2VhXCIgIFwiZHVyZVwiXG5bMV0gXCJhbHdheVwiICAgIFwiYW55Ym9kaVwiICBcImJsYWlzaW5nXCJcblsxXSBcImFsd2F5XCIgICAgXCJhbnlib2RpXCIgIFwiYmxhaXNpbmdcIlxuWzFdIFwiZGlhZ25vc1wiIFwibm9wZVwiICAgIFwiY3V0XCIgICAgXG5bMV0gXCJjb21iaW5cIiBcImNyZWVrXCIgIFwibm9ydGhcIiBcblsxXSBcImJsb3duXCIgXCJjb3ZlclwiIFwic3Rvcm1cIlxuWzFdIFwiYXdvbFwiICBcImJlZVwiICAgXCJibGFja1wiXG5bMV0gXCJzbW9sZGVyXCJcblsxXSBcImFsb25cIiAgIFwiaXRcIiAgICAgXCJqb3JkZW5cIlxuWzFdIFwiYXdcIiAgICAgXCJlbnJpY2hcIiBcInBlb3BsXCIgXG4ifQ== -->
-<pre><code>[1] &quot;idk&quot;  &quot;sea&quot;  &quot;dure&quot;
-[1] &quot;alway&quot;    &quot;anybodi&quot;  &quot;blaising&quot;
-[1] &quot;alway&quot;    &quot;anybodi&quot;  &quot;blaising&quot;
-[1] &quot;diagnos&quot; &quot;nope&quot;    &quot;cut&quot;    
-[1] &quot;combin&quot; &quot;creek&quot;  &quot;north&quot; 
-[1] &quot;blown&quot; &quot;cover&quot; &quot;storm&quot;
-[1] &quot;awol&quot;  &quot;bee&quot;   &quot;black&quot;
-[1] &quot;smolder&quot;
-[1] &quot;alon&quot;   &quot;it&quot;     &quot;jorden&quot;
-[1] &quot;aw&quot;     &quot;enrich&quot; &quot;peopl&quot; </code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNhcHN0b25lIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NCg0KYGBge3J9DQojIGNvdXJzZXJhIHF1aXogcHJlZGljdGlvbnMNCg0KdGVzdF9zdHJpbmdzIDwtIGMoIlRoZSBndXkgaW4gZnJvbnQgb2YgbWUganVzdCBib3VnaHQgYSBwb3VuZCBvZiBiYWNvbiwgYSBib3VxdWV0LCBhbmQgYSBjYXNlIG9mIiwgIllvdSdyZSB0aGUgcmVhc29uIHdoeSBJIHNtaWxlIGV2ZXJ5ZGF5LiBDYW4geW91IGZvbGxvdyBtZSBwbGVhc2U/IEl0IHdvdWxkIG1lYW4gdGhlIiwgIkhleSBzdW5zaGluZSwgY2FuIHlvdSBmb2xsb3cgbWUgYW5kIG1ha2UgbWUgdGhlIiwgIlZlcnkgZWFybHkgb2JzZXJ2YXRpb25zIG9uIHRoZSBCaWxscyBnYW1lOiBPZmZlbnNlIHN0aWxsIHN0cnVnZ2xpbmcgYnV0IHRoZSIsIkdvIG9uIGEgcm9tYW50aWMgZGF0ZSBhdCB0aGUiLCAiV2VsbCBJJ20gcHJldHR5IHN1cmUgbXkgZ3Jhbm55IGhhcyBzb21lIG9sZCBiYWdwaXBlcyBpbiBoZXIgZ2FyYWdlIEknbGwgZHVzdCB0aGVtIG9mZiBhbmQgYmUgb24gbXkiLCAiT2hoaGhoICNQb2ludEJyZWFrIGlzIG9uIHRvbW9ycm93LiBMb3ZlIHRoYXQgZmlsbSBhbmQgaGF2ZW4ndCBzZWVuIGl0IGluIHF1aXRlIHNvbWUiLCAiQWZ0ZXIgdGhlIGljZSBidWNrZXQgY2hhbGxlbmdlIExvdWlzIHdpbGwgcHVzaCBoaXMgbG9uZyB3ZXQgaGFpciBvdXQgb2YgaGlzIGV5ZXMgd2l0aCBoaXMgbGl0dGxlIiwgIkJlIGdyYXRlZnVsIGZvciB0aGUgZ29vZCB0aW1lcyBhbmQga2VlcCB0aGUgZmFpdGggZHVyaW5nIHRoZSIsICJJZiB0aGlzIGlzbid0IHRoZSBjdXRlc3QgdGhpbmcgeW91J3ZlIGV2ZXIgc2VlbiwgdGhlbiB5b3UgbXVzdCBiZSIpDQoNCmBgYA0KDQpgYGB7cn0NCnNldHdkKCJDOi9Vc2Vycy9KTC9EZXNrdG9wL1N0dWR5L0NvdXJzZXJhL0pvaG5zIEhvcGtpbnMgRGF0YSBTY2llbmNlLzEwIGNhcHN0b25lL0NhcHN0b25lUHJvamVjdF9OYXR1cmFsTGFuZ3VhZ2VQcm9jZXNzaW5nIikNCg0KbGlicmFyeSh0aWR5dmVyc2UpDQpsaWJyYXJ5KHRpZHl0ZXh0KQ0KbGlicmFyeSh0bSkNCmxpYnJhcnkoZ2d0aGVtZXMpDQpsaWJyYXJ5KG9wZW5OTFApDQpsaWJyYXJ5KFIudXRpbHMpDQpsaWJyYXJ5KGRhdGEudGFibGUpDQoNCnNvdXJjZSgiQzovVXNlcnMvSkwvRGVza3RvcC9TdHVkeS9Db3Vyc2VyYS9Kb2hucyBIb3BraW5zIERhdGEgU2NpZW5jZS8xMCBjYXBzdG9uZS9DYXBzdG9uZVByb2plY3RfTmF0dXJhbExhbmd1YWdlUHJvY2Vzc2luZy9oZWxwZXJfZnVuY3Rpb25zLlIiKQ0KDQpkYXRhKCJzdG9wX3dvcmRzIikNCg0KYGBgDQoNCldoYXQgd2UndmUgbGVhcm5lZCBpcyB0aGF0IHRoZSBwcmVkaWN0aXZlIG1vZGVsIGlzIEhpZ2hseSBkZXBlbmRlbnQgb24gdGhlIHRyYWluaW5nIGRhdGEuIEFuZCBzbywgaXQgbXVzdCBiZSByZXByZXNlbnRhdGl2ZSBvZiB0aGUgd2hvbGUgZGF0YXNldCB0byBwcmVkaWN0IGFjY3VyYXRlbHkuIFRoZSBib3R0bGVuZWNrIG9mIHRoaXMgbW9kZWwgaXMgdGhlIHJlYWRpbmcgaW4vbG9hZGluZyBvZiB0aGUgdGV4dCBmaWxlcy4gRXNwZWNpYWxseSB3aXRoIHRoZSBTYW1wbGVMb2FkRmlsZXMgZnVuY3Rpb24uIA0KDQoNCg0KYGBge3IsIHRpbWVfaXQgPSBUUlVFfQ0KIyB0aGlzIGhhcyA0LWdyYW0sIGNhbiBwcmVkaWN0IG9mZiB0aHJlZSB3b3Jkcw0KbW9kZWwgPC0gQ2FsbEFsbCgiZGF0YS9lbl9VUy8xMC8iLA0KICAgICAgICAgICAgICAgICBjb3ZlcmFnZSA9IDAuOTAsDQogICAgICAgICAgICAgICAgIGZpbHRlciA9IHN0b3Bfd29yZHMpDQpgYGANCg0KYGBge3J9DQpmb3IgKHN0cmluZyBpbiB0ZXN0X3N0cmluZ3Mpew0KICBwcmludChNYXRjaFN0cmluZ1ByZWRpY3Qoc3RyaW5nLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgbW9kZWwsDQogICAgICAgICAgICAgICAgICAgICAgICAgICBzdGVtID0gVFJVRSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgIGZpbHRlciA9IHN0b3Bfd29yZHMpKQ0KfQ0KYGBgDQoNCg==</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNhcHN0b25lIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NCg0KYGBge3J9DQojIGNvdXJzZXJhIHF1aXogcHJlZGljdGlvbnMNCg0KdGVzdF9zdHJpbmdzIDwtIGMoIlRoZSBndXkgaW4gZnJvbnQgb2YgbWUganVzdCBib3VnaHQgYSBwb3VuZCBvZiBiYWNvbiwgYSBib3VxdWV0LCBhbmQgYSBjYXNlIG9mIiwgIllvdSdyZSB0aGUgcmVhc29uIHdoeSBJIHNtaWxlIGV2ZXJ5ZGF5LiBDYW4geW91IGZvbGxvdyBtZSBwbGVhc2U/IEl0IHdvdWxkIG1lYW4gdGhlIiwgIkhleSBzdW5zaGluZSwgY2FuIHlvdSBmb2xsb3cgbWUgYW5kIG1ha2UgbWUgdGhlIiwgIlZlcnkgZWFybHkgb2JzZXJ2YXRpb25zIG9uIHRoZSBCaWxscyBnYW1lOiBPZmZlbnNlIHN0aWxsIHN0cnVnZ2xpbmcgYnV0IHRoZSIsIkdvIG9uIGEgcm9tYW50aWMgZGF0ZSBhdCB0aGUiLCAiV2VsbCBJJ20gcHJldHR5IHN1cmUgbXkgZ3Jhbm55IGhhcyBzb21lIG9sZCBiYWdwaXBlcyBpbiBoZXIgZ2FyYWdlIEknbGwgZHVzdCB0aGVtIG9mZiBhbmQgYmUgb24gbXkiLCAiT2hoaGhoICNQb2ludEJyZWFrIGlzIG9uIHRvbW9ycm93LiBMb3ZlIHRoYXQgZmlsbSBhbmQgaGF2ZW4ndCBzZWVuIGl0IGluIHF1aXRlIHNvbWUiLCAiQWZ0ZXIgdGhlIGljZSBidWNrZXQgY2hhbGxlbmdlIExvdWlzIHdpbGwgcHVzaCBoaXMgbG9uZyB3ZXQgaGFpciBvdXQgb2YgaGlzIGV5ZXMgd2l0aCBoaXMgbGl0dGxlIiwgIkJlIGdyYXRlZnVsIGZvciB0aGUgZ29vZCB0aW1lcyBhbmQga2VlcCB0aGUgZmFpdGggZHVyaW5nIHRoZSIsICJJZiB0aGlzIGlzbid0IHRoZSBjdXRlc3QgdGhpbmcgeW91J3ZlIGV2ZXIgc2VlbiwgdGhlbiB5b3UgbXVzdCBiZSIpDQoNCmBgYA0KDQpgYGB7cn0NCnNldHdkKCJDOi9Vc2Vycy9KTC9EZXNrdG9wL1N0dWR5L0NvdXJzZXJhL0pvaG5zIEhvcGtpbnMgRGF0YSBTY2llbmNlLzEwIGNhcHN0b25lL0NhcHN0b25lUHJvamVjdF9OYXR1cmFsTGFuZ3VhZ2VQcm9jZXNzaW5nIikNCg0KbGlicmFyeSh0aWR5dmVyc2UpDQpsaWJyYXJ5KHRpZHl0ZXh0KQ0KbGlicmFyeSh0bSkNCmxpYnJhcnkoZ2d0aGVtZXMpDQpsaWJyYXJ5KG9wZW5OTFApDQpsaWJyYXJ5KFIudXRpbHMpDQpsaWJyYXJ5KGRhdGEudGFibGUpDQoNCnNvdXJjZSgiQzovVXNlcnMvSkwvRGVza3RvcC9TdHVkeS9Db3Vyc2VyYS9Kb2hucyBIb3BraW5zIERhdGEgU2NpZW5jZS8xMCBjYXBzdG9uZS9DYXBzdG9uZVByb2plY3RfTmF0dXJhbExhbmd1YWdlUHJvY2Vzc2luZy9oZWxwZXJfZnVuY3Rpb25zLlIiKQ0KDQpkYXRhKCJzdG9wX3dvcmRzIikNCg0KYGBgDQoNCldoYXQgd2UndmUgbGVhcm5lZCBpcyB0aGF0IHRoZSBwcmVkaWN0aXZlIG1vZGVsIGlzIEhpZ2hseSBkZXBlbmRlbnQgb24gdGhlIHRyYWluaW5nIGRhdGEuIEFuZCBzbywgaXQgbXVzdCBiZSByZXByZXNlbnRhdGl2ZSBvZiB0aGUgd2hvbGUgZGF0YXNldCB0byBwcmVkaWN0IGFjY3VyYXRlbHkuIFRoZSBib3R0bGVuZWNrIG9mIHRoaXMgbW9kZWwgaXMgdGhlIHJlYWRpbmcgaW4vbG9hZGluZyBvZiB0aGUgdGV4dCBmaWxlcy4gRXNwZWNpYWxseSB3aXRoIHRoZSBTYW1wbGVMb2FkRmlsZXMgZnVuY3Rpb24uIA0KDQpUbyBjb3VudGVyYWN0IHRoaXMsIGNyZWF0ZWQgc2FtcGxlcyBvZiBlYWNoIGRvY3VtZW50IGFuZCBzdG9yZWQgaW4gc2VwYXJhdGUgZm9sZGVyL3R4dF9maWxlczogMTAsIDI1LCA1MCwgNzUgcGVyY2VudCByZXNwZWN0aXZlbHkuDQoNCg0KDQpgYGB7ciB3YXJuaW5nPUZBTFNFfQ0KIyB0aGlzIGhhcyA0LWdyYW0sIGNhbiBwcmVkaWN0IG9mZiB0aHJlZSB3b3Jkcw0KbW9kZWwgPC0gQ2FsbEFsbCgiZGF0YS9lbl9VUy8yNS8iLCAgICAjICUgc2FtcGxlIGVhY2ggZG9jDQogICAgICAgICAgICAgICAgIHNpemUgPSAtMUwsDQogICAgICAgICAgICAgICAgIGNvdmVyYWdlID0gMC45MCwNCiAgICAgICAgICAgICAgICAgc3RlbSA9IFRSVUUpDQogICAgICAgICAgICAgICAgICNmaWx0ZXIgPSBzdG9wX3dvcmRzKQ0KYGBgDQoNCmBgYHtyfQ0KZm9yIChpbmRleCBpbiAxOjEwKXsNCiAgcHJpbnQoTWF0Y2hTdHJpbmdQcmVkaWN0KHRlc3Rfc3RyaW5nc1tpbmRleF0sDQogICAgICAgICAgICAgICAgICAgICAgICAgICBtb2RlbCwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgIHN0ZW0gPSBGQUxTRSkNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICNmaWx0ZXIgPSBzdG9wX3dvcmRzKSkNCn0NCmBgYA0KDQo=</div>
 
 
 
