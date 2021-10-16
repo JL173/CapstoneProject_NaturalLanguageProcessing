@@ -4,6 +4,13 @@ output: html_notebook
 ---
 
 ```{r}
+# coursera quiz predictions
+
+test_strings <- c("The guy in front of me just bought a pound of bacon, a bouquet, and a case of", "You're the reason why I smile everyday. Can you follow me please? It would mean the", "Hey sunshine, can you follow me and make me the", "Very early observations on the Bills game: Offense still struggling but the","Go on a romantic date at the", "Well I'm pretty sure my granny has some old bagpipes in her garage I'll dust them off and be on my", "Ohhhhh #PointBreak is on tomorrow. Love that film and haven't seen it in quite some", "After the ice bucket challenge Louis will push his long wet hair out of his eyes with his little", "Be grateful for the good times and keep the faith during the", "If this isn't the cutest thing you've ever seen, then you must be")
+
+```
+
+```{r}
 setwd("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing")
 
 library(tidyverse)
@@ -13,148 +20,30 @@ library(ggthemes)
 library(openNLP)
 library(R.utils)
 library(data.table)
-library(doParallel)
+
+source("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/helper_functions.R")
+
+data("stop_words")
+
+```
+
+What we've learned is that the predictive model is Highly dependent on the training data. And so, it must be representative of the whole dataset to predict accurately. The bottleneck of this model is the reading in/loading of the text files. Especially with the SampleLoadFiles function. 
+
+
+
+```{r, time_it = TRUE}
+# this has 4-gram, can predict off three words
+model <- CallAll("data/en_US/10/",
+                 coverage = 0.90,
+                 filter = stop_words)
 ```
 
 ```{r}
-dtm_1 <- cast_dtm(full_tidy_dtm_1, term = word, document = document, value = n)
-
-plot(dtm_1)
-Zipf_plot(dtm_1)
-Heaps_plot(dtm_1)
-
-```
-
-```{r cache=TRUE}
-# calculating probabilities of 'next word'
-
-sample_1000 <- SampleLoadFiles("data/en_US/", n = 1000, seed = 37)
-tidy_1 <- lapply(sample_1000, CleanTokens, n = 1) %>% MergeDTM()
-tidy_2 <- lapply(sample_1000, CleanTokens, n = 2) %>% MergeDTM()
-tidy_3 <- lapply(sample_1000, CleanTokens, n = 3) %>% MergeDTM()
-
-unigrams <- WordFreqProb(tidy_1)
-bigrams <- WordFreqProb(tidy_2)
-trigrams <- WordFreqProb(tidy_3)
-```
-
-
-```{r}
-
-unigram_probs <- unigrams
-
-
-# split bigram word into two words
-# join on the first word with unigram
-# add freq columns of first word and second
-# calculate probability
-# sort
-bigram_probs <- bigrams %>%
-  separate(word, c("word1", "word2"), sep = " ") %>% 
-  left_join(unigrams, by = c("word1" = "word"), suffix = c(".x", ".y")) %>% 
-  mutate(P = freq.x / freq.y) %>%
-  drop_na() %>%
-  select(-c("p.x", "p.y")) %>% 
-  arrange(word1, desc(freq.y))
-
-
-# split trigram word into three words
-# unite the first two words to match bigram
-# join on the two words with bigram
-# add freq columns of first word and second
-# calculate probability
-# sort
-trigram_probs <- trigrams %>%
-  separate(word, c("word1", "word2", "word3"), sep = " ") %>% 
-  unite(col = word, word1, word2, sep = " ", na.rm = TRUE) %>%
-  left_join(bigrams, by = c("word" = "word"), suffix = c(".x", ".y")) %>%
-  drop_na() %>%
-  mutate(P = freq.x / freq.y) %>%
-  select(-c("p.x", "p.y")) %>%
-  arrange(word, desc(freq.y))
-
-```
-
-```{r}
-unigram_probs <- rename(unigram_probs, word1 = word, P = p)
-unigram_probs <- unigram_probs %>%
-  select(c("word1", "P")) %>%
-  drop_na()
-unigram_probs[, "word2"] <- NA
-unigram_probs[, "word3"] <- NA
-
-bigram_probs <- bigram_probs %>% select(c("word1", "word2", "P")) %>% drop_na()
-bigram_probs[, "word3"] <- NA
-
-trigram_probs <- trigram_probs %>% separate(word, c("word1", "word2")) %>% select(c("word1", "word2", "word3", "P")) %>% drop_na()
-
-bigram_probs <- bigram_probs %>% TopNProbFreq(n = 3)
-trigram_probs <- trigram_probs %>% TopNProbFreq(n = 3)
-```
-```{r}
-prob_table <- rbind(unigram_probs, bigram_probs, trigram_probs) %>% select(order(colnames(.)))
-```
-
-```{r}
-# Create probability table
-CreateProbTable <- function(unigram, bigram, trigam){
-  
-  # split bigram word into two words
-  # join on the first word with unigram
-  # add freq columns of first word and second
-  # calculate probability
-  # sort
-  bigram_probs <- bigram %>%
-    separate(word, c("word1", "word2"), sep = " ") %>%
-    left_join(unigram, by = c("word1" = "word"), suffix = c(".x", ".y")) %>% 
-    mutate(P = freq.x / freq.y) %>%
-    drop_na() %>%
-    select(-c("p.x", "p.y")) %>% 
-    arrange(word1, desc(freq.y))
-
-  # split trigram word into three words
-  # unite the first two words to match bigram
-  # join on the two words with bigram
-  # add freq columns of first word and second
-  # calculate probability
-  # sort
-  trigram_probs <- trigram %>%
-    separate(word, c("word1", "word2", "word3"), sep = " ") %>% 
-    unite(col = word, word1, word2, sep = " ", na.rm = TRUE) %>%
-    left_join(bigram, by = c("word" = "word"), suffix = c(".x", ".y")) %>%
-    drop_na() %>%
-    mutate(P = freq.x / freq.y) %>%
-    select(-c("p.x", "p.y")) %>%
-    arrange(word, desc(freq.y))
-  
-  # formatting
-  unigram_probs <- rename(unigram, word1 = word, P = p)
-  unigram_probs <- unigram_probs %>%
-    select(c("word1", "P")) %>%
-    drop_na()
-  unigram_probs[, "word2"] <- NA
-  unigram_probs[, "word3"] <- NA
-
-  # formatting
-  bigram_probs <- bigram_probs %>%
-    select(c("word1", "word2", "P")) %>%
-    drop_na()
-  bigram_probs[, "word3"] <- NA
-  
-  # formatting
-  trigram_probs <- trigram_probs %>%
-    separate(word, c("word1", "word2")) %>%
-    select(c("word1", "word2", "word3", "P")) %>%
-    drop_na()
-  
-  # store only top '3' results of each
-  bigram_probs <- bigram_probs %>% TopNProbFreq(n = 3)
-  trigram_probs <- trigram_probs %>% TopNProbFreq(n = 3)
-  
-  # combine prob tables of all three
-  prob_table <- rbind(unigram_probs, bigram_probs, trigram_probs) %>%
-    select(order(colnames(.)))
-  
-  prob_table
+for (string in test_strings){
+  print(MatchStringPredict(string,
+                           model,
+                           stem = TRUE,
+                           filter = stop_words))
 }
 ```
+

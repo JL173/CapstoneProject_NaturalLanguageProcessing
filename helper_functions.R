@@ -447,7 +447,7 @@ TopNProbFreq <- function(df, k = 3){
 
 
 # Create probability table
-CreateProbTable <- function(unigram, bigram, trigram){
+CreateProbTable <- function(unigram, bigram, trigram, quagram){
   
   # split bigram word into two words
   # join on the first word with unigram
@@ -477,6 +477,21 @@ CreateProbTable <- function(unigram, bigram, trigram){
     select(-c("P.x", "P.y")) %>%
     arrange(word, desc(freq.y))
   
+  # split quagram word into four words
+  # unite the first two words to match trigram
+  # join on the three words with trigram
+  # add freq columns of first word and second
+  # calculate probability
+  # sort
+  quagram_probs <- quagram %>%
+    separate(word, c("word1", "word2", "word3", "word4"), sep = " ") %>% 
+    unite(col = word, word1, word2, word3, sep = " ", na.rm = TRUE) %>%
+    left_join(trigram, by = c("word" = "word"), suffix = c(".x", ".y")) %>%
+    drop_na() %>%
+    mutate(P = freq.x / freq.y) %>%
+    select(-c("P.x", "P.y")) %>%
+    arrange(word, desc(freq.y))
+  
   # formatting
   unigram_probs <- rename(unigram, word1 = word)
   unigram_probs <- unigram_probs %>%
@@ -484,25 +499,38 @@ CreateProbTable <- function(unigram, bigram, trigram){
     drop_na()
   unigram_probs[, "word2"] <- NA
   unigram_probs[, "word3"] <- NA
+  unigram_probs[, "word4"] <- NA
   
   # formatting
   bigram_probs <- bigram_probs %>%
     select(c("word1", "word2", "P")) %>%
     drop_na()
   bigram_probs[, "word3"] <- NA
+  bigram_probs[, "word4"] <- NA
   
   # formatting
   trigram_probs <- trigram_probs %>%
     separate(word, c("word1", "word2")) %>%
     select(c("word1", "word2", "word3", "P")) %>%
     drop_na()
+  trigram_probs[, "word4"] <- NA
+  
+  # formatting
+  quagram_probs <- quagram_probs %>%
+    separate(word, c("word1", "word2", "word3")) %>%
+    select(c("word1", "word2", "word3", "word4", "P")) %>%
+    drop_na()
   
   # store only top '3' results of each
   bigram_probs <- bigram_probs %>% TopNProbFreq(k = 3)
   trigram_probs <- trigram_probs %>% TopNProbFreq(k = 3)
+  quagram_probs <- quagram_probs %>% TopNProbFreq(k = 3)
   
   # combine prob tables of all three
-  prob_table <- rbind(unigram_probs, bigram_probs, trigram_probs) %>%
+  prob_table <- rbind(unigram_probs,
+                      bigram_probs,
+                      trigram_probs,
+                      quagram_probs) %>%
     select(order(colnames(.)))
   
   prob_table
@@ -512,21 +540,42 @@ CreateProbTable <- function(unigram, bigram, trigram){
 
 # Random 'k' word1 from unigrams
 RandomUnigram <- function(unigram_ptable, k = 3){
-  sample <- sample(seq_len(nrow(unigram_ptable)),
+  indices <- sample(seq_len(nrow(unigram_ptable)),
                    size = k,
                    prob = unigram_ptable$P)
-  unigram_ptable[sample, "word1", order("P")]
+  unigram_ptable[indices, "word1", order("P")]
 }
 
 
 
 # Take a string and find last 3,2,1 words for searching
-StringTailngram <- function(string, ngram = 3){
+StringTailngram <- function(string,
+                            ngram = 3,
+                            stem = FALSE,
+                            filter = NULL){
   
   str <- removePunctuation(string)
   
-  #split string into separate tokens
-  str <- as.list(strsplit(str, '\\s+')[[1]])
+  if (stem == TRUE){
+    str <- stemDocument(string)
+  }
+  
+  if (is.null(filter) == FALSE){
+    
+    strdf <- data.table(text = string) %>%
+      unnest_tokens(output = word,
+                    input = text,
+                    token = "words",
+                    to_lower = TRUE) %>%
+      anti_join(filter, by = "word")
+    
+    str <- strdf$word
+    
+  } else {
+    
+    #split string into separate tokens
+    str <- as.list(strsplit(str, '\\s+')[[1]])
+  } 
   
   str_len <- length(string)
   
@@ -546,42 +595,78 @@ StringTailngram <- function(string, ngram = 3){
 
 
 # Match on a string and return a predicted word from a probability table
-MatchStringPredict <- function(string, ptable, ngram = 3, preds = 3, ReturnString = FALSE){
-  
-  # check ptable format
-  if (!(identical(sort(colnames(ptable)), c("P", "word1", "word2", "word3")))){
-    stop("ptable must have colnames 'P', 'word1', 'word2', 'word3'")
-  } 
+MatchStringPredict <- function(string,
+                               ptable,
+                               ngram = 3,
+                               preds = 3,
+                               stem = FALSE,
+                               filter = NULL,
+                               ReturnString = FALSE){
+
   
   # obtain unigram objects from ptable
-  uniptable <- prob_table %>%
+  uniptable <- ptable %>%
     filter(is.na(word2)) %>%
-    filter(is.na(word3))
+    filter(is.na(word3)) %>%
+    filter(is.na(word4))
   
   # get string search parameters
-  search<- tail(StringTailngram(string, ngram), 2)
+  search <- tail(StringTailngram(string, ngram, stem, filter), 3)
   
   str_len <- length(search)
   
   # filter ptable for prediction
-  if (str_len == 2){
+  if (str_len == 3){
     pred_table <- ptable %>%
-      filter(word1 == search[1]) %>%
-      filter(word2 == search[2]) %>%
+      filter(word1 == search[1],
+             word2 == search[2],
+             word3 == search[3]) %>%
+      drop_na() %>%
+      head(3)
+    
+    prediction <- pred_table$word4
+    
+    if (nrow(pred_table) == 0){
+      pred_table2 <- ptable %>%
+        filter(word1 == search[2],
+               word2 == search[3]) %>%
+        drop_na() %>%
+        head(3)
+      
+      prediction <- pred_table2$word3
+      
+      if (nrow(pred_table2) == 0){
+        pred_table3 <- ptable %>%
+          filter(word1 == search[3]) %>%
+          drop_na() %>%
+          head(3)
+        
+        prediction <- pred_table3$word2
+        
+        if (nrow(pred_table3) == 0){
+          prediction <- RandomUnigram(uniptable, k = preds)
+        }
+      }
+    }
+    
+  } else if (str_len == 2){
+    pred_table <- ptable %>%
+      filter(word1 == search[1],
+             word2 == search[2]) %>%
       drop_na() %>%
       head(3)
     
     prediction <- pred_table$word3
     
     if (nrow(pred_table) == 0){
-      pred_table <- ptable %>%
+      pred_table2 <- ptable %>%
         filter(word1 == search[2]) %>%
         drop_na() %>%
         head(3)
       
-      prediction <- pred_table$word2
+      prediction <- pred_table2$word2
       
-      if (nrow(pred_table) == 0){
+      if (nrow(pred_table2) == 0){
         prediction <- RandomUnigram(uniptable, k = preds)
       }
     }
@@ -632,13 +717,15 @@ CallAll <- function(filepath,
                        stem = stem)
   }
   
-  tidy_1_ <- lapply(base_, CleanTokens, n = 1) %>% MergeDTM()
-  tidy_2_ <- lapply(base_, CleanTokens, n = 2) %>% MergeDTM()
-  tidy_3_ <- lapply(base_, CleanTokens, n = 3) %>% MergeDTM()
+  tidy_1_ <- lapply(base_, CleanTokens, n = 1, filter_df = filter) %>% MergeDTM()
+  tidy_2_ <- lapply(base_, CleanTokens, n = 2, filter_df = filter) %>% MergeDTM()
+  tidy_3_ <- lapply(base_, CleanTokens, n = 3, filter_df = filter) %>% MergeDTM()
+  tidy_4_ <- lapply(base_, CleanTokens, n = 4, filter_df = filter) %>% MergeDTM()
   
   unigram_ <- WordFreqProb(tidy_1_)
   bigram_ <- WordFreqProb(tidy_2_)
   trigram_ <- WordFreqProb(tidy_3_)
+  quagram_ <- WordFreqProb(tidy_4_)
   
   vocab_n_ <- unigram_ %>%
     mutate(cumsum = cumsum(P)) %>%
@@ -647,7 +734,10 @@ CallAll <- function(filepath,
   
   unigram_ <- unigram_ %>% slice_head(n = vocab_n_)
   
-  prob_table_ <- CreateProbTable(unigram_, bigram_, trigram_)
+  prob_table_ <- CreateProbTable(unigram_,
+                                 bigram_,
+                                 trigram_,
+                                 quagram_)
   
   prob_table_
 }

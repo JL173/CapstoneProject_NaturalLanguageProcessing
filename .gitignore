@@ -32,3 +32,15 @@ Milestone_01_cache/html/unnamed-chunk-6_3be1435972e411d644bbc25cd568800a.RData
 output/full_tidy_dtm_1.csv
 output/full_tidy_dtm_2.csv
 output/full_tidy_dtm_3.csv
+data/en_US/75/en_US.twitter.75.txt
+data/en_US/75/en_US.news.75.txt
+data/en_US/75/en_US.blogs.75.txt
+data/en_US/50/en_US.twitter.50.txt
+data/en_US/50/en_US.news.50.txt
+data/en_US/50/en_US.blogs.50.txt
+data/en_US/25/en_US.twitter.25.txt
+data/en_US/25/en_US.news.25.txt
+data/en_US/25/en_US.blogs.25.txt
+data/en_US/10/en_US.twitter.10.txt
+data/en_US/10/en_US.news.10.txt
+data/en_US/10/en_US.blogs.10.txt
