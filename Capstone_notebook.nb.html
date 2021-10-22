@@ -249,9 +249,9 @@ data(&quot;stop_words&quot;)
 <p>To counteract this, created samples of each document and stored in separate folder/txt_files: 10, 25, 50, 75 percent respectively.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyB0aGlzIGhhcyA0LWdyYW0sIGNhbiBwcmVkaWN0IG9mZiB0aHJlZSB3b3Jkc1xubW9kZWwgPC0gQ2FsbEFsbChcImRhdGEvZW5fVVMvMjUvXCIsICAgICMgJSBzYW1wbGUgZWFjaCBkb2NcbiAgICAgICAgICAgICAgICAgc2l6ZSA9IC0xTCxcbiAgICAgICAgICAgICAgICAgY292ZXJhZ2UgPSAwLjkwLFxuICAgICAgICAgICAgICAgICBzdGVtID0gVFJVRSlcbiAgICAgICAgICAgICAgICAgI2ZpbHRlciA9IHN0b3Bfd29yZHMpXG5gYGAifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyB0aGlzIGhhcyA0LWdyYW0sIGNhbiBwcmVkaWN0IG9mZiB0aHJlZSB3b3Jkc1xubW9kZWwgPC0gQ2FsbEFsbChcImRhdGEvZW5fVVMvMS9cIiwgICAgIyAlIHNhbXBsZSBlYWNoIGRvY1xuICAgICAgICAgICAgICAgICBzaXplID0gLTFMLFxuICAgICAgICAgICAgICAgICBjb3ZlcmFnZSA9IDAuOTAsXG4gICAgICAgICAgICAgICAgIHN0ZW0gPSBUUlVFKVxuICAgICAgICAgICAgICAgICAjZmlsdGVyID0gc3RvcF93b3JkcylcbmBgYCJ9 -->
 <pre class="r"><code># this has 4-gram, can predict off three words
-model &lt;- CallAll(&quot;data/en_US/25/&quot;,    # % sample each doc
+model &lt;- CallAll(&quot;data/en_US/1/&quot;,    # % sample each doc
                  size = -1L,
                  coverage = 0.90,
                  stem = TRUE)
@@ -261,19 +261,198 @@ model &lt;- CallAll(&quot;data/en_US/25/&quot;,    # % sample each doc
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZm9yIChpbmRleCBpbiAxOjEwKXtcbiAgcHJpbnQoTWF0Y2hTdHJpbmdQcmVkaWN0KHRlc3Rfc3RyaW5nc1tpbmRleF0sXG4gICAgICAgICAgICAgICAgICAgICAgICAgICBtb2RlbCxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgIHN0ZW0gPSBGQUxTRSlcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICNmaWx0ZXIgPSBzdG9wX3dvcmRzKSlcbn1cbmBgYCJ9 -->
-<pre class="r"><code>for (index in 1:10){
-  print(MatchStringPredict(test_strings[index],
-                           model,
-                           stem = FALSE)
-                           #filter = stop_words))
-}</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBzdGVwcGVkIGNodW5rIHRvIGNvbWJpbmUgZW50aXJlIGRvY3VtZW50IGFuZCBtb2RlbFxuIyBlcXVpdmFsZW50IHRvIENhbGxBbGwoXCJkYXRhL2VuL19VUy9cIiwgc2l6ZSA9IC0xTCwgY292ZXJhZ2UgPSAwLjksIHN0ZW0gPSBUUlVFLCBmaWx0ZXIgPSBzdG9wX3dvcmRzKVxuXG5iYXNlIDwtIExvYWRGaWxlcyhcImRhdGEvZW5fVVMvXCIsIHN0ZW0gPSBUUlVFKVxuXG5jaHVua3MgPC0gVW5saXN0REYoYmFzZSwgc2l6ZSA9IDVlNilcbmBgYCJ9 -->
+<pre class="r"><code># stepped chunk to combine entire document and model
+# equivalent to CallAll(&quot;data/en/_US/&quot;, size = -1L, coverage = 0.9, stem = TRUE, filter = stop_words)
+
+base &lt;- LoadFiles(&quot;data/en_US/&quot;, stem = TRUE)
+
+chunks &lt;- UnlistDF(base, size = 5e6)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG50aWR5XzFfIDwtIGxhcHBseShjaHVua3MsIENsZWFuVG9rZW5zLFxuICAgICAgICAgICAgICAgICAgbiA9IDEpICU+JSBNZXJnZURUTSgpXG5gYGAifQ== -->
+<pre class="r"><code>
+tidy_1_ &lt;- lapply(chunks, CleanTokens,
+                  n = 1) %&gt;% MergeDTM()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3I6IGNhbm5vdCBhbGxvY2F0ZSB2ZWN0b3Igb2Ygc2l6ZSAxOTcuNiBNYlxuIn0= -->
+<pre><code>Error: cannot allocate vector of size 197.6 Mb</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGlkeV8yXyA8LSBsYXBwbHkoY2h1bmtzLCBDbGVhblRva2VucyxcbiAgICAgICAgICAgICAgICAgIG4gPSAyLFxuICAgICAgICAgICAgICAgICAgZmlsdGVyX2RmID0gc3RvcF93b3JkcykgJT4lIE1lcmdlRFRNKClcbnNhdmUodGlkeV8yXywgZmlsZSA9IFwidGlkeV8yX3N0ZW1fZmlsdGVyLlJEYVwiKVxuYGBgIn0= -->
+<pre class="r"><code>tidy_2_ &lt;- lapply(chunks, CleanTokens,
+                  n = 2,
+                  filter_df = stop_words) %&gt;% MergeDTM()
+save(tidy_2_, file = &quot;tidy_2_stem_filter.RDa&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGlkeV8zXyA8LSBsYXBwbHkoY2h1bmtzLCBDbGVhblRva2VucyxcbiAgICAgICAgICAgICAgICAgIG4gPSAzLFxuICAgICAgICAgICAgICAgICAgZmlsdGVyX2RmID0gc3RvcF93b3JkcykgJT4lIE1lcmdlRFRNKClcbnNhdmUodGlkeV8zXywgZmlsZSA9IFwidGlkeV8zX3N0ZW1fZmlsdGVyLlJEYVwiKVxuYGBgIn0= -->
+<pre class="r"><code>tidy_3_ &lt;- lapply(chunks, CleanTokens,
+                  n = 3,
+                  filter_df = stop_words) %&gt;% MergeDTM()
+save(tidy_3_, file = &quot;tidy_3_stem_filter.RDa&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGlkeV80XyA8LSBsYXBwbHkoY2h1bmtzLCBDbGVhblRva2VucyxcbiAgICAgICAgICAgICAgICAgIG4gPSA0LFxuICAgICAgICAgICAgICAgICAgZmlsdGVyX2RmID0gc3RvcF93b3JkcykgJT4lIE1lcmdlRFRNKClcbnNhdmUodGlkeV80XywgZmlsZSA9IFwidGlkeV80X3N0ZW1fZmlsdGVyLlJEYVwiKVxuYGBgIn0= -->
+<pre class="r"><code>tidy_4_ &lt;- lapply(chunks, CleanTokens,
+                  n = 4,
+                  filter_df = stop_words) %&gt;% MergeDTM()
+save(tidy_4_, file = &quot;tidy_4_stem_filter.RDa&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudW5pZ3JhbV8gPC0gV29yZEZyZXFQcm9iKHRpZHlfMV8pXG5iaWdyYW1fIDwtIFdvcmRGcmVxUHJvYih0aWR5XzJfKVxudHJpZ3JhbV8gPC0gV29yZEZyZXFQcm9iKHRpZHlfM18pXG5xdWFncmFtXyA8LSBXb3JkRnJlcVByb2IodGlkeV80XylcbmBgYCJ9 -->
+<pre class="r"><code>unigram_ &lt;- WordFreqProb(tidy_1_)
+bigram_ &lt;- WordFreqProb(tidy_2_)
+trigram_ &lt;- WordFreqProb(tidy_3_)
+quagram_ &lt;- WordFreqProb(tidy_4_)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBlZmZpY2llbmN5IHN0b3JhZ2UgYnkgc2F2aW5nIG9ubHkgdG9wIHJlc3VsdHMgZm9yIGVhY2hcbiMgPz9jaGVjazogYmlhcyB0b3dhcmRzIHN0YXJ0IG9mIGFscGhhYmV0Pz9cbmJpZ3JhbV9jdXQgPC0gVG9wTlByb2JGcmVxKGJpZ3JhbV8sIGsgPSAzKVxudHJpZ3JhbV9jdXQgPC0gVG9wTlByb2JGcmVxKHRyaWdyYW1fLCBrID0gMilcbnF1YWdyYW1fY3V0IDwtIFRvcE5Qcm9iRnJlcShxdWFncmFtXywgayA9IDEpXG5gYGAifQ== -->
+<pre class="r"><code># efficiency storage by saving only top results for each
+# ??check: bias towards start of alphabet??
+bigram_cut &lt;- TopNProbFreq(bigram_, k = 3)
+trigram_cut &lt;- TopNProbFreq(trigram_, k = 2)
+quagram_cut &lt;- TopNProbFreq(quagram_, k = 1)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudm9jYWJfbl8gPC0gdW5pZ3JhbV8gJT4lXG4gICAgbXV0YXRlKGN1bXN1bSA9IGN1bXN1bShQKSkgJT4lXG4gICAgc3VtbWFyaXNlKHZvY2FiID0gc3VtKGN1bXN1bSA8PSAwLjkpKSU+JVxuICAgIGFzLmludGVnZXIoKVxuICBcbnVuaWdyYW1fIDwtIHVuaWdyYW1fICU+JSBzbGljZV9oZWFkKG4gPSB2b2NhYl9uXylcbiAgXG5tb2RlbCA8LSBDcmVhdGVQcm9iVGFibGUodW5pZ3JhbV8sXG4gICAgICAgICAgICAgICAgICAgICAgICAgYmlncmFtX2N1dCxcbiAgICAgICAgICAgICAgICAgICAgICAgICB0cmlncmFtX2N1dCxcbiAgICAgICAgICAgICAgICAgICAgICAgICBxdWFncmFtX2N1dClcbmBgYCJ9 -->
+<pre class="r"><code>vocab_n_ &lt;- unigram_ %&gt;%
+    mutate(cumsum = cumsum(P)) %&gt;%
+    summarise(vocab = sum(cumsum &lt;= 0.9))%&gt;%
+    as.integer()
+  
+unigram_ &lt;- unigram_ %&gt;% slice_head(n = vocab_n_)
+  
+model &lt;- CreateProbTable(unigram_,
+                         bigram_cut,
+                         trigram_cut,
+                         quagram_cut)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogRXhwZWN0ZWQgMiBwaWVjZXMuIEFkZGl0aW9uYWwgcGllY2VzIGRpc2NhcmRlZCBpbiA1MTE5MSByb3dzIFsxLCAyLCAzLCA0LCA2LCA3LCA4LCA5LCAxMCwgMTEsIDEyLCAxMywgMTQsIDE1LCAxNiwgMTgsIDE5LCAyMCwgMjIsIDIzLCAuLi5dLlxuV2FybmluZzogRXhwZWN0ZWQgMyBwaWVjZXMuIEFkZGl0aW9uYWwgcGllY2VzIGRpc2NhcmRlZCBpbiAyNjk0OCByb3dzIFsxLCAyLCAzLCA0LCA1LCA2LCA3LCA4LCA5LCAxMCwgMTEsIDEzLCAxNCwgMTUsIDc2LCA3NywgNzgsIDc5LCA4MCwgODUsIC4uLl0uXG5XYXJuaW5nOiBFeHBlY3RlZCAzIHBpZWNlcy4gTWlzc2luZyBwaWVjZXMgZmlsbGVkIHdpdGggYE5BYCBpbiA1NzExIHJvd3MgWzE2LCAxNywgMTgsIDE5LCAyMCwgMjEsIDIyLCAyMywgMjQsIDI1LCAyNiwgMjcsIDI4LCAyOSwgMzAsIDMxLCAzMiwgMzMsIDM0LCAzNSwgLi4uXS5cbiJ9 -->
+<pre><code>Warning: Expected 2 pieces. Additional pieces discarded in 51191 rows [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 22, 23, ...].
+Warning: Expected 3 pieces. Additional pieces discarded in 26948 rows [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 76, 77, 78, 79, 80, 85, ...].
+Warning: Expected 3 pieces. Missing pieces filled with `NA` in 5711 rows [16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, ...].</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2F2ZShtb2RlbCwgZmlsZSA9IFwibW9kZWxfc3RlbV9maWx0ZXJfY3V0LlJEYVwiKVxuYGBgIn0= -->
+<pre class="r"><code>save(model, file = &quot;model_stem_filter_cut.RDa&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZm9yIChpbmRleCBpbiAxOjEwKXtcbiAgcHJpbnQodGVzdF9zdHJpbmdzW2luZGV4XSlcbiAgcHJpbnQoXCJcIilcbiAgcHJpbnQoU3RyaW5nVGFpbG5ncmFtKHRlc3Rfc3RyaW5nc1tpbmRleF0sIHN0ZW0gPSBUUlVFLCBmaWx0ZXIgPSBzdG9wX3dvcmRzKSlcbiAgcHJpbnQoXCJcIilcbiAgcHJpbnQoTWF0Y2hTdHJpbmdQcmVkaWN0KHRlc3Rfc3RyaW5nc1tpbmRleF0sXG4gICAgICAgICAgICAgICAgICAgICAgICAgICBtb2RlbCA9IG1vZGVsLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgbiA9IDEwLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgc3RlbSA9IFRSVUUsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICBmaWx0ZXIgPSBzdG9wX3dvcmRzKSlcbiAgcHJpbnQoXCJcIilcbn1cbmBgYCJ9 -->
+<pre class="r"><code>for (index in 1:10){
+  print(test_strings[index])
+  print(&quot;&quot;)
+  print(StringTailngram(test_strings[index], stem = TRUE, filter = stop_words))
+  print(&quot;&quot;)
+  print(MatchStringPredict(test_strings[index],
+                           model = model,
+                           n = 10,
+                           stem = TRUE,
+                           filter = stop_words))
+  print(&quot;&quot;)
+}</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiVGhlIGd1eSBpbiBmcm9udCBvZiBtZSBqdXN0IGJvdWdodCBhIHBvdW5kIG9mIGJhY29uLCBhIGJvdXF1ZXQsIGFuZCBhIGNhc2Ugb2ZcIlxuWzFdIFwiXCJcblsxXSBcInBvdW5kXCIgICBcImJhY29uXCIgICBcImJvdXF1ZXRcIlxuWzFdIFwiXCJcbiBbMV0gXCJzZXRcIiAgICAgIFwidG9zc1wiICAgICBcImNhbGxcIiAgICAgXCJzaXRcIiAgICAgXG4gWzVdIFwiYWNoaWV2XCIgICBcImFycml2XCIgICAgXCJhcnJpdmVzXCIgIFwiYXZhaWxcIiAgIFxuIFs5XSBcImJhbGxvb25zXCIgXCJiYXNrZXRcIiAgXG5bMV0gXCJcIlxuWzFdIFwiWW91J3JlIHRoZSByZWFzb24gd2h5IEkgc21pbGUgZXZlcnlkYXkuIENhbiB5b3UgZm9sbG93IG1lIHBsZWFzZT8gSXQgd291bGQgbWVhbiB0aGVcIlxuWzFdIFwiXCJcblsxXSBcInNtaWxlXCIgICAgXCJldmVyeWRheVwiIFwiZm9sbG93XCIgIFxuWzFdIFwiXCJcblsxXSBcInlhbGxcIiBOQSAgICBcblsxXSBcIlwiXG5bMV0gXCJIZXkgc3Vuc2hpbmUsIGNhbiB5b3UgZm9sbG93IG1lIGFuZCBtYWtlIG1lIHRoZVwiXG5bMV0gXCJcIlxuWzFdIFwiaGV5XCIgICAgICBcInN1bnNoaW5lXCIgXCJmb2xsb3dcIiAgXG5bMV0gXCJcIlxuIFsxXSBcImZvbGxvd1wiIE5BICAgICAgIFwiZnJpZGF5XCIgXCJob3BlXCIgICBcImxvdmVcIiAgXG4gWzZdIFwiYnV0dG9uXCIgXCJkYXlcIiAgICBcInBsZWFzXCIgIFwiaW1cIiAgICAgXCJsaW1pdFwiIFxuWzFdIFwiXCJcblsxXSBcIlZlcnkgZWFybHkgb2JzZXJ2YXRpb25zIG9uIHRoZSBCaWxscyBnYW1lOiBPZmZlbnNlIHN0aWxsIHN0cnVnZ2xpbmcgYnV0IHRoZVwiXG5bMV0gXCJcIlxuWzFdIFwiZ2FtZVwiICAgICAgIFwib2ZmZW5zZVwiICAgIFwic3RydWdnbGluZ1wiXG5bMV0gXCJcIlxuIFsxXSBcIm1heWJcIiAgIFwicHJheVwiICAgXCJhbHdheVwiICBcImFuaVwiICAgIFwiYW55d2hvXCJcbiBbNl0gXCJiYXNpY1wiICBcImNoZWNrXCIgIFwiY2hva2VcIiAgXCJjbGF5XCIgICBcImNvZmZlXCIgXG5bMV0gXCJcIlxuWzFdIFwiR28gb24gYSByb21hbnRpYyBkYXRlIGF0IHRoZVwiXG5bMV0gXCJcIlxuWzFdIFwicm9tYW50aWNcIiBcImRhdGVcIiAgICBcblsxXSBcIlwiXG4gWzFdIFwibmlnaHRcIiAgIFwic29tZW9uXCIgIFwiYXByaWxcIiAgIFwidG9uaWdodFwiIFwic2l0ZVwiICAgXG4gWzZdIFwic2V0XCIgICAgIFwiYmVjYXVzXCIgIFwianVuZVwiICAgIFwianVsaVwiICAgIFwiaW1cIiAgICAgXG5bMV0gXCJcIlxuWzFdIFwiV2VsbCBJJ20gcHJldHR5IHN1cmUgbXkgZ3Jhbm55IGhhcyBzb21lIG9sZCBiYWdwaXBlcyBpbiBoZXIgZ2FyYWdlIEknbGwgZHVzdCB0aGVtIG9mZiBhbmQgYmUgb24gbXlcIlxuWzFdIFwiXCJcblsxXSBcImJhZ3BpcGVzXCIgXCJnYXJhZ2VcIiAgIFwiZHVzdFwiICAgIFxuWzFdIFwiXCJcbiBbMV0gXCJqYWNrZXRcIiAgXCJib3dsXCIgICAgXCJidW5uaVwiICAgXCJ3cmFwcGVyXCIgXCJzdG9ybVwiICBcbiBbNl0gXCJzZXR0bFwiICAgXCJjb3ZlclwiICAgXCJkZXZpbFwiICAgXCJidW5uaWVzXCIgXCJtaXRlXCIgICBcblsxXSBcIlwiXG5bMV0gXCJPaGhoaGggI1BvaW50QnJlYWsgaXMgb24gdG9tb3Jyb3cuIExvdmUgdGhhdCBmaWxtIGFuZCBoYXZlbid0IHNlZW4gaXQgaW4gcXVpdGUgc29tZVwiXG5bMV0gXCJcIlxuWzFdIFwidG9tb3Jyb3dcIiBcImxvdmVcIiAgICAgXCJmaWxtXCIgICAgXG5bMV0gXCJcIlxuWzFdIFwiYmVmb3JcIiAgICAgXCJkclwiICAgICAgICBcImVzcGVjaWFsXCIgIFwiZmVzdGl2YWxzXCJcbls1XSBcImluY2x1ZFwiICAgIFwibWFrZXJzXCIgICAgXCJzZWNjYVwiICAgICBcIndpblwiICAgICAgXG5bOV0gTkEgICAgICAgICBcblsxXSBcIlwiXG5bMV0gXCJBZnRlciB0aGUgaWNlIGJ1Y2tldCBjaGFsbGVuZ2UgTG91aXMgd2lsbCBwdXNoIGhpcyBsb25nIHdldCBoYWlyIG91dCBvZiBoaXMgZXllcyB3aXRoIGhpcyBsaXR0bGVcIlxuWzFdIFwiXCJcblsxXSBcIndldFwiICBcImhhaXJcIiBcImV5ZXNcIlxuWzFdIFwiXCJcblsxXSBcInJlYmVjY2FcIiBOQSAgICAgICBcblsxXSBcIlwiXG5bMV0gXCJCZSBncmF0ZWZ1bCBmb3IgdGhlIGdvb2QgdGltZXMgYW5kIGtlZXAgdGhlIGZhaXRoIGR1cmluZyB0aGVcIlxuWzFdIFwiXCJcblsxXSBcImdyYXRlZnVsXCIgXCJ0aW1lc1wiICAgIFwiZmFpdGhcIiAgIFxuWzFdIFwiXCJcbiBbMV0gXCJob3BlXCIgICAgICBcInNlcnZhbnRcIiAgIFwibG92ZVwiICAgICAgXCJnb2RcIiAgICAgIFxuIFs1XSBcImJlY2F1c1wiICAgIFwiaGlsbFwiICAgICAgXCJiYXNlXCIgICAgICBcImZvbGxvd1wiICAgXG4gWzldIFwiY2hyaXN0aWFuXCIgXCJiZWxpZXZcIiAgIFxuWzFdIFwiXCJcblsxXSBcIklmIHRoaXMgaXNuJ3QgdGhlIGN1dGVzdCB0aGluZyB5b3UndmUgZXZlciBzZWVuLCB0aGVuIHlvdSBtdXN0IGJlXCJcblsxXSBcIlwiXG5bMV0gXCJjdXRlc3RcIlxuWzFdIFwiXCJcbiBbMV0gXCJsaXR0bFwiICBcImd1eVwiICAgIFwiYmFiaVwiICAgXCJjb3VwbFwiICBcImJveVwiICAgXG4gWzZdIFwibW92aVwiICAgXCJwZXJzb25cIiBcInBpY3R1clwiIFwiY291cGxlXCIgXCJnaXJsXCIgIFxuWzFdIFwiXCJcbiJ9 -->
+<pre><code>[1] &quot;The guy in front of me just bought a pound of bacon, a bouquet, and a case of&quot;
+[1] &quot;&quot;
+[1] &quot;pound&quot;   &quot;bacon&quot;   &quot;bouquet&quot;
+[1] &quot;&quot;
+ [1] &quot;set&quot;      &quot;toss&quot;     &quot;call&quot;     &quot;sit&quot;     
+ [5] &quot;achiev&quot;   &quot;arriv&quot;    &quot;arrives&quot;  &quot;avail&quot;   
+ [9] &quot;balloons&quot; &quot;basket&quot;  
+[1] &quot;&quot;
+[1] &quot;You&#39;re the reason why I smile everyday. Can you follow me please? It would mean the&quot;
+[1] &quot;&quot;
+[1] &quot;smile&quot;    &quot;everyday&quot; &quot;follow&quot;  
+[1] &quot;&quot;
+[1] &quot;yall&quot; NA    
+[1] &quot;&quot;
+[1] &quot;Hey sunshine, can you follow me and make me the&quot;
+[1] &quot;&quot;
+[1] &quot;hey&quot;      &quot;sunshine&quot; &quot;follow&quot;  
+[1] &quot;&quot;
+ [1] &quot;follow&quot; NA       &quot;friday&quot; &quot;hope&quot;   &quot;love&quot;  
+ [6] &quot;button&quot; &quot;day&quot;    &quot;pleas&quot;  &quot;im&quot;     &quot;limit&quot; 
+[1] &quot;&quot;
+[1] &quot;Very early observations on the Bills game: Offense still struggling but the&quot;
+[1] &quot;&quot;
+[1] &quot;game&quot;       &quot;offense&quot;    &quot;struggling&quot;
+[1] &quot;&quot;
+ [1] &quot;mayb&quot;   &quot;pray&quot;   &quot;alway&quot;  &quot;ani&quot;    &quot;anywho&quot;
+ [6] &quot;basic&quot;  &quot;check&quot;  &quot;choke&quot;  &quot;clay&quot;   &quot;coffe&quot; 
+[1] &quot;&quot;
+[1] &quot;Go on a romantic date at the&quot;
+[1] &quot;&quot;
+[1] &quot;romantic&quot; &quot;date&quot;    
+[1] &quot;&quot;
+ [1] &quot;night&quot;   &quot;someon&quot;  &quot;april&quot;   &quot;tonight&quot; &quot;site&quot;   
+ [6] &quot;set&quot;     &quot;becaus&quot;  &quot;june&quot;    &quot;juli&quot;    &quot;im&quot;     
+[1] &quot;&quot;
+[1] &quot;Well I&#39;m pretty sure my granny has some old bagpipes in her garage I&#39;ll dust them off and be on my&quot;
+[1] &quot;&quot;
+[1] &quot;bagpipes&quot; &quot;garage&quot;   &quot;dust&quot;    
+[1] &quot;&quot;
+ [1] &quot;jacket&quot;  &quot;bowl&quot;    &quot;bunni&quot;   &quot;wrapper&quot; &quot;storm&quot;  
+ [6] &quot;settl&quot;   &quot;cover&quot;   &quot;devil&quot;   &quot;bunnies&quot; &quot;mite&quot;   
+[1] &quot;&quot;
+[1] &quot;Ohhhhh #PointBreak is on tomorrow. Love that film and haven&#39;t seen it in quite some&quot;
+[1] &quot;&quot;
+[1] &quot;tomorrow&quot; &quot;love&quot;     &quot;film&quot;    
+[1] &quot;&quot;
+[1] &quot;befor&quot;     &quot;dr&quot;        &quot;especial&quot;  &quot;festivals&quot;
+[5] &quot;includ&quot;    &quot;makers&quot;    &quot;secca&quot;     &quot;win&quot;      
+[9] NA         
+[1] &quot;&quot;
+[1] &quot;After the ice bucket challenge Louis will push his long wet hair out of his eyes with his little&quot;
+[1] &quot;&quot;
+[1] &quot;wet&quot;  &quot;hair&quot; &quot;eyes&quot;
+[1] &quot;&quot;
+[1] &quot;rebecca&quot; NA       
+[1] &quot;&quot;
+[1] &quot;Be grateful for the good times and keep the faith during the&quot;
+[1] &quot;&quot;
+[1] &quot;grateful&quot; &quot;times&quot;    &quot;faith&quot;   
+[1] &quot;&quot;
+ [1] &quot;hope&quot;      &quot;servant&quot;   &quot;love&quot;      &quot;god&quot;      
+ [5] &quot;becaus&quot;    &quot;hill&quot;      &quot;base&quot;      &quot;follow&quot;   
+ [9] &quot;christian&quot; &quot;believ&quot;   
+[1] &quot;&quot;
+[1] &quot;If this isn&#39;t the cutest thing you&#39;ve ever seen, then you must be&quot;
+[1] &quot;&quot;
+[1] &quot;cutest&quot;
+[1] &quot;&quot;
+ [1] &quot;littl&quot;  &quot;guy&quot;    &quot;babi&quot;   &quot;coupl&quot;  &quot;boy&quot;   
+ [6] &quot;movi&quot;   &quot;person&quot; &quot;pictur&quot; &quot;couple&quot; &quot;girl&quot;  
+[1] &quot;&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNhcHN0b25lIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NCg0KYGBge3J9DQojIGNvdXJzZXJhIHF1aXogcHJlZGljdGlvbnMNCg0KdGVzdF9zdHJpbmdzIDwtIGMoIlRoZSBndXkgaW4gZnJvbnQgb2YgbWUganVzdCBib3VnaHQgYSBwb3VuZCBvZiBiYWNvbiwgYSBib3VxdWV0LCBhbmQgYSBjYXNlIG9mIiwgIllvdSdyZSB0aGUgcmVhc29uIHdoeSBJIHNtaWxlIGV2ZXJ5ZGF5LiBDYW4geW91IGZvbGxvdyBtZSBwbGVhc2U/IEl0IHdvdWxkIG1lYW4gdGhlIiwgIkhleSBzdW5zaGluZSwgY2FuIHlvdSBmb2xsb3cgbWUgYW5kIG1ha2UgbWUgdGhlIiwgIlZlcnkgZWFybHkgb2JzZXJ2YXRpb25zIG9uIHRoZSBCaWxscyBnYW1lOiBPZmZlbnNlIHN0aWxsIHN0cnVnZ2xpbmcgYnV0IHRoZSIsIkdvIG9uIGEgcm9tYW50aWMgZGF0ZSBhdCB0aGUiLCAiV2VsbCBJJ20gcHJldHR5IHN1cmUgbXkgZ3Jhbm55IGhhcyBzb21lIG9sZCBiYWdwaXBlcyBpbiBoZXIgZ2FyYWdlIEknbGwgZHVzdCB0aGVtIG9mZiBhbmQgYmUgb24gbXkiLCAiT2hoaGhoICNQb2ludEJyZWFrIGlzIG9uIHRvbW9ycm93LiBMb3ZlIHRoYXQgZmlsbSBhbmQgaGF2ZW4ndCBzZWVuIGl0IGluIHF1aXRlIHNvbWUiLCAiQWZ0ZXIgdGhlIGljZSBidWNrZXQgY2hhbGxlbmdlIExvdWlzIHdpbGwgcHVzaCBoaXMgbG9uZyB3ZXQgaGFpciBvdXQgb2YgaGlzIGV5ZXMgd2l0aCBoaXMgbGl0dGxlIiwgIkJlIGdyYXRlZnVsIGZvciB0aGUgZ29vZCB0aW1lcyBhbmQga2VlcCB0aGUgZmFpdGggZHVyaW5nIHRoZSIsICJJZiB0aGlzIGlzbid0IHRoZSBjdXRlc3QgdGhpbmcgeW91J3ZlIGV2ZXIgc2VlbiwgdGhlbiB5b3UgbXVzdCBiZSIpDQoNCmBgYA0KDQpgYGB7cn0NCnNldHdkKCJDOi9Vc2Vycy9KTC9EZXNrdG9wL1N0dWR5L0NvdXJzZXJhL0pvaG5zIEhvcGtpbnMgRGF0YSBTY2llbmNlLzEwIGNhcHN0b25lL0NhcHN0b25lUHJvamVjdF9OYXR1cmFsTGFuZ3VhZ2VQcm9jZXNzaW5nIikNCg0KbGlicmFyeSh0aWR5dmVyc2UpDQpsaWJyYXJ5KHRpZHl0ZXh0KQ0KbGlicmFyeSh0bSkNCmxpYnJhcnkoZ2d0aGVtZXMpDQpsaWJyYXJ5KG9wZW5OTFApDQpsaWJyYXJ5KFIudXRpbHMpDQpsaWJyYXJ5KGRhdGEudGFibGUpDQoNCnNvdXJjZSgiQzovVXNlcnMvSkwvRGVza3RvcC9TdHVkeS9Db3Vyc2VyYS9Kb2hucyBIb3BraW5zIERhdGEgU2NpZW5jZS8xMCBjYXBzdG9uZS9DYXBzdG9uZVByb2plY3RfTmF0dXJhbExhbmd1YWdlUHJvY2Vzc2luZy9oZWxwZXJfZnVuY3Rpb25zLlIiKQ0KDQpkYXRhKCJzdG9wX3dvcmRzIikNCg0KYGBgDQoNCldoYXQgd2UndmUgbGVhcm5lZCBpcyB0aGF0IHRoZSBwcmVkaWN0aXZlIG1vZGVsIGlzIEhpZ2hseSBkZXBlbmRlbnQgb24gdGhlIHRyYWluaW5nIGRhdGEuIEFuZCBzbywgaXQgbXVzdCBiZSByZXByZXNlbnRhdGl2ZSBvZiB0aGUgd2hvbGUgZGF0YXNldCB0byBwcmVkaWN0IGFjY3VyYXRlbHkuIFRoZSBib3R0bGVuZWNrIG9mIHRoaXMgbW9kZWwgaXMgdGhlIHJlYWRpbmcgaW4vbG9hZGluZyBvZiB0aGUgdGV4dCBmaWxlcy4gRXNwZWNpYWxseSB3aXRoIHRoZSBTYW1wbGVMb2FkRmlsZXMgZnVuY3Rpb24uIA0KDQpUbyBjb3VudGVyYWN0IHRoaXMsIGNyZWF0ZWQgc2FtcGxlcyBvZiBlYWNoIGRvY3VtZW50IGFuZCBzdG9yZWQgaW4gc2VwYXJhdGUgZm9sZGVyL3R4dF9maWxlczogMTAsIDI1LCA1MCwgNzUgcGVyY2VudCByZXNwZWN0aXZlbHkuDQoNCg0KDQpgYGB7ciB3YXJuaW5nPUZBTFNFfQ0KIyB0aGlzIGhhcyA0LWdyYW0sIGNhbiBwcmVkaWN0IG9mZiB0aHJlZSB3b3Jkcw0KbW9kZWwgPC0gQ2FsbEFsbCgiZGF0YS9lbl9VUy8yNS8iLCAgICAjICUgc2FtcGxlIGVhY2ggZG9jDQogICAgICAgICAgICAgICAgIHNpemUgPSAtMUwsDQogICAgICAgICAgICAgICAgIGNvdmVyYWdlID0gMC45MCwNCiAgICAgICAgICAgICAgICAgc3RlbSA9IFRSVUUpDQogICAgICAgICAgICAgICAgICNmaWx0ZXIgPSBzdG9wX3dvcmRzKQ0KYGBgDQoNCmBgYHtyfQ0KZm9yIChpbmRleCBpbiAxOjEwKXsNCiAgcHJpbnQoTWF0Y2hTdHJpbmdQcmVkaWN0KHRlc3Rfc3RyaW5nc1tpbmRleF0sDQogICAgICAgICAgICAgICAgICAgICAgICAgICBtb2RlbCwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgIHN0ZW0gPSBGQUxTRSkNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICNmaWx0ZXIgPSBzdG9wX3dvcmRzKSkNCn0NCmBgYA0KDQo=</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNhcHN0b25lIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NCg0KYGBge3J9DQojIGNvdXJzZXJhIHF1aXogcHJlZGljdGlvbnMNCg0KdGVzdF9zdHJpbmdzIDwtIGMoIlRoZSBndXkgaW4gZnJvbnQgb2YgbWUganVzdCBib3VnaHQgYSBwb3VuZCBvZiBiYWNvbiwgYSBib3VxdWV0LCBhbmQgYSBjYXNlIG9mIiwgIllvdSdyZSB0aGUgcmVhc29uIHdoeSBJIHNtaWxlIGV2ZXJ5ZGF5LiBDYW4geW91IGZvbGxvdyBtZSBwbGVhc2U/IEl0IHdvdWxkIG1lYW4gdGhlIiwgIkhleSBzdW5zaGluZSwgY2FuIHlvdSBmb2xsb3cgbWUgYW5kIG1ha2UgbWUgdGhlIiwgIlZlcnkgZWFybHkgb2JzZXJ2YXRpb25zIG9uIHRoZSBCaWxscyBnYW1lOiBPZmZlbnNlIHN0aWxsIHN0cnVnZ2xpbmcgYnV0IHRoZSIsIkdvIG9uIGEgcm9tYW50aWMgZGF0ZSBhdCB0aGUiLCAiV2VsbCBJJ20gcHJldHR5IHN1cmUgbXkgZ3Jhbm55IGhhcyBzb21lIG9sZCBiYWdwaXBlcyBpbiBoZXIgZ2FyYWdlIEknbGwgZHVzdCB0aGVtIG9mZiBhbmQgYmUgb24gbXkiLCAiT2hoaGhoICNQb2ludEJyZWFrIGlzIG9uIHRvbW9ycm93LiBMb3ZlIHRoYXQgZmlsbSBhbmQgaGF2ZW4ndCBzZWVuIGl0IGluIHF1aXRlIHNvbWUiLCAiQWZ0ZXIgdGhlIGljZSBidWNrZXQgY2hhbGxlbmdlIExvdWlzIHdpbGwgcHVzaCBoaXMgbG9uZyB3ZXQgaGFpciBvdXQgb2YgaGlzIGV5ZXMgd2l0aCBoaXMgbGl0dGxlIiwgIkJlIGdyYXRlZnVsIGZvciB0aGUgZ29vZCB0aW1lcyBhbmQga2VlcCB0aGUgZmFpdGggZHVyaW5nIHRoZSIsICJJZiB0aGlzIGlzbid0IHRoZSBjdXRlc3QgdGhpbmcgeW91J3ZlIGV2ZXIgc2VlbiwgdGhlbiB5b3UgbXVzdCBiZSIpDQoNCmBgYA0KDQpgYGB7cn0NCnNldHdkKCJDOi9Vc2Vycy9KTC9EZXNrdG9wL1N0dWR5L0NvdXJzZXJhL0pvaG5zIEhvcGtpbnMgRGF0YSBTY2llbmNlLzEwIGNhcHN0b25lL0NhcHN0b25lUHJvamVjdF9OYXR1cmFsTGFuZ3VhZ2VQcm9jZXNzaW5nIikNCg0KbGlicmFyeSh0aWR5dmVyc2UpDQpsaWJyYXJ5KHRpZHl0ZXh0KQ0KbGlicmFyeSh0bSkNCmxpYnJhcnkoZ2d0aGVtZXMpDQpsaWJyYXJ5KG9wZW5OTFApDQpsaWJyYXJ5KFIudXRpbHMpDQpsaWJyYXJ5KGRhdGEudGFibGUpDQoNCnNvdXJjZSgiQzovVXNlcnMvSkwvRGVza3RvcC9TdHVkeS9Db3Vyc2VyYS9Kb2hucyBIb3BraW5zIERhdGEgU2NpZW5jZS8xMCBjYXBzdG9uZS9DYXBzdG9uZVByb2plY3RfTmF0dXJhbExhbmd1YWdlUHJvY2Vzc2luZy9oZWxwZXJfZnVuY3Rpb25zLlIiKQ0KDQpkYXRhKCJzdG9wX3dvcmRzIikNCg0KYGBgDQoNCldoYXQgd2UndmUgbGVhcm5lZCBpcyB0aGF0IHRoZSBwcmVkaWN0aXZlIG1vZGVsIGlzIEhpZ2hseSBkZXBlbmRlbnQgb24gdGhlIHRyYWluaW5nIGRhdGEuIEFuZCBzbywgaXQgbXVzdCBiZSByZXByZXNlbnRhdGl2ZSBvZiB0aGUgd2hvbGUgZGF0YXNldCB0byBwcmVkaWN0IGFjY3VyYXRlbHkuIFRoZSBib3R0bGVuZWNrIG9mIHRoaXMgbW9kZWwgaXMgdGhlIHJlYWRpbmcgaW4vbG9hZGluZyBvZiB0aGUgdGV4dCBmaWxlcy4gRXNwZWNpYWxseSB3aXRoIHRoZSBTYW1wbGVMb2FkRmlsZXMgZnVuY3Rpb24uIA0KDQpUbyBjb3VudGVyYWN0IHRoaXMsIGNyZWF0ZWQgc2FtcGxlcyBvZiBlYWNoIGRvY3VtZW50IGFuZCBzdG9yZWQgaW4gc2VwYXJhdGUgZm9sZGVyL3R4dF9maWxlczogMTAsIDI1LCA1MCwgNzUgcGVyY2VudCByZXNwZWN0aXZlbHkuDQoNCg0KDQpgYGB7ciB3YXJuaW5nPUZBTFNFfQ0KIyB0aGlzIGhhcyA0LWdyYW0sIGNhbiBwcmVkaWN0IG9mZiB0aHJlZSB3b3Jkcw0KbW9kZWwgPC0gQ2FsbEFsbCgiZGF0YS9lbl9VUy8xLyIsICAgICMgJSBzYW1wbGUgZWFjaCBkb2MNCiAgICAgICAgICAgICAgICAgc2l6ZSA9IC0xTCwNCiAgICAgICAgICAgICAgICAgY292ZXJhZ2UgPSAwLjkwLA0KICAgICAgICAgICAgICAgICBzdGVtID0gVFJVRSwNCiAgICAgICAgICAgICAgICAgZmlsdGVyID0gc3RvcF93b3JkcykNCmBgYA0KDQpgYGB7ciB3YXJuaW5nPUZBTFNFfQ0KIyBzdGVwcGVkIGNodW5rIHRvIGNvbWJpbmUgZW50aXJlIGRvY3VtZW50IGFuZCBtb2RlbA0KIyBlcXVpdmFsZW50IHRvIENhbGxBbGwoImRhdGEvZW4vX1VTLyIsIHNpemUgPSAtMUwsIGNvdmVyYWdlID0gMC45LCBzdGVtID0gVFJVRSwgZmlsdGVyID0gc3RvcF93b3JkcykNCg0KYmFzZSA8LSBMb2FkRmlsZXMoImRhdGEvZW5fVVMvIiwgc3RlbSA9IFRSVUUpDQoNCmNodW5rcyA8LSBVbmxpc3RERihiYXNlLCBzaXplID0gNWU2KSAjNWU2ID0gNTBtYg0KYGBgDQoNCmBgYHtyIHdhcm5pbmc9RkFMU0V9DQoNCnRpZHlfMV8gPC0gbGFwcGx5KGNodW5rcywgQ2xlYW5Ub2tlbnMsDQogICAgICAgICAgICAgICAgICBuID0gMSkgJT4lIE1lcmdlRFRNKCkNCnNhdmUodGlkeV8xXywgZmlsZSA9ICJ0aWR5XzFfc3RlbS5SRGEiKQ0KYGBgDQoNCmBgYHtyfQ0KdGlkeV8yXyA8LSBsYXBwbHkoY2h1bmtzLCBDbGVhblRva2VucywNCiAgICAgICAgICAgICAgICAgIG4gPSAyKSAlPiUgTWVyZ2VEVE0oKQ0Kc2F2ZSh0aWR5XzJfLCBmaWxlID0gInRpZHlfMl9zdGVtLlJEYSIpDQpgYGANCg0KYGBge3J9DQp0aWR5XzNfIDwtIGxhcHBseShjaHVua3MsIENsZWFuVG9rZW5zLA0KICAgICAgICAgICAgICAgICAgbiA9IDMpICU+JSBNZXJnZURUTSgpDQpzYXZlKHRpZHlfM18sIGZpbGUgPSAidGlkeV8zX3N0ZW0uUkRhIikNCmBgYA0KDQpgYGB7cn0NCnRpZHlfNF8gPC0gbGFwcGx5KGNodW5rcywgQ2xlYW5Ub2tlbnMsDQogICAgICAgICAgICAgICAgICBuID0gNCkgJT4lIE1lcmdlRFRNKCkNCnNhdmUodGlkeV80XywgZmlsZSA9ICJ0aWR5XzRfc3RlbS5SRGEiKQ0KYGBgDQogIA0KYGBge3J9DQp1bmlncmFtXyA8LSBXb3JkRnJlcVByb2IodGlkeV8xXykNCmJpZ3JhbV8gPC0gV29yZEZyZXFQcm9iKHRpZHlfMl8pDQp0cmlncmFtXyA8LSBXb3JkRnJlcVByb2IodGlkeV8zXykNCnF1YWdyYW1fIDwtIFdvcmRGcmVxUHJvYih0aWR5XzRfKQ0KYGBgDQoNCmBgYHtyfQ0KIyBlZmZpY2llbmN5IHN0b3JhZ2UgYnkgc2F2aW5nIG9ubHkgdG9wIHJlc3VsdHMgZm9yIGVhY2gNCiMgPz9jaGVjazogYmlhcyB0b3dhcmRzIHN0YXJ0IG9mIGFscGhhYmV0Pz8NCmJpZ3JhbV9jdXQgPC0gVG9wTlByb2JGcmVxKGJpZ3JhbV8sIGsgPSAzKQ0KdHJpZ3JhbV9jdXQgPC0gVG9wTlByb2JGcmVxKHRyaWdyYW1fLCBrID0gMikNCnF1YWdyYW1fY3V0IDwtIFRvcE5Qcm9iRnJlcShxdWFncmFtXywgayA9IDEpDQpgYGANCg0KDQpgYGB7cn0NCnZvY2FiX25fIDwtIHVuaWdyYW1fICU+JQ0KICAgIG11dGF0ZShjdW1zdW0gPSBjdW1zdW0oUCkpICU+JQ0KICAgIHN1bW1hcmlzZSh2b2NhYiA9IHN1bShjdW1zdW0gPD0gMC45KSklPiUNCiAgICBhcy5pbnRlZ2VyKCkNCiAgDQp1bmlncmFtXyA8LSB1bmlncmFtXyAlPiUgc2xpY2VfaGVhZChuID0gdm9jYWJfbl8pDQogIA0KbW9kZWwgPC0gQ3JlYXRlUHJvYlRhYmxlKHVuaWdyYW1fLA0KICAgICAgICAgICAgICAgICAgICAgICAgIGJpZ3JhbV9jdXQsDQogICAgICAgICAgICAgICAgICAgICAgICAgdHJpZ3JhbV9jdXQsDQogICAgICAgICAgICAgICAgICAgICAgICAgcXVhZ3JhbV9jdXQpDQpzYXZlKG1vZGVsLCBmaWxlID0gIm1vZGVsX3N0ZW1fY3V0LlJEYSIpDQpgYGANCg0KYGBge3J9DQpmb3IgKGluZGV4IGluIDE6MTApew0KICBwcmludCh0ZXN0X3N0cmluZ3NbaW5kZXhdKQ0KICBwcmludCgiIikNCiAgcHJpbnQoU3RyaW5nVGFpbG5ncmFtKHRlc3Rfc3RyaW5nc1tpbmRleF0sIHN0ZW0gPSBUUlVFLCBmaWx0ZXIgPSBzdG9wX3dvcmRzKSkNCiAgcHJpbnQoIiIpDQogIHByaW50KE1hdGNoU3RyaW5nUHJlZGljdCh0ZXN0X3N0cmluZ3NbaW5kZXhdLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgbW9kZWwgPSBtb2RlbCwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgIG4gPSAxMCwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgIHN0ZW0gPSBUUlVFKSkNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICNmaWx0ZXIgPSBzdG9wX3dvcmRzKSkNCiAgcHJpbnQoIiIpDQp9DQpgYGANCg0K</div>
 
 
 

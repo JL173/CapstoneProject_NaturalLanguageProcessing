@@ -50,3 +50,7 @@ data/en_US/5/en_US.blogs.5.txt
 data/en_US/5/en_US.news.5.txt
 data/en_US/1/en_US.twitter.1.txt
 data/en_US/5/en_US.twitter.5.txt
+tidy_1_stem_filter.RDa
+tidy_2_stem_filter.RDa
+tidy_3_stem_filter.RDa
+tidy_4_stem_filter.RDa

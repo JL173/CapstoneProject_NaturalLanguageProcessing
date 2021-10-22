@@ -611,107 +611,121 @@ StringTailngram <- function(string,
 
 
 
-# Match on a string and return a predicted word from a probability table
 MatchStringPredict <- function(string,
-                               ptable,
+                               model,
+                               n = 3,
                                ngram = 3,
-                               preds = 3,
                                stem = FALSE,
-                               filter = NULL,
-                               ReturnString = FALSE){
-
+                               filter = NULL){
   
-  # obtain unigram objects from ptable
-  uniptable <- ptable %>%
+  # get list of tokens to search from string
+  str <- StringTailngram(string, ngram, stem, filter)
+  
+  # get the unigram model from model for random words
+  unigrams <- model %>%
     filter(is.na(word2)) %>%
     filter(is.na(word3)) %>%
-    filter(is.na(word4))
+    filter(is.na(word4)) %>%
+    select(c("P", "word1"))
   
-  # get string search parameters
-  search <- tail(StringTailngram(string, ngram, stem, filter), 3)
+  # check length of string and check model
   
-  str_len <- length(search)
-  
-  # filter ptable for prediction
-  if (str_len == 3){
-    pred_table <- ptable %>%
-      filter(word1 == search[1],
-             word2 == search[2],
-             word3 == search[3]) %>%
-      drop_na() %>%
-      head(3)
+  if (length(str) == 3){
     
-    prediction <- pred_table$word4
+    # back off algorithm against 3 tokens
+    ptable <- model %>%
+      filter(word1 == str[1],
+             word2 == str[2],
+             word3 == str[3]) %>% 
+      arrange(desc(P)) %>%
+      head(n)
     
-    # this is implementation of 'back-off'
-    # reducing n-gram prediction if nothing is found
-    if (nrow(pred_table) == 0){
-      pred_table2 <- ptable %>%
-        filter(word1 == search[2],
-               word2 == search[3]) %>%
-        drop_na() %>%
-        head(3)
+    prediction <- ptable$word4
+     
+    if (nrow(ptable) == 0){
+      ptable <- model %>%
+        filter(word1 == str[2],
+               word2 == str[3],
+               is.na(word4)) %>% 
+        arrange(desc(P)) %>%
+        head(n)
       
-      prediction <- pred_table2$word3
+      prediction <- ptable$word3
       
-      if (nrow(pred_table2) == 0){
-        pred_table3 <- ptable %>%
-          filter(word1 == search[3]) %>%
-          drop_na() %>%
-          head(3)
+      if (nrow(ptable) == 0){
+        ptable <- model %>%
+          filter(word1 == str[3],
+                 is.na(word3),
+                 is.na(word4)) %>%
+          arrange(desc(P)) %>%
+          head(n)
         
-        prediction <- pred_table3$word2
+        prediction <- ptable$word2
         
-        if (nrow(pred_table3) == 0){
-          prediction <- RandomUnigram(uniptable, k = preds)
+        if (nrow(ptable) == 0){
+          prediction <- RandomUnigram(unigrams, k = n)
         }
       }
     }
     
-  } else if (str_len == 2){
-    pred_table <- ptable %>%
-      filter(word1 == search[1],
-             word2 == search[2]) %>%
-      drop_na() %>%
-      head(3)
     
-    prediction <- pred_table$word3
+  } else if (length(str) == 2){
     
-    if (nrow(pred_table) == 0){
-      pred_table2 <- ptable %>%
-        filter(word1 == search[2]) %>%
-        drop_na() %>%
-        head(3)
+    # back off algorithm against 2 tokens
+    ptable <- model %>%
+      filter(word1 == str[1],
+             word2 == str[2],
+             is.na(word4)) %>% 
+      arrange(desc(P)) %>%
+      head(n)
+    
+    prediction <- ptable$word3
+    
+    if (nrow(ptable) == 0){
       
-      prediction <- pred_table2$word2
+      ptable <- model %>%
+        filter(word1 == str[2],
+               is.na(word3),
+               is.na(word4)) %>% 
+        arrange(desc(P)) %>%
+        head(n)
       
-      if (nrow(pred_table2) == 0){
-        prediction <- RandomUnigram(uniptable, k = preds)
+      prediction <- ptable$word2
+      
+      if (nrow(ptable) == 0){
+        
+        prediction <- RandomUnigram(unigrams, k = n)
       }
     }
     
-  } else if (str_len == 1){
-    pred_table <- ptable %>%
-      filter(word1 == search[1]) %>%
-      drop_na() %>%
-      head(3)
     
-    predictions <- pred_table$word2
+  } else if (length(str) == 1){
     
-    if (nrow(pred_table) == 0){
-      prediction <- RandomUnigram(uniptable, k = preds)
+    # back off algorithm against 1 token
+    ptable <- model %>%
+      filter(word1 == str[1],
+             is.na(word3),
+             is.na(word4)) %>% 
+      arrange(desc(P)) %>%
+      head(n)
+    
+    prediction <- ptable$word2
+    
+    if (nrow(ptable) == 0){
+      
+      prediction <- RandomUnigram(unigrams, k = n)
     }
     
-  } else if (str_len == 0){
-    prediction <- RandomUnigram(uniptable, k = preds)
+    
+  } else {
+    
+    # random word from weighted unigram model
+    prediction <- RandomUnigram(unigrams, k = n)
   }
   
-  # return original string with prediction appended
-  if (ReturnString == TRUE){
-    prediction = paste(string, prediction[1], sep = " ")
-  }
   prediction
 }
+
 
 
 
@@ -747,7 +761,7 @@ CallAll <- function(filepath,
   quagram_ <- WordFreqProb(tidy_4_)
   
   # we shoud be able to filter by frequency, say 
-  # n=2:k=10, n=3:k=5, n=4:k=2
+  # n=2:k=10, n=3:k=5, n=4:k=1
   
   vocab_n_ <- unigram_ %>%
     mutate(cumsum = cumsum(P)) %>%

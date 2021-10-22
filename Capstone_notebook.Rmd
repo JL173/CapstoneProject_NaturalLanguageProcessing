@@ -35,19 +35,90 @@ To counteract this, created samples of each document and stored in separate fold
 
 ```{r warning=FALSE}
 # this has 4-gram, can predict off three words
-model <- CallAll("data/en_US/25/",    # % sample each doc
+model <- CallAll("data/en_US/1/",    # % sample each doc
                  size = -1L,
                  coverage = 0.90,
-                 stem = TRUE)
-                 #filter = stop_words)
+                 stem = TRUE,
+                 filter = stop_words)
+```
+
+```{r warning=FALSE}
+# stepped chunk to combine entire document and model
+# equivalent to CallAll("data/en/_US/", size = -1L, coverage = 0.9, stem = TRUE, filter = stop_words)
+
+base <- LoadFiles("data/en_US/", stem = TRUE)
+
+chunks <- UnlistDF(base, size = 5e6) #5e6 = 50mb
+```
+
+```{r warning=FALSE}
+
+tidy_1_ <- lapply(chunks, CleanTokens,
+                  n = 1) %>% MergeDTM()
+save(tidy_1_, file = "tidy_1_stem.RDa")
+```
+
+```{r}
+tidy_2_ <- lapply(chunks, CleanTokens,
+                  n = 2) %>% MergeDTM()
+save(tidy_2_, file = "tidy_2_stem.RDa")
+```
+
+```{r}
+tidy_3_ <- lapply(chunks, CleanTokens,
+                  n = 3) %>% MergeDTM()
+save(tidy_3_, file = "tidy_3_stem.RDa")
+```
+
+```{r}
+tidy_4_ <- lapply(chunks, CleanTokens,
+                  n = 4) %>% MergeDTM()
+save(tidy_4_, file = "tidy_4_stem.RDa")
+```
+  
+```{r}
+unigram_ <- WordFreqProb(tidy_1_)
+bigram_ <- WordFreqProb(tidy_2_)
+trigram_ <- WordFreqProb(tidy_3_)
+quagram_ <- WordFreqProb(tidy_4_)
+```
+
+```{r}
+# efficiency storage by saving only top results for each
+# ??check: bias towards start of alphabet??
+bigram_cut <- TopNProbFreq(bigram_, k = 3)
+trigram_cut <- TopNProbFreq(trigram_, k = 2)
+quagram_cut <- TopNProbFreq(quagram_, k = 1)
+```
+
+
+```{r}
+vocab_n_ <- unigram_ %>%
+    mutate(cumsum = cumsum(P)) %>%
+    summarise(vocab = sum(cumsum <= 0.9))%>%
+    as.integer()
+  
+unigram_ <- unigram_ %>% slice_head(n = vocab_n_)
+  
+model <- CreateProbTable(unigram_,
+                         bigram_cut,
+                         trigram_cut,
+                         quagram_cut)
+save(model, file = "model_stem_cut.RDa")
 ```
 
 ```{r}
 for (index in 1:10){
+  print(test_strings[index])
+  print("")
+  print(StringTailngram(test_strings[index], stem = TRUE, filter = stop_words))
+  print("")
   print(MatchStringPredict(test_strings[index],
-                           model,
-                           stem = FALSE)
+                           model = model,
+                           n = 10,
+                           stem = TRUE))
                            #filter = stop_words))
+  print("")
 }
 ```
 
