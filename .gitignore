@@ -58,3 +58,10 @@ tidy_1_stem.RDa
 tidy_2_stem.RDa
 tidy_3_stem.RDa
 tidy_4_stem.RDa
+model_stem.RDa
+model_stem2.RDa
+model_stem_cut.RDa
+full_bigram.RDa
+full_quagram.RDa
+full_trigram.RDa
+full_unigram.RDa

@@ -84,23 +84,47 @@ quagram_ <- WordFreqProb(tidy_4_)
 ```
 
 ```{r}
-# efficiency storage by saving only top results for each
-# ??check: bias towards start of alphabet??
-bigram_cut <- TopNProbFreq(bigram_, k = 3)
-trigram_cut <- TopNProbFreq(trigram_, k = 2)
-quagram_cut <- TopNProbFreq(quagram_, k = 1)
+load("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/full_unigram.RDa")
+unigram_ <- unigram_ %>% filter(freq > 3)
+gc()
+
+load("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/full_bigram.RDa")
+bigram_ <- bigram_ %>% filter(freq > 2)
+gc()
+
+load("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/full_trigram.RDa")
+trigram_ <- trigram_ %>% filter(freq > 2)
+gc()
+
+load("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/full_quagram.RDa")
+quagram_ <- quagram_ %>% filter(freq > 1)
+gc()
 ```
 
-
 ```{r}
+# efficiency storage by saving only top results for each
+# ??check: bias towards start of alphabet??
+
 vocab_n_ <- unigram_ %>%
     mutate(cumsum = cumsum(P)) %>%
     summarise(vocab = sum(cumsum <= 0.9))%>%
     as.integer()
   
 unigram_ <- unigram_ %>% slice_head(n = vocab_n_)
-  
+
+```
+
+```{r}
 model <- CreateProbTable(unigram_,
+                         bigram_,
+                         trigram_,
+                         quagram_)
+save(model, file = "model_stem2.RDa")
+```
+
+
+```{r}
+model_cut <- CreateProbTable(unigram_,
                          bigram_cut,
                          trigram_cut,
                          quagram_cut)
@@ -111,11 +135,13 @@ save(model, file = "model_stem_cut.RDa")
 for (index in 1:10){
   print(test_strings[index])
   print("")
-  print(StringTailngram(test_strings[index], stem = TRUE, filter = stop_words))
+  print(StringTailngram(test_strings[index], stem = TRUE))
   print("")
   print(MatchStringPredict(test_strings[index],
                            model = model,
-                           n = 10,
+                           table = TRUE,
+                           n = 10
+                           ,
                            stem = TRUE))
                            #filter = stop_words))
   print("")

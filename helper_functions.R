@@ -629,6 +629,8 @@ MatchStringPredict <- function(string,
     filter(is.na(word4)) %>%
     select(c("P", "word1"))
   
+  results <- data.table(P = c(), prediction = c())
+  
   # check length of string and check model
   if (length(str) == 3){
     
@@ -638,47 +640,53 @@ MatchStringPredict <- function(string,
              word2 == str[2],
              word3 == str[3]) %>% 
       arrange(desc(P)) %>%
+      select(c("P", "word4")) %>%
+      drop_na() %>%
       head(n)
     
     prediction <- ptable$word4
     
-    results1 <- data.table(P = ptable[1, "P"],
-                           prediction = ptable[1, "word4"])
+    results <- rbind(results, data.table(P = ptable[, "P"],
+                           prediction = ptable[, "word4"]))
      
-    if (nrow(ptable) == 0){
+    if (nrow(results) < n){
       ptable <- model %>%
         filter(word1 == str[2],
                word2 == str[3],
                is.na(word4)) %>% 
         arrange(desc(P)) %>%
+        select(c("P", "word3")) %>%
+        drop_na() %>%
         head(n)
       
       prediction <- ptable$word3
       
-      results2 <- data.table(P = ptable[1, "P"],
-                             prediction = ptable[1, "word3"])
+      results <- rbind(data.table(P = ptable[, "P"],
+                             prediction = ptable[, "word3"]))
       
-      if (nrow(ptable) == 0){
+      if (nrow(results) < n){
         ptable <- model %>%
           filter(word1 == str[3],
                  is.na(word3),
                  is.na(word4)) %>%
           arrange(desc(P)) %>%
+          select(c("P", "word2")) %>%
+          drop_na() %>%
           head(n)
         
         prediction <- ptable$word2
         
-        results3 <- data.table(P = ptable[1, "P"],
-                               prediction = ptable[1, "word2"])
+        results <- rbind(data.table(P = ptable[, "P"],
+                               prediction = ptable[, "word2"]))
         
-        if (nrow(ptable) == 0){
+        if (nrow(results) < n){
           prediction <- RandomUnigram(unigrams, k = n)
         }
       }
     }
     
     
-  } else if (length(str) == 2){
+  } else if (length(str) == 2 | nrow(results) < n){
     
     # back off algorithm against 2 tokens
     ptable <- model %>%
@@ -686,35 +694,39 @@ MatchStringPredict <- function(string,
              word2 == str[2],
              is.na(word4)) %>% 
       arrange(desc(P)) %>%
+      select(c("P", "word3")) %>%
+      drop_na() %>%
       head(n)
     
     prediction <- ptable$word3
     
-    results4 <- data.table(P = ptable[1, "P"],
-                           prediction = ptable[1, "word3"])
+    results <- rbind(data.table(P = ptable[, "P"],
+                           prediction = ptable[, "word3"]))
     
-    if (nrow(ptable) == 0){
+    if (nrow(results) < n){
       
       ptable <- model %>%
         filter(word1 == str[2],
                is.na(word3),
                is.na(word4)) %>% 
         arrange(desc(P)) %>%
+        select(c("P", "word2")) %>%
+        drop_na() %>%
         head(n)
       
       prediction <- ptable$word2
       
-      results5 <- data.table(P = ptable[1, "P"],
-                             prediction = ptable[1, "word2"])
+      results <- rbind(data.table(P = ptable[, "P"],
+                             prediction = ptable[, "word2"]))
       
-      if (nrow(ptable) == 0){
+      if (nrow(results) < n){
         
         prediction <- RandomUnigram(unigrams, k = n)
       }
     }
     
     
-  } else if (length(str) == 1){
+  } else if (length(str) == 1 | nrow(results) < n){
     
     # back off algorithm against 1 token
     ptable <- model %>%
@@ -722,14 +734,16 @@ MatchStringPredict <- function(string,
              is.na(word3),
              is.na(word4)) %>% 
       arrange(desc(P)) %>%
+      select(c("P", "word2")) %>%
+      drop_na() %>%
       head(n)
     
     prediction <- ptable$word2
     
-    results6 <- data.table(P = ptable[1, "P"],
-                           prediction = ptable[1, "word2"])
+    results <- rbind(data.table(P = ptable[, "P"],
+                           prediction = ptable[, "word2"]))
     
-    if (nrow(ptable) == 0){
+    if (nrow(results) < n){
       
       prediction <- RandomUnigram(unigrams, k = n)
     }
@@ -742,9 +756,6 @@ MatchStringPredict <- function(string,
   }
   
   if (table == TRUE){
-    results <- rbind(results1, results2,
-                     results3, results4,
-                     results5, results6)
     results
   } else {
     prediction

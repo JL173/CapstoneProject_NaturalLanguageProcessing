@@ -227,22 +227,26 @@ test_strings &lt;- c(&quot;The guy in front of me just bought a pound of bacon, 
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2V0d2QoXCJDOi9Vc2Vycy9KTC9EZXNrdG9wL1N0dWR5L0NvdXJzZXJhL0pvaG5zIEhvcGtpbnMgRGF0YSBTY2llbmNlLzEwIGNhcHN0b25lL0NhcHN0b25lUHJvamVjdF9OYXR1cmFsTGFuZ3VhZ2VQcm9jZXNzaW5nXCIpXG5cbmxpYnJhcnkodGlkeXZlcnNlKVxubGlicmFyeSh0aWR5dGV4dClcbmxpYnJhcnkodG0pXG5saWJyYXJ5KGdndGhlbWVzKVxubGlicmFyeShvcGVuTkxQKVxubGlicmFyeShSLnV0aWxzKVxubGlicmFyeShkYXRhLnRhYmxlKVxuXG5zb3VyY2UoXCJDOi9Vc2Vycy9KTC9EZXNrdG9wL1N0dWR5L0NvdXJzZXJhL0pvaG5zIEhvcGtpbnMgRGF0YSBTY2llbmNlLzEwIGNhcHN0b25lL0NhcHN0b25lUHJvamVjdF9OYXR1cmFsTGFuZ3VhZ2VQcm9jZXNzaW5nL2hlbHBlcl9mdW5jdGlvbnMuUlwiKVxuXG5kYXRhKFwic3RvcF93b3Jkc1wiKVxuXG5gYGAifQ== -->
-<pre class="r"><code>setwd(&quot;C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing&quot;)
-
-library(tidyverse)
-library(tidytext)
-library(tm)
-library(ggthemes)
-library(openNLP)
-library(R.utils)
-library(data.table)
-
-source(&quot;C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/helper_functions.R&quot;)
-
-data(&quot;stop_words&quot;)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShkYXRhLnRhYmxlKVxuXG5gYGAifQ== -->
+<pre class="r"><code>library(data.table)
 </code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUmVnaXN0ZXJlZCBTMyBtZXRob2Qgb3ZlcndyaXR0ZW4gYnkgJ2RhdGEudGFibGUnOlxuICBtZXRob2QgICAgICAgICAgIGZyb21cbiAgcHJpbnQuZGF0YS50YWJsZSAgICAgXG5kYXRhLnRhYmxlIDEuMTQuMiB1c2luZyA4IHRocmVhZHMgKHNlZSA/Z2V0RFR0aHJlYWRzKS4gIExhdGVzdCBuZXdzOiByLWRhdGF0YWJsZS5jb21cblxuQXR0YWNoaW5nIHBhY2thZ2U6IOKAmGRhdGEudGFibGXigJlcblxuVGhlIGZvbGxvd2luZyBvYmplY3RzIGFyZSBtYXNrZWQgZnJvbSDigJhwYWNrYWdlOmRwbHly4oCZOlxuXG4gICAgYmV0d2VlbiwgZmlyc3QsIGxhc3RcblxuVGhlIGZvbGxvd2luZyBvYmplY3QgaXMgbWFza2VkIGZyb20g4oCYcGFja2FnZTpwdXJycuKAmTpcblxuICAgIHRyYW5zcG9zZVxuIn0= -->
+<pre><code>Registered S3 method overwritten by &#39;data.table&#39;:
+  method           from
+  print.data.table     
+data.table 1.14.2 using 8 threads (see ?getDTthreads).  Latest news: r-datatable.com
+
+Attaching package: ‘data.table’
+
+The following objects are masked from ‘package:dplyr’:
+
+    between, first, last
+
+The following object is masked from ‘package:purrr’:
+
+    transpose</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>What we’ve learned is that the predictive model is Highly dependent on the training data. And so, it must be representative of the whole dataset to predict accurately. The bottleneck of this model is the reading in/loading of the text files. Especially with the SampleLoadFiles function.</p>
@@ -310,37 +314,96 @@ save(tidy_4_, file = &quot;tidy_4_stem.RDa&quot;)</code></pre>
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucXVhZ3JhbV8gPC0gV29yZEZyZXFQcm9iKHRpZHlfNF8pXG5cbmBgYCJ9 -->
-<pre class="r"><code>quagram_ &lt;- WordFreqProb(tidy_4_)
-</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudW5pZ3JhbV8gPC0gV29yZEZyZXFQcm9iKHRpZHlfMV8pXG5iaWdyYW1fIDwtIFdvcmRGcmVxUHJvYih0aWR5XzJfKVxudHJpZ3JhbV8gPC0gV29yZEZyZXFQcm9iKHRpZHlfM18pXG5xdWFncmFtXyA8LSBXb3JkRnJlcVByb2IodGlkeV80XylcbmBgYCJ9 -->
+<pre class="r"><code>unigram_ &lt;- WordFreqProb(tidy_1_)
+bigram_ &lt;- WordFreqProb(tidy_2_)
+trigram_ &lt;- WordFreqProb(tidy_3_)
+quagram_ &lt;- WordFreqProb(tidy_4_)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3I6IGNhbm5vdCBhbGxvY2F0ZSB2ZWN0b3Igb2Ygc2l6ZSAzNDIuNSBNYlxuIn0= -->
-<pre><code>Error: cannot allocate vector of size 342.5 Mb</code></pre>
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubG9hZChcIkM6L1VzZXJzL0pML0Rlc2t0b3AvU3R1ZHkvQ291cnNlcmEvSm9obnMgSG9wa2lucyBEYXRhIFNjaWVuY2UvMTAgY2Fwc3RvbmUvQ2Fwc3RvbmVQcm9qZWN0X05hdHVyYWxMYW5ndWFnZVByb2Nlc3NpbmcvZnVsbF91bmlncmFtLlJEYVwiKVxudW5pZ3JhbV8gPC0gdW5pZ3JhbV8gJT4lIGZpbHRlcihmcmVxID4gMylcbmdjKClcbmBgYCJ9 -->
+<pre class="r"><code>load(&quot;C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/full_unigram.RDa&quot;)
+unigram_ &lt;- unigram_ %&gt;% filter(freq &gt; 3)
+gc()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgICAgIHVzZWQgIChNYikgZ2MgdHJpZ2dlciAgKE1iKSBtYXggdXNlZCAgKE1iKVxuTmNlbGxzIDE5MDE1NzQgMTAxLjYgICAgNDc3MDYzMiAyNTQuOCAgMjU2OTU5OSAxMzcuM1xuVmNlbGxzIDQ3MjE5NDcgIDM2LjEgICAxMDE0NjMyOSAgNzcuNSAgOTg4MjQ0NiAgNzUuNFxuIn0= -->
+<pre><code>          used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells 1901574 101.6    4770632 254.8  2569599 137.3
+Vcells 4721947  36.1   10146329  77.5  9882446  75.4</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubG9hZChcIkM6L1VzZXJzL0pML0Rlc2t0b3AvU3R1ZHkvQ291cnNlcmEvSm9obnMgSG9wa2lucyBEYXRhIFNjaWVuY2UvMTAgY2Fwc3RvbmUvQ2Fwc3RvbmVQcm9qZWN0X05hdHVyYWxMYW5ndWFnZVByb2Nlc3NpbmcvZnVsbF9iaWdyYW0uUkRhXCIpXG5iaWdyYW1fIDwtIGJpZ3JhbV8gJT4lIGZpbHRlcihmcmVxID4gMilcbmdjKClcbmBgYCJ9 -->
+<pre class="r"><code>load(&quot;C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/full_bigram.RDa&quot;)
+bigram_ &lt;- bigram_ %&gt;% filter(freq &gt; 2)
+gc()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgICAgICB1c2VkICAoTWIpIGdjIHRyaWdnZXIgIChNYikgbWF4IHVzZWQgIChNYilcbk5jZWxscyAgMzU3NjIwOCAxOTEuMCAgIDE0MTU2NzUwIDc1Ni4xIDExNTEyNDY2IDYxNC45XG5WY2VsbHMgMjAwODQ4NTggMTUzLjMgICA3MzIxMzQxMSA1NTguNiA4ODkyNDA1MyA2NzguNVxuIn0= -->
+<pre><code>           used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells  3576208 191.0   14156750 756.1 11512466 614.9
+Vcells 20084858 153.3   73213411 558.6 88924053 678.5</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubG9hZChcIkM6L1VzZXJzL0pML0Rlc2t0b3AvU3R1ZHkvQ291cnNlcmEvSm9obnMgSG9wa2lucyBEYXRhIFNjaWVuY2UvMTAgY2Fwc3RvbmUvQ2Fwc3RvbmVQcm9qZWN0X05hdHVyYWxMYW5ndWFnZVByb2Nlc3NpbmcvZnVsbF90cmlncmFtLlJEYVwiKVxudHJpZ3JhbV8gPC0gdHJpZ3JhbV8gJT4lIGZpbHRlcihmcmVxID4gMilcbmdjKClcbmBgYCJ9 -->
+<pre class="r"><code>load(&quot;C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/full_trigram.RDa&quot;)
+trigram_ &lt;- trigram_ %&gt;% filter(freq &gt; 2)
+gc()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgICAgICB1c2VkICAoTWIpIGdjIHRyaWdnZXIgICAoTWIpICBtYXggdXNlZCAgIChNYilcbk5jZWxscyAgNjA3NzM1MSAzMjQuNiAgIDM4MDU3NjUyIDIwMzIuNSAgMzMxOTc0NjEgMTc3My4wXG5WY2VsbHMgNDA3MzIwMTIgMzEwLjggIDIxNTgwMTcwNiAxNjQ2LjUgMjY3NDY5MDExIDIwNDAuN1xuIn0= -->
+<pre><code>           used  (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells  6077351 324.6   38057652 2032.5  33197461 1773.0
+Vcells 40732012 310.8  215801706 1646.5 267469011 2040.7</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubG9hZChcIkM6L1VzZXJzL0pML0Rlc2t0b3AvU3R1ZHkvQ291cnNlcmEvSm9obnMgSG9wa2lucyBEYXRhIFNjaWVuY2UvMTAgY2Fwc3RvbmUvQ2Fwc3RvbmVQcm9qZWN0X05hdHVyYWxMYW5ndWFnZVByb2Nlc3NpbmcvZnVsbF9xdWFncmFtLlJEYVwiKVxucXVhZ3JhbV8gPC0gcXVhZ3JhbV8gJT4lIGZpbHRlcihmcmVxID4gMSlcbmdjKClcbmBgYCJ9 -->
+<pre class="r"><code>load(&quot;C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/full_quagram.RDa&quot;)
+quagram_ &lt;- quagram_ %&gt;% filter(freq &gt; 1)
+gc()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgICAgICB1c2VkICAoTWIpIGdjIHRyaWdnZXIgICAoTWIpICBtYXggdXNlZCAgIChNYilcbk5jZWxscyAgOTYwOTIzNSA1MTMuMiAgIDY1Njk2ODg5IDM1MDguNiAgNTA5NzU5NTIgMjcyMi41XG5WY2VsbHMgNzg2MjU0MzAgNTk5LjkgIDQxNjE2NjE1NiAzMTc1LjEgNTIwMjA3Njk1IDM5NjguOVxuIn0= -->
+<pre><code>           used  (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells  9609235 513.2   65696889 3508.6  50975952 2722.5
+Vcells 78625430 599.9  416166156 3175.1 520207695 3968.9</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBlZmZpY2llbmN5IHN0b3JhZ2UgYnkgc2F2aW5nIG9ubHkgdG9wIHJlc3VsdHMgZm9yIGVhY2hcbiMgPz9jaGVjazogYmlhcyB0b3dhcmRzIHN0YXJ0IG9mIGFscGhhYmV0Pz9cbmJpZ3JhbV9jdXQgPC0gVG9wTlByb2JGcmVxKGJpZ3JhbV8sIGsgPSAzKVxudHJpZ3JhbV9jdXQgPC0gVG9wTlByb2JGcmVxKHRyaWdyYW1fLCBrID0gMilcbnF1YWdyYW1fY3V0IDwtIFRvcE5Qcm9iRnJlcShxdWFncmFtXywgayA9IDEpXG5gYGAifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBlZmZpY2llbmN5IHN0b3JhZ2UgYnkgc2F2aW5nIG9ubHkgdG9wIHJlc3VsdHMgZm9yIGVhY2hcbiMgPz9jaGVjazogYmlhcyB0b3dhcmRzIHN0YXJ0IG9mIGFscGhhYmV0Pz9cblxudm9jYWJfbl8gPC0gdW5pZ3JhbV8gJT4lXG4gICAgbXV0YXRlKGN1bXN1bSA9IGN1bXN1bShQKSkgJT4lXG4gICAgc3VtbWFyaXNlKHZvY2FiID0gc3VtKGN1bXN1bSA8PSAwLjkpKSU+JVxuICAgIGFzLmludGVnZXIoKVxuICBcbnVuaWdyYW1fIDwtIHVuaWdyYW1fICU+JSBzbGljZV9oZWFkKG4gPSB2b2NhYl9uXylcblxuYGBgIn0= -->
 <pre class="r"><code># efficiency storage by saving only top results for each
 # ??check: bias towards start of alphabet??
-bigram_cut &lt;- TopNProbFreq(bigram_, k = 3)
-trigram_cut &lt;- TopNProbFreq(trigram_, k = 2)
-quagram_cut &lt;- TopNProbFreq(quagram_, k = 1)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudm9jYWJfbl8gPC0gdW5pZ3JhbV8gJT4lXG4gICAgbXV0YXRlKGN1bXN1bSA9IGN1bXN1bShQKSkgJT4lXG4gICAgc3VtbWFyaXNlKHZvY2FiID0gc3VtKGN1bXN1bSA8PSAwLjkpKSU+JVxuICAgIGFzLmludGVnZXIoKVxuICBcbnVuaWdyYW1fIDwtIHVuaWdyYW1fICU+JSBzbGljZV9oZWFkKG4gPSB2b2NhYl9uXylcbiAgXG5tb2RlbCA8LSBDcmVhdGVQcm9iVGFibGUodW5pZ3JhbV8sXG4gICAgICAgICAgICAgICAgICAgICAgICAgYmlncmFtX2N1dCxcbiAgICAgICAgICAgICAgICAgICAgICAgICB0cmlncmFtX2N1dCxcbiAgICAgICAgICAgICAgICAgICAgICAgICBxdWFncmFtX2N1dClcbnNhdmUobW9kZWwsIGZpbGUgPSBcIm1vZGVsX3N0ZW1fY3V0LlJEYVwiKVxuYGBgIn0= -->
-<pre class="r"><code>vocab_n_ &lt;- unigram_ %&gt;%
+
+vocab_n_ &lt;- unigram_ %&gt;%
     mutate(cumsum = cumsum(P)) %&gt;%
     summarise(vocab = sum(cumsum &lt;= 0.9))%&gt;%
     as.integer()
   
 unigram_ &lt;- unigram_ %&gt;% slice_head(n = vocab_n_)
-  
-model &lt;- CreateProbTable(unigram_,
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubW9kZWwgPC0gQ3JlYXRlUHJvYlRhYmxlKHVuaWdyYW1fLFxuICAgICAgICAgICAgICAgICAgICAgICAgIGJpZ3JhbV8sXG4gICAgICAgICAgICAgICAgICAgICAgICAgdHJpZ3JhbV8sXG4gICAgICAgICAgICAgICAgICAgICAgICAgcXVhZ3JhbV8pXG5gYGAifQ== -->
+<pre class="r"><code>model &lt;- CreateProbTable(unigram_,
+                         bigram_,
+                         trigram_,
+                         quagram_)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogRXhwZWN0ZWQgMiBwaWVjZXMuIEFkZGl0aW9uYWwgcGllY2VzIGRpc2NhcmRlZCBpbiAxOTM0NCByb3dzIFs2LCA3LCA4LCA5LCAxMCwgMTEsIDEyLCAxMywgMTUsIDE2LCA2NzMyLCA2NzMzLCA2NzM0LCA2OTg3LCA5NTczLCA5NTc0LCA5NTc1LCAxNzI0MSwgMzEwMDQsIDMxNTUxLCAuLi5dLlxuV2FybmluZzogRXhwZWN0ZWQgMyBwaWVjZXMuIEFkZGl0aW9uYWwgcGllY2VzIGRpc2NhcmRlZCBpbiAyOTU5OSByb3dzIFsxLCAyLCA2LCA3LCA4LCA5LCAxMCwgMTEsIDEyLCAxMywgMTUsIDE2LCA2MzYwLCA2NjMzLCAxMDk5OSwgMTQyMTQsIDE2MjY2LCAyMTMzOCwgMjIzMzgsIDI4MTE2LCAuLi5dLlxuV2FybmluZzogRXhwZWN0ZWQgMyBwaWVjZXMuIE1pc3NpbmcgcGllY2VzIGZpbGxlZCB3aXRoIGBOQWAgaW4gMzIgcm93cyBbMTcsIDE4LCAxOSwgMjAsIDIxLCAyMiwgMjMsIDI0LCAyNSwgMjYsIDI3LCAyOCwgMjksIDMwLCAzMSwgMzIsIDMzLCAzNCwgMzUsIDM2LCAuLi5dLlxuIn0= -->
+<pre><code>Warning: Expected 2 pieces. Additional pieces discarded in 19344 rows [6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 6732, 6733, 6734, 6987, 9573, 9574, 9575, 17241, 31004, 31551, ...].
+Warning: Expected 3 pieces. Additional pieces discarded in 29599 rows [1, 2, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 6360, 6633, 10999, 14214, 16266, 21338, 22338, 28116, ...].
+Warning: Expected 3 pieces. Missing pieces filled with `NA` in 32 rows [17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, ...].</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2F2ZShtb2RlbCwgZmlsZSA9IFwibW9kZWxfc3RlbTIuUkRhXCIpXG5gYGAifQ== -->
+<pre class="r"><code>save(model, file = &quot;model_stem2.RDa&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubW9kZWxfY3V0IDwtIENyZWF0ZVByb2JUYWJsZSh1bmlncmFtXyxcbiAgICAgICAgICAgICAgICAgICAgICAgICBiaWdyYW1fY3V0LFxuICAgICAgICAgICAgICAgICAgICAgICAgIHRyaWdyYW1fY3V0LFxuICAgICAgICAgICAgICAgICAgICAgICAgIHF1YWdyYW1fY3V0KVxuc2F2ZShtb2RlbCwgZmlsZSA9IFwibW9kZWxfc3RlbV9jdXQuUkRhXCIpXG5gYGAifQ== -->
+<pre class="r"><code>model_cut &lt;- CreateProbTable(unigram_,
                          bigram_cut,
                          trigram_cut,
                          quagram_cut)
@@ -350,25 +413,249 @@ save(model, file = &quot;model_stem_cut.RDa&quot;)</code></pre>
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZm9yIChpbmRleCBpbiAxOjEwKXtcbiAgcHJpbnQodGVzdF9zdHJpbmdzW2luZGV4XSlcbiAgcHJpbnQoXCJcIilcbiAgcHJpbnQoU3RyaW5nVGFpbG5ncmFtKHRlc3Rfc3RyaW5nc1tpbmRleF0sIHN0ZW0gPSBUUlVFLCBmaWx0ZXIgPSBzdG9wX3dvcmRzKSlcbiAgcHJpbnQoXCJcIilcbiAgcHJpbnQoTWF0Y2hTdHJpbmdQcmVkaWN0KHRlc3Rfc3RyaW5nc1tpbmRleF0sXG4gICAgICAgICAgICAgICAgICAgICAgICAgICBtb2RlbCA9IG1vZGVsLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgbiA9IDEwLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgc3RlbSA9IFRSVUUpKVxuICAgICAgICAgICAgICAgICAgICAgICAgICAgI2ZpbHRlciA9IHN0b3Bfd29yZHMpKVxuICBwcmludChcIlwiKVxufVxuYGBgIn0= -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZm9yIChpbmRleCBpbiAxOjEwKXtcbiAgcHJpbnQodGVzdF9zdHJpbmdzW2luZGV4XSlcbiAgcHJpbnQoXCJcIilcbiAgcHJpbnQoU3RyaW5nVGFpbG5ncmFtKHRlc3Rfc3RyaW5nc1tpbmRleF0sIHN0ZW0gPSBUUlVFKSlcbiAgcHJpbnQoXCJcIilcbiAgcHJpbnQoTWF0Y2hTdHJpbmdQcmVkaWN0KHRlc3Rfc3RyaW5nc1tpbmRleF0sXG4gICAgICAgICAgICAgICAgICAgICAgICAgICBtb2RlbCA9IG1vZGVsLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgdGFibGUgPSBUUlVFLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgbiA9IDEwXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICBzdGVtID0gVFJVRSkpXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAjZmlsdGVyID0gc3RvcF93b3JkcykpXG4gIHByaW50KFwiXCIpXG59XG5gYGAifQ== -->
 <pre class="r"><code>for (index in 1:10){
   print(test_strings[index])
   print(&quot;&quot;)
-  print(StringTailngram(test_strings[index], stem = TRUE, filter = stop_words))
+  print(StringTailngram(test_strings[index], stem = TRUE))
   print(&quot;&quot;)
   print(MatchStringPredict(test_strings[index],
                            model = model,
-                           n = 10,
+                           table = TRUE,
+                           n = 10
+                           ,
                            stem = TRUE))
                            #filter = stop_words))
   print(&quot;&quot;)
 }</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiVGhlIGd1eSBpbiBmcm9udCBvZiBtZSBqdXN0IGJvdWdodCBhIHBvdW5kIG9mIGJhY29uLCBhIGJvdXF1ZXQsIGFuZCBhIGNhc2Ugb2ZcIlxuWzFdIFwiXCJcbltbMV1dXG5bMV0gXCJhXCJcblxuW1syXV1cblsxXSBcImNhc2VcIlxuXG5bWzNdXVxuWzFdIFwib2ZcIlxuXG5bMV0gXCJcIlxuIn0= -->
+<pre><code>[1] &quot;The guy in front of me just bought a pound of bacon, a bouquet, and a case of&quot;
+[1] &quot;&quot;
+[[1]]
+[1] &quot;a&quot;
+
+[[2]]
+[1] &quot;case&quot;
+
+[[3]]
+[1] &quot;of&quot;
+
+[1] &quot;&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEudGFibGUiLCJkYXRhLmZyYW1lIl0sIm5yb3ciOjEwLCJuY29sIjoyLCJzdW1tYXJ5Ijp7IkRlc2NyaXB0aW9uIjpbImRhdGEudGFibGUgWzEwIHggMl0iXX19LCJyZGYiOiJINHNJQUFBQUFBQUFCZ3R5aVREbWl1QmlZR0JnWm1CaFpHUmdaZ1V5R2RpY0F3eU5USTBZR0ZpWWdEeEdCaFlHVGhCZEFWUWxER1NBQlBtQW1NditXRWp0ajhERnMrMVhybld1ZmpSOW1YMy9MTzAxV3BPZDdIdSsvNDI5dUhFNW5LNFJkM2JlSWloblh4VjZuci9pQWcrY0xydjBiRG1UNzB2N1VzR2lvdU04MTRGbUNvRE1oVnJJWEpLUkNyTTdFY3BnU1VwTkxZS3ltUkx6WUtJbEdabkZNTkhNRWlpTE16VTN0U2c5TlMrNUVpYVZDMk14SitabHdwajVlYWxvUHVVc3lpL1h5MHZNVFMwR2NuaEJHaHVBeFAvLy83K2hLV1JOemtrc0xvWTZHeWJJbFpKWWtxaVhWZ1RVajY0Y1pxWUFPQlNoOWdmb0JVQ1pBZ1ZGcVNtWnlTV1orWGw2NWZsRktjWkFzWDlvWnJEbkY0RGtnYVl3Z2VLQ0ZjMXl4aUkwQVlIU1BKQ3RLYnJKR2FWNTJicEd4dUFBQnNsREFDK1V6WVhFWm9MWXlmSWZhaFlyMUN5MjFMejB6RHhZbkxEbUpDYWw1a0E1Zk1BZ0EvdE9yNkFvTXc4V0ExeEEwV0s5a3Z5U1JKZzZydVQ4SEpnSTJITU0vd0FSdlhkcGhBSUFBQT09In0= -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["P.P"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["prediction.word3"],"name":[2],"type":["chr"],"align":["left"]}],"data":[{"1":"0.174453493","2":"the"},{"1":"0.050150021","2":"a"},{"1":"0.015430776","2":"beer"},{"1":"0.014144878","2":"an"},{"1":"0.014144878","2":"this"},{"1":"0.006858123","2":"it"},{"1":"0.006429490","2":"emergency"},{"1":"0.006429490","2":"my"},{"1":"0.005572225","2":"ani"},{"1":"0.005143592","2":"one"}],"options":{"columns":{"min":{},"max":[10],"total":[2]},"rows":{"min":[10],"max":[10],"total":[10]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiXCJcblsxXSBcIllvdSdyZSB0aGUgcmVhc29uIHdoeSBJIHNtaWxlIGV2ZXJ5ZGF5LiBDYW4geW91IGZvbGxvdyBtZSBwbGVhc2U/IEl0IHdvdWxkIG1lYW4gdGhlXCJcblsxXSBcIlwiXG5bWzFdXVxuWzFdIFwid291bGRcIlxuXG5bWzJdXVxuWzFdIFwibWVhblwiXG5cbltbM11dXG5bMV0gXCJ0aGVcIlxuXG5bMV0gXCJcIlxuIn0= -->
+<pre><code>[1] &quot;&quot;
+[1] &quot;You&#39;re the reason why I smile everyday. Can you follow me please? It would mean the&quot;
+[1] &quot;&quot;
+[[1]]
+[1] &quot;would&quot;
+
+[[2]]
+[1] &quot;mean&quot;
+
+[[3]]
+[1] &quot;the&quot;
+
+[1] &quot;&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEudGFibGUiLCJkYXRhLmZyYW1lIl0sIm5yb3ciOjEwLCJuY29sIjoyLCJzdW1tYXJ5Ijp7IkRlc2NyaXB0aW9uIjpbImRhdGEudGFibGUgWzEwIHggMl0iXX19LCJyZGYiOiJINHNJQUFBQUFBQUFCbDFSM1VvQ1FSU2UxUjNEQlVYU3NxZ2V3WVdVd0F0amhIb0E2VXJveG0xL2NtbWRrZGsxZzI2ME1KQnVnOTdBdHdsNkZQR2lTN2N6Njh4U3U1emQrYzQzWjc0ejU5dWI2MzdMNkJzSW9UelNOUTNsTVVCVXVPcWROeSthQ09rNXlEU2tvNkpZbjZDcUNrQ1FaWGdOOHVXOW4wR1F6MFdudnVnY2tZL1Z1clphSDVEbDVmY3hSTHErYlFhSG0wR2R2TTdiMVhtN1JsNXVaL3NRNUhuWlBWbDJUOG5qYmg4MEswSlhOc1JUeGdOSEpucG9qVnlGUnl5TUpDNDR2dWU1UEQweVpJRXF5ek9hbm1BMDhCWHRVaVdLUForblNwaEZReEQ2UDNTUnM2bEpvWFVJU1VrTVA0TlBITWMvbVVKc0IxWVl5Z2tVYVRoV1pKa2VGMWZQbEN2TlNtS292Rm5QN0VsWUdYUFg4ZTNJWjlRRUc1d1djTnVNeGg0YmkzMVF5WW5mZ2pQTk5aNGhLaE1xdWpvTmV6aWhENDFtSy9GYTdPK2Vrc1RHSDV6YjlkUmpxWVdWN1M2OTkxTjdjV0RkdVlGTXltQlpNcDA1NWo1VjdockFobWJFSWt2VkdUWUxGSk1NaDdhL21wZ3N4NDhDQUFBPSJ9 -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["P.P"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["prediction.word3"],"name":[2],"type":["chr"],"align":["left"]}],"data":[{"1":"0.229691877","2":"world"},{"1":"0.022969188","2":"same"},{"1":"0.020168067","2":"most"},{"1":"0.012324930","2":"differ"},{"1":"0.012324930","2":"whole"},{"1":"0.011204482","2":"one"},{"1":"0.009523810","2":"onli"},{"1":"0.008963585","2":"end"},{"1":"0.006722689","2":"first"},{"1":"0.005602241","2":"other"}],"options":{"columns":{"min":{},"max":[10],"total":[2]},"rows":{"min":[10],"max":[10],"total":[10]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiXCJcblsxXSBcIkhleSBzdW5zaGluZSwgY2FuIHlvdSBmb2xsb3cgbWUgYW5kIG1ha2UgbWUgdGhlXCJcblsxXSBcIlwiXG5bWzFdXVxuWzFdIFwibWFrZVwiXG5cbltbMl1dXG5bMV0gXCJtZVwiXG5cbltbM11dXG5bMV0gXCJ0aGVcIlxuXG5bMV0gXCJcIlxuIn0= -->
+<pre><code>[1] &quot;&quot;
+[1] &quot;Hey sunshine, can you follow me and make me the&quot;
+[1] &quot;&quot;
+[[1]]
+[1] &quot;make&quot;
+
+[[2]]
+[1] &quot;me&quot;
+
+[[3]]
+[1] &quot;the&quot;
+
+[1] &quot;&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEudGFibGUiLCJkYXRhLmZyYW1lIl0sIm5yb3ciOjEwLCJuY29sIjoyLCJzdW1tYXJ5Ijp7IkRlc2NyaXB0aW9uIjpbImRhdGEudGFibGUgWzEwIHggMl0iXX19LCJyZGYiOiJINHNJQUFBQUFBQUFCZ3R5aVREbWl1QmlZR0JnWm1CaFpHUmdaZ1V5R2RpY0F3eU5USTBZR0ZpWWdEeEdCaFlHVGhCZEFWUWxER1NBQlBtQW1NdCtHZE1WOVZsYWVmYlROVm5zck5NZDdDZnRiWXVObExwdlB5bVpNVXY0cktqOXhJYXRuTSs2NXRoUERDNmE0UHg0bS8yRWVSa3JkM29vMmZmeHFSeGp1cUpoM3g3bXR2MGVuNnA5NjhTMTM1czdnUll5Q0lETWhWcklrcHRmWEFKbE01Y25Wa0taclBrbEdhbEZNRFU1bVhuWk1IWnhZbTRxakoxV21nd1hUMHFGbThPUlgxQ1FYMVJTbWdjekxDMnpDQzdKbXB5Um1KZU01bTNPb3Z4eXZUeWd5Y1ZBRGkvSSt3MUE0di8vLzkvUUZMSW01eVFXRjBQOUFCUGtTa2tzU2RSTEt3SzVERTA1ekV3QmNKQkN2Um1nRndCbENoUVVwYVprSnBkazV1ZnBsZWNYcFJnRHhmNmhtY0dlWHdDU0I1ckNCSW9ZVmpUTEdZdlFCQVJLODBDMnB1Z21aNVRtWmVzYUdZTkRHeVFQQWJ4UU5oY1Ntd2xpSjh0L3FGbXNVTFBZVXZQU00vTmc0YzJhazVpVW1nUGw4QUdERE93N3ZZS2l6RHhZNkhJQlJZdjFTdkpMRW1IcXVKTHpjMkFpWU04eC9BTUFUSDB0M0pFQ0FBQT0ifQ== -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["P.P"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["prediction.word3"],"name":[2],"type":["chr"],"align":["left"]}],"data":[{"1":"0.04299033","2":"most"},{"1":"0.02261740","2":"way"},{"1":"0.01830110","2":"other"},{"1":"0.01795580","2":"link"},{"1":"0.01709254","2":"same"},{"1":"0.01691989","2":"fuck"},{"1":"0.01622928","2":"best"},{"1":"0.01467541","2":"opportun"},{"1":"0.01139503","2":"first"},{"1":"0.01053177","2":"chanc"}],"options":{"columns":{"min":{},"max":[10],"total":[2]},"rows":{"min":[10],"max":[10],"total":[10]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiXCJcblsxXSBcIlZlcnkgZWFybHkgb2JzZXJ2YXRpb25zIG9uIHRoZSBCaWxscyBnYW1lOiBPZmZlbnNlIHN0aWxsIHN0cnVnZ2xpbmcgYnV0IHRoZVwiXG5bMV0gXCJcIlxuW1sxXV1cblsxXSBcInN0cnVnZ2xcIlxuXG5bWzJdXVxuWzFdIFwiYnV0XCJcblxuW1szXV1cblsxXSBcInRoZVwiXG5cblsxXSBcIlwiXG4ifQ== -->
+<pre><code>[1] &quot;&quot;
+[1] &quot;Very early observations on the Bills game: Offense still struggling but the&quot;
+[1] &quot;&quot;
+[[1]]
+[1] &quot;struggl&quot;
+
+[[2]]
+[1] &quot;but&quot;
+
+[[3]]
+[1] &quot;the&quot;
+
+[1] &quot;&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEudGFibGUiLCJkYXRhLmZyYW1lIl0sIm5yb3ciOjEwLCJuY29sIjoyLCJzdW1tYXJ5Ijp7IkRlc2NyaXB0aW9uIjpbImRhdGEudGFibGUgWzEwIHggMl0iXX19LCJyZGYiOiJINHNJQUFBQUFBQUFCZ3R5aVREbWl1QmlZR0JnWm1CaFpHUmdaZ1V5R2RpY0F3eU5USTBZR0ZpWWdEeEdCaFlHVGhCZEFWUWxER1NBQlBtQW1NdStNOWpaTVlLcjJiN2RPK0ZoNTU1ayszYWRNNXdpQnM3MkxiazUwMXBtSnRzM1c4OVJmS3VnWk44WTVEZHJTaHdTYmJ6emtOd2xKdnU2UzB4cTVSWXU5blhoNjQ0c1pEOENORk1BWkM3VVFwYTB4T1FTR0RzcHRSakdaaTBwS2kzSmdIS1k4L05TWWVMNUpSbXBSVEFOdWZsd0RTeEZxWWs1Q0RaQ1BEOHZKeE9odmlnVnpjZWNSZm5sZW5tSnVhbkZRQTR2eU9jTlFPTC8vLy9mMEJTeUp1Y2tGaGREblE4VDVFcEpMRW5VU3lzQzZrZFhEak5UQUJ5YVVJOEU2QVZBbVFJRlJha3BtY2tsbWZsNWV1WDVSU25HUUxGL2FHYXc1eGVBNUlHbU1JSGloQlhOY3NZaU5BR0IwanlRclNtNnlSbWxlZG02UnNiZ2dBYkpRd0F2bE0yRnhHYUMyTW55SDJvV0s5UXN0dFM4OUV4RXNPY2tKcVhDZ3BjUEdHUmczK2tWRkdYbXdRS2FDeWhhckZlU1h3S1BCcTdrL0J5WUNOaHpEUDhBTU5Bei9Zd0NBQUE9In0= -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["P.P"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["prediction.word3"],"name":[2],"type":["chr"],"align":["left"]}],"data":[{"1":"0.012365842","2":"fact"},{"1":"0.011374242","2":"best"},{"1":"0.011315912","2":"truth"},{"1":"0.009974335","2":"one"},{"1":"0.009391041","2":"other"},{"1":"0.008457769","2":"most"},{"1":"0.008457769","2":"real"},{"1":"0.008399440","2":"rest"},{"1":"0.007524498","2":"onli"},{"1":"0.007407839","2":"more"}],"options":{"columns":{"min":{},"max":[10],"total":[2]},"rows":{"min":[10],"max":[10],"total":[10]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiXCJcblsxXSBcIkdvIG9uIGEgcm9tYW50aWMgZGF0ZSBhdCB0aGVcIlxuWzFdIFwiXCJcbltbMV1dXG5bMV0gXCJkYXRlXCJcblxuW1syXV1cblsxXSBcImF0XCJcblxuW1szXV1cblsxXSBcInRoZVwiXG5cblsxXSBcIlwiXG4ifQ== -->
+<pre><code>[1] &quot;&quot;
+[1] &quot;Go on a romantic date at the&quot;
+[1] &quot;&quot;
+[[1]]
+[1] &quot;date&quot;
+
+[[2]]
+[1] &quot;at&quot;
+
+[[3]]
+[1] &quot;the&quot;
+
+[1] &quot;&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEudGFibGUiLCJkYXRhLmZyYW1lIl0sIm5yb3ciOjEwLCJuY29sIjoyLCJzdW1tYXJ5Ijp7IkRlc2NyaXB0aW9uIjpbImRhdGEudGFibGUgWzEwIHggMl0iXX19LCJyZGYiOiJINHNJQUFBQUFBQUFCZ3R5aVREbWl1QmlZR0JnWm1CaFpHUmdaZ1V5R2RpY0F3eU5USTBZR0ZpWWdEeEdCaFlHVGhCZEFWUWxER1NBQlBtQW1NdCsvVVAySC84T2x0c3YzMWh4Y2xXL2l2MUNsVjE3NUhpRTdhY2YzRGdoU1RESGZwTFRwZGwrc3B6MjdZRnpsNTkycjdKdk9yajBpTjVpYS91RzFqTFdjNDBCOXZWSkpoZmtyRjNzYTU0cWZuc2dZQWswVXdCa0x0UkM1dFM4RkNpVHBUZ3hOeFhHTHNtRXM5bHk4M05UODBwZ0drcnlDMkFTU2ZrbEpmbTVVQjVyVW1wNlpoNU1mMWxxVVNaTVIzb2xUQTFMU241K0VacVhPWXZ5eS9YeWdGWVhBem04SUs4M0FJbi8vLzkvUTFQSW1weVRXRndNZFQ5TWtDc2xzU1JSTDYwSTVIUTA1VEF6QmNEQkNYVkxnRjRBbENsUVVKU2FrcGxja3BtZnAxZWVYNVJpREJUN2gyWUdlMzRCU0I1b0NoTW9VbGpSTEdjc1FoTVFLTTBEMlpxaW01eFJtcGV0YTJRTURtbVFQQVR3UXRsY1NHd21pSjBzLzZGbXNjSkNOelVQR0o2d1NHRE5TVXhLellGeStJQkJCdmFkWGtGUkpqeG11SUNpeFhvbCtTV0pNSFZjeWZrNU1CR3c1eGorQVFEbGJLQnRqUUlBQUE9PSJ9 -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["P.P"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["prediction.word3"],"name":[2],"type":["chr"],"align":["left"]}],"data":[{"1":"0.062263726","2":"end"},{"1":"0.046275878","2":"same"},{"1":"0.033483348","2":"time"},{"1":"0.023199820","2":"moment"},{"1":"0.017833033","2":"top"},{"1":"0.011386139","2":"bottom"},{"1":"0.009158416","2":"begin"},{"1":"0.008067057","2":"veri"},{"1":"0.007662016","2":"gym"},{"1":"0.007054455","2":"door"}],"options":{"columns":{"min":{},"max":[10],"total":[2]},"rows":{"min":[10],"max":[10],"total":[10]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiXCJcblsxXSBcIldlbGwgSSdtIHByZXR0eSBzdXJlIG15IGdyYW5ueSBoYXMgc29tZSBvbGQgYmFncGlwZXMgaW4gaGVyIGdhcmFnZSBJJ2xsIGR1c3QgdGhlbSBvZmYgYW5kIGJlIG9uIG15XCJcblsxXSBcIlwiXG5bWzFdXVxuWzFdIFwiYmVcIlxuXG5bWzJdXVxuWzFdIFwib25cIlxuXG5bWzNdXVxuWzFdIFwibXlcIlxuXG5bMV0gXCJcIlxuIn0= -->
+<pre><code>[1] &quot;&quot;
+[1] &quot;Well I&#39;m pretty sure my granny has some old bagpipes in her garage I&#39;ll dust them off and be on my&quot;
+[1] &quot;&quot;
+[[1]]
+[1] &quot;be&quot;
+
+[[2]]
+[1] &quot;on&quot;
+
+[[3]]
+[1] &quot;my&quot;
+
+[1] &quot;&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEudGFibGUiLCJkYXRhLmZyYW1lIl0sIm5yb3ciOjEwLCJuY29sIjoyLCJzdW1tYXJ5Ijp7IkRlc2NyaXB0aW9uIjpbImRhdGEudGFibGUgWzEwIHggMl0iXX19LCJyZGYiOiJINHNJQUFBQUFBQUFCZ3R5aVREbWl1QmlZR0JnWm1CaFpHUmdaZ1V5R2RpY0F3eU5USTBZR0ZpWWdEeEdCaFlHVGhCZEFWUWxER1NBQlBtQW1NdCt5NXo3M0xkZjhkZ3Y0TC9KK3FyOXF2Mzhhb3VkYTc3dXQ1K1Z1YVh0VVpLWi9Vek5wNEpuZlZ6c3A5Vk1zNjd1K21iZlAvOW8yY3hjVC92R1YvL212cGw1MXI0eFc0aGp3L2RjKzRhLzJSZGZUN2dJTkZNQVpDN1VRdWJ5eEVvWU03ODhEOHBreWMzTVM0R3lXUXN5OHZOU1lSSkpPZm5wTUhaYVlqSmNQQ2V6dUFUR3ppekloMm5tU01vc0tzbElRZGlSbDFxTzVtWE9vdnh5dmJ6RTNOUmlJSWNYNVBVR0lQSC8vLzl2YUFwWmszTVNpNHVoN29jSmNxVWtsaVRxcFJVQjlhTXJoNWtwQUE1T3FQMEJlZ0ZRcGtCQlVXcEtabkpKWm42ZVhubCtVWW94VU93Zm1obnMrUVVnZWFBcFRLQklZVVd6bkxFSVRVQ2dOQTlrYTRwdWNrWnBYcmF1a1RFNHBFSHlFTUFMWlhNaHNaa2dkckw4aDVyRkNqV0xMVFV2UFJNZThLdzVpVW1wT1ZBT0h6REl3TDdUS3lqS3pJT0ZPeGRRdEZpdkpMOGtFYWFPS3prL0J5WUM5aHpEUHdCWm8rcDVqUUlBQUE9PSJ9 -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["P.P"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["prediction.word3"],"name":[2],"type":["chr"],"align":["left"]}],"data":[{"1":"0.080518666","2":"way"},{"1":"0.031370909","2":"own"},{"1":"0.030743491","2":"mind"},{"1":"0.025793858","2":"phone"},{"1":"0.024573878","2":"blog"},{"1":"0.021959636","2":"face"},{"1":"0.015441458","2":"list"},{"1":"0.008748998","2":"ipod"},{"1":"0.008505002","2":"birthday"},{"1":"0.008295863","2":"new"}],"options":{"columns":{"min":{},"max":[10],"total":[2]},"rows":{"min":[10],"max":[10],"total":[10]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiXCJcblsxXSBcIk9oaGhoaCAjUG9pbnRCcmVhayBpcyBvbiB0b21vcnJvdy4gTG92ZSB0aGF0IGZpbG0gYW5kIGhhdmVuJ3Qgc2VlbiBpdCBpbiBxdWl0ZSBzb21lXCJcblsxXSBcIlwiXG5bWzFdXVxuWzFdIFwiaW5cIlxuXG5bWzJdXVxuWzFdIFwicXVpdFwiXG5cbltbM11dXG5bMV0gXCJzb21lXCJcblxuWzFdIFwiXCJcbiJ9 -->
+<pre><code>[1] &quot;&quot;
+[1] &quot;Ohhhhh #PointBreak is on tomorrow. Love that film and haven&#39;t seen it in quite some&quot;
+[1] &quot;&quot;
+[[1]]
+[1] &quot;in&quot;
+
+[[2]]
+[1] &quot;quit&quot;
+
+[[3]]
+[1] &quot;some&quot;
+
+[1] &quot;&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEudGFibGUiLCJkYXRhLmZyYW1lIl0sIm5yb3ciOjEwLCJuY29sIjoyLCJzdW1tYXJ5Ijp7IkRlc2NyaXB0aW9uIjpbImRhdGEudGFibGUgWzEwIHggMl0iXX19LCJyZGYiOiJINHNJQUFBQUFBQUFCZ3R5aVREbWl1QmlZR0JnWm1CaFpHUmdaZ1V5R2RpY0F3eU5USTBZR0ZpWWdEeEdCaFlHVGhCZEFWUWxER1NBQlBtQW1NditnT2JXVmdhekt2dFpQMzQ1eWpHNjIwL2RlYXhiaCtlb2ZiL1MrbU55NWdmdGV4WDZHUmJuRmRsM3plVlJOTW9YdGUrTStkZTA0dHROKzQ1dEdua3JaRDdhdDlyV1B6bjBWc0MrNWMrNTY4Y3ZnU3dSQUprTHRaQXBQdzNLWWkxSXpTL0lnWEpZU2pKelUySHMzUHdpR0pzMXZTZzFzUVRLWWM1TExZZXBTYy9QVDRHeTJZQktpdlB6WURyeVN6SlNpMkRLaXZPTFN0Qzh6Rm1VWDY2WGw1aWJXZ3prOElLYzFBQWsvdi8vL3cxTklXdHlUbUp4TWRUOU1FR3VsTVNTUkwyMElxQitkT1V3TXdYQXdRbDFjb0JlQUpRcFVGQ1VtcEtaWEpLWm42ZFhubCtVQW93S2huOW9ackRuRjREa2dhWXdnU0tGRmMxeXhpSTBBWUhTUEpDdEtickpHYVY1MmJwR3h1Q1FCc2xEQUMrVXpZWEVab0xZeWZJZmFoWXJMQmhUODlJejgrQUJuNU9ZbEFxTEhUNWdrSUY5cDFkUWxKa0hpdzR1b0dpeFhrbCtTU0pNSFZkeWZnNU1CT3c1aG44QUx5Tk5WWTBDQUFBPSJ9 -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["P.P"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["prediction.word2"],"name":[2],"type":["chr"],"align":["left"]}],"data":[{"1":"0.12627286","2":"of"},{"1":"0.02634040","2":"peopl"},{"1":"0.02121649","2":"time"},{"1":"0.01520288","2":"more"},{"1":"0.01422226","2":"great"},{"1":"0.01299486","2":"new"},{"1":"0.01238440","2":"good"},{"1":"0.01206619","2":"reason"},{"1":"0.01037121","2":"other"},{"1":"0.01024782","2":"sort"}],"options":{"columns":{"min":{},"max":[10],"total":[2]},"rows":{"min":[10],"max":[10],"total":[10]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiXCJcblsxXSBcIkFmdGVyIHRoZSBpY2UgYnVja2V0IGNoYWxsZW5nZSBMb3VpcyB3aWxsIHB1c2ggaGlzIGxvbmcgd2V0IGhhaXIgb3V0IG9mIGhpcyBleWVzIHdpdGggaGlzIGxpdHRsZVwiXG5bMV0gXCJcIlxuW1sxXV1cblsxXSBcIndpdGhcIlxuXG5bWzJdXVxuWzFdIFwiaGlzXCJcblxuW1szXV1cblsxXSBcImxpdHRsXCJcblxuWzFdIFwiXCJcbiJ9 -->
+<pre><code>[1] &quot;&quot;
+[1] &quot;After the ice bucket challenge Louis will push his long wet hair out of his eyes with his little&quot;
+[1] &quot;&quot;
+[[1]]
+[1] &quot;with&quot;
+
+[[2]]
+[1] &quot;his&quot;
+
+[[3]]
+[1] &quot;littl&quot;
+
+[1] &quot;&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEudGFibGUiLCJkYXRhLmZyYW1lIl0sIm5yb3ciOjEwLCJuY29sIjoyLCJzdW1tYXJ5Ijp7IkRlc2NyaXB0aW9uIjpbImRhdGEudGFibGUgWzEwIHggMl0iXX19LCJyZGYiOiJINHNJQUFBQUFBQUFCbDFSc1U3RE1CQjFtcVJWTGJXS3hNQlgxQktwbURNQWU4WFVwWU9iT0sxRnNDdkhWUm5aRVFNU0t4SkNZa2VNL0VYL0FuNkFzZUhzMmhHS3BlVGVlL2Q4cHp0Zlg4Nm5lSTRSUWlHS2dnQ0ZNVURVdjVpZHBlY3BRbEVQV0lBaU5EVHhEbHduQUl3NGhnOW5uOTlmNU9IdEovdEE5bVR2ZTcwNHZkcG5yNDYvQUFFbGUxNVkwTVluYTlQWm84dTdDRmNTVTljMUhDeVYxR3VtSE8zWHZOWXRpMVpjVlI2dkdTMWFUSVhIL1pLTFZYc2pCcGZTM2xZeTF1S2xMSGlyMDV4MUJoOHF1U09DM3JJYXlNZ3M0QjUrVGRQOGRveHhYdEc2ZGxONEVSZFVVMUlxdU4rMSs1cUpYZXBSREdkazVtQ3lVYXpndWVaU2tKMVV4UlMwUTZmR1FHNU1IcXIwek5QRW5lYUI2Z2pKVnBpdXhTUmZiOFhOSkozYWZadjg4WXdjeHY5dzc5Z3phbHl0MksrWGlSVVh6RTlUMFNYekx6S0dsZG5weUVaeDRSZU5RYTJKbHBwNkg4NWw1UlU3SERyOEFXWDkyWTZUQWdBQSJ9 -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["P.P"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["prediction.word3"],"name":[2],"type":["chr"],"align":["left"]}],"data":[{"1":"0.07386364","2":"brother"},{"1":"0.06250000","2":"sister"},{"1":"0.04261364","2":"girl"},{"1":"0.03125000","2":"head"},{"1":"0.02840909","2":"hand"},{"1":"0.01988636","2":"finger"},{"1":"0.01988636","2":"heart"},{"1":"0.01704545","2":"feet"},{"1":"0.01420455","2":"bodi"},{"1":"0.01420455","2":"face"}],"options":{"columns":{"min":{},"max":[10],"total":[2]},"rows":{"min":[10],"max":[10],"total":[10]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiXCJcblsxXSBcIkJlIGdyYXRlZnVsIGZvciB0aGUgZ29vZCB0aW1lcyBhbmQga2VlcCB0aGUgZmFpdGggZHVyaW5nIHRoZVwiXG5bMV0gXCJcIlxuW1sxXV1cblsxXSBcImZhaXRoXCJcblxuW1syXV1cblsxXSBcImR1cmVcIlxuXG5bWzNdXVxuWzFdIFwidGhlXCJcblxuWzFdIFwiXCJcbiJ9 -->
+<pre><code>[1] &quot;&quot;
+[1] &quot;Be grateful for the good times and keep the faith during the&quot;
+[1] &quot;&quot;
+[[1]]
+[1] &quot;faith&quot;
+
+[[2]]
+[1] &quot;dure&quot;
+
+[[3]]
+[1] &quot;the&quot;
+
+[1] &quot;&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEudGFibGUiLCJkYXRhLmZyYW1lIl0sIm5yb3ciOjEwLCJuY29sIjoyLCJzdW1tYXJ5Ijp7IkRlc2NyaXB0aW9uIjpbImRhdGEudGFibGUgWzEwIHggMl0iXX19LCJyZGYiOiJINHNJQUFBQUFBQUFCZ3R5aVREbWl1QmlZR0JnWm1CaFpHUmdaZ1V5R2RpY0F3eU5USTBZR0ZpWWdEeEdCaFlHVGhCZEFWUWxER1NBQlBtQW1NdCs4LzVYSi8zK3I3WmZ2T05HbjkvakpQdVppMFFmcEhWRTJNL0krcnduY2ZWNSs2bEhaT2VFQzVUWjkzeGEyRkY4cWcxT2Q3WEVPbVFKbHRwMzNscStJejFydm4zNzNYYUYrREpab0prQ0lIT2hGaktuSkZaQ21TemxxYW5aVURaYmNXbHVibW9SbE1lYWxsbFVYQUpUbHBNSVo3UG01dWVWWk1BNGVabnBHWEJWSlptNXFUQjJlaUtjelZ5ZVdJVG1aODZpL0hLOVBLQ1NZaUNIRitUM0JpRHgvLy8vYjJnS1daT0JWaGREUFFBVDVFcEpMRW5VU3lzQ1dZR21IR2FtQURnOG9mWUg2QVZBbVFJRlJha3BtY2tsbWZsNWV1WDVSU25HUUxGL2FHYXc1eGVBNUlHbU1JRmloUlhOY3NZaU5BR0IwanlRclNtNnlSbWxlZG02UnNiZ29BYkpRd0F2bE0yRnhHYUMyTW55SDJvV0t5d09VdlBTTS9OZ0FjZWFrNWlVbWdQbDhBR0RET3c3dllLaXpEeFltSE1CUll2MVN2SkxFbUhxdUpMemMyQWlZTTh4L0FNQWxuK1NiWTRDQUFBPSJ9 -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["P.P"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["prediction.word3"],"name":[2],"type":["chr"],"align":["left"]}],"data":[{"1":"0.07714717","2":"day"},{"1":"0.03851964","2":"week"},{"1":"0.02503237","2":"summer"},{"1":"0.02384549","2":"first"},{"1":"0.02125593","2":"last"},{"1":"0.01413466","2":"month"},{"1":"0.01413466","2":"night"},{"1":"0.01294778","2":"time"},{"1":"0.01262408","2":"game"},{"1":"0.01165300","2":"war"}],"options":{"columns":{"min":{},"max":[10],"total":[2]},"rows":{"min":[10],"max":[10],"total":[10]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiXCJcblsxXSBcIklmIHRoaXMgaXNuJ3QgdGhlIGN1dGVzdCB0aGluZyB5b3UndmUgZXZlciBzZWVuLCB0aGVuIHlvdSBtdXN0IGJlXCJcblsxXSBcIlwiXG5bWzFdXVxuWzFdIFwieW91XCJcblxuW1syXV1cblsxXSBcIm11c3RcIlxuXG5bWzNdXVxuWzFdIFwiYmVcIlxuXG5bMV0gXCJcIlxuIn0= -->
+<pre><code>[1] &quot;&quot;
+[1] &quot;If this isn&#39;t the cutest thing you&#39;ve ever seen, then you must be&quot;
+[1] &quot;&quot;
+[[1]]
+[1] &quot;you&quot;
+
+[[2]]
+[1] &quot;must&quot;
+
+[[3]]
+[1] &quot;be&quot;
+
+[1] &quot;&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEudGFibGUiLCJkYXRhLmZyYW1lIl0sIm5yb3ciOjEwLCJuY29sIjoyLCJzdW1tYXJ5Ijp7IkRlc2NyaXB0aW9uIjpbImRhdGEudGFibGUgWzEwIHggMl0iXX19LCJyZGYiOiJINHNJQUFBQUFBQUFCZ3R5aVREbWl1QmlZR0JnWm1CaFpHUmdaZ1V5R2RpY0F3eU5USTBZR0ZpWWdEeEdCaFlHVGhCZEFWUWxER1NBQlBtQW1NdCt5eGJyOUsvdkV1MlhGSjlhTkdmaWYvdkpqRTdHdC9hZHMrLzV0R0s1U3YwRCs1NU41ZzlQSzlmWmQrVTVmRnoyaE4rKzQvV2N3TDZkUisxYm52VC8vdkY1bFgyTHN1M3FOL2RhN1pzWHhTaGFxUjRDbWlrQU1oZG1ZU0tVd1Z5U2tRcGxNbVhtUVZrc0tmbDVNRkhteEtRY21JTGlmQmdyRWE2ME9EOFhwcFFsTHpNWnhtWkx5OC9KeVM5SDh5ZG5VWDY1WGw1aWJtb3hrTU1MTXFnQlNQei8vLzhibWtMVzVKekU0bUtvbzJHQ1hDbUpKWWw2YVVWQS9laktZV1lLZ01NUTZ2SUF2UUFvVTZDZ0tEVWxNN2trTXo5UHJ6eS9LTVVZS1BZUHpRejIvQUtRUE5BVUpsQk1zS0paemxpRUppQlFtZ2V5TlVVM09hTTBMMXZYeUJnY3ZDQjVDT0NGc3JtUTJFd1FPMW4rUTgxaWhZVldhbDU2Smp6SVdYTVNrMUpoZ2M0SERES3c3L1FLaWpMelNtQkJBUlF0MWl2SkwwbUVxZU5LenMrQmlZQTl4L0FQQUJZTXJvMkNBZ0FBIn0= -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["P.P"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["prediction.word3"],"name":[2],"type":["chr"],"align":["left"]}],"data":[{"1":"0.080875123","2":"a"},{"1":"0.039945919","2":"the"},{"1":"0.018559489","2":"in"},{"1":"0.014134710","2":"done"},{"1":"0.014011799","2":"abl"},{"1":"0.012905605","2":"so"},{"1":"0.012168142","2":"an"},{"1":"0.010201573","2":"some"},{"1":"0.009832842","2":"nice"},{"1":"0.009587021","2":"follow"}],"options":{"columns":{"min":{},"max":[10],"total":[2]},"rows":{"min":[10],"max":[10],"total":[10]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiXCJcbiJ9 -->
+<pre><code>[1] &quot;&quot;</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNhcHN0b25lIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NCg0KYGBge3J9DQojIGNvdXJzZXJhIHF1aXogcHJlZGljdGlvbnMNCg0KdGVzdF9zdHJpbmdzIDwtIGMoIlRoZSBndXkgaW4gZnJvbnQgb2YgbWUganVzdCBib3VnaHQgYSBwb3VuZCBvZiBiYWNvbiwgYSBib3VxdWV0LCBhbmQgYSBjYXNlIG9mIiwgIllvdSdyZSB0aGUgcmVhc29uIHdoeSBJIHNtaWxlIGV2ZXJ5ZGF5LiBDYW4geW91IGZvbGxvdyBtZSBwbGVhc2U/IEl0IHdvdWxkIG1lYW4gdGhlIiwgIkhleSBzdW5zaGluZSwgY2FuIHlvdSBmb2xsb3cgbWUgYW5kIG1ha2UgbWUgdGhlIiwgIlZlcnkgZWFybHkgb2JzZXJ2YXRpb25zIG9uIHRoZSBCaWxscyBnYW1lOiBPZmZlbnNlIHN0aWxsIHN0cnVnZ2xpbmcgYnV0IHRoZSIsIkdvIG9uIGEgcm9tYW50aWMgZGF0ZSBhdCB0aGUiLCAiV2VsbCBJJ20gcHJldHR5IHN1cmUgbXkgZ3Jhbm55IGhhcyBzb21lIG9sZCBiYWdwaXBlcyBpbiBoZXIgZ2FyYWdlIEknbGwgZHVzdCB0aGVtIG9mZiBhbmQgYmUgb24gbXkiLCAiT2hoaGhoICNQb2ludEJyZWFrIGlzIG9uIHRvbW9ycm93LiBMb3ZlIHRoYXQgZmlsbSBhbmQgaGF2ZW4ndCBzZWVuIGl0IGluIHF1aXRlIHNvbWUiLCAiQWZ0ZXIgdGhlIGljZSBidWNrZXQgY2hhbGxlbmdlIExvdWlzIHdpbGwgcHVzaCBoaXMgbG9uZyB3ZXQgaGFpciBvdXQgb2YgaGlzIGV5ZXMgd2l0aCBoaXMgbGl0dGxlIiwgIkJlIGdyYXRlZnVsIGZvciB0aGUgZ29vZCB0aW1lcyBhbmQga2VlcCB0aGUgZmFpdGggZHVyaW5nIHRoZSIsICJJZiB0aGlzIGlzbid0IHRoZSBjdXRlc3QgdGhpbmcgeW91J3ZlIGV2ZXIgc2VlbiwgdGhlbiB5b3UgbXVzdCBiZSIpDQoNCmBgYA0KDQpgYGB7cn0NCnNldHdkKCJDOi9Vc2Vycy9KTC9EZXNrdG9wL1N0dWR5L0NvdXJzZXJhL0pvaG5zIEhvcGtpbnMgRGF0YSBTY2llbmNlLzEwIGNhcHN0b25lL0NhcHN0b25lUHJvamVjdF9OYXR1cmFsTGFuZ3VhZ2VQcm9jZXNzaW5nIikNCg0KbGlicmFyeSh0aWR5dmVyc2UpDQpsaWJyYXJ5KHRpZHl0ZXh0KQ0KbGlicmFyeSh0bSkNCmxpYnJhcnkoZ2d0aGVtZXMpDQpsaWJyYXJ5KG9wZW5OTFApDQpsaWJyYXJ5KFIudXRpbHMpDQpsaWJyYXJ5KGRhdGEudGFibGUpDQoNCnNvdXJjZSgiQzovVXNlcnMvSkwvRGVza3RvcC9TdHVkeS9Db3Vyc2VyYS9Kb2hucyBIb3BraW5zIERhdGEgU2NpZW5jZS8xMCBjYXBzdG9uZS9DYXBzdG9uZVByb2plY3RfTmF0dXJhbExhbmd1YWdlUHJvY2Vzc2luZy9oZWxwZXJfZnVuY3Rpb25zLlIiKQ0KDQpkYXRhKCJzdG9wX3dvcmRzIikNCg0KYGBgDQoNCldoYXQgd2UndmUgbGVhcm5lZCBpcyB0aGF0IHRoZSBwcmVkaWN0aXZlIG1vZGVsIGlzIEhpZ2hseSBkZXBlbmRlbnQgb24gdGhlIHRyYWluaW5nIGRhdGEuIEFuZCBzbywgaXQgbXVzdCBiZSByZXByZXNlbnRhdGl2ZSBvZiB0aGUgd2hvbGUgZGF0YXNldCB0byBwcmVkaWN0IGFjY3VyYXRlbHkuIFRoZSBib3R0bGVuZWNrIG9mIHRoaXMgbW9kZWwgaXMgdGhlIHJlYWRpbmcgaW4vbG9hZGluZyBvZiB0aGUgdGV4dCBmaWxlcy4gRXNwZWNpYWxseSB3aXRoIHRoZSBTYW1wbGVMb2FkRmlsZXMgZnVuY3Rpb24uIA0KDQpUbyBjb3VudGVyYWN0IHRoaXMsIGNyZWF0ZWQgc2FtcGxlcyBvZiBlYWNoIGRvY3VtZW50IGFuZCBzdG9yZWQgaW4gc2VwYXJhdGUgZm9sZGVyL3R4dF9maWxlczogMTAsIDI1LCA1MCwgNzUgcGVyY2VudCByZXNwZWN0aXZlbHkuDQoNCg0KDQpgYGB7ciB3YXJuaW5nPUZBTFNFfQ0KIyB0aGlzIGhhcyA0LWdyYW0sIGNhbiBwcmVkaWN0IG9mZiB0aHJlZSB3b3Jkcw0KbW9kZWwgPC0gQ2FsbEFsbCgiZGF0YS9lbl9VUy8xLyIsICAgICMgJSBzYW1wbGUgZWFjaCBkb2MNCiAgICAgICAgICAgICAgICAgc2l6ZSA9IC0xTCwNCiAgICAgICAgICAgICAgICAgY292ZXJhZ2UgPSAwLjkwLA0KICAgICAgICAgICAgICAgICBzdGVtID0gVFJVRSwNCiAgICAgICAgICAgICAgICAgZmlsdGVyID0gc3RvcF93b3JkcykNCmBgYA0KDQpgYGB7ciB3YXJuaW5nPUZBTFNFfQ0KIyBzdGVwcGVkIGNodW5rIHRvIGNvbWJpbmUgZW50aXJlIGRvY3VtZW50IGFuZCBtb2RlbA0KIyBlcXVpdmFsZW50IHRvIENhbGxBbGwoImRhdGEvZW4vX1VTLyIsIHNpemUgPSAtMUwsIGNvdmVyYWdlID0gMC45LCBzdGVtID0gVFJVRSwgZmlsdGVyID0gc3RvcF93b3JkcykNCg0KYmFzZSA8LSBMb2FkRmlsZXMoImRhdGEvZW5fVVMvIiwgc3RlbSA9IFRSVUUpDQoNCmNodW5rcyA8LSBVbmxpc3RERihiYXNlLCBzaXplID0gNWU2KSAjNWU2ID0gNTBtYg0KYGBgDQoNCmBgYHtyIHdhcm5pbmc9RkFMU0V9DQoNCnRpZHlfMV8gPC0gbGFwcGx5KGNodW5rcywgQ2xlYW5Ub2tlbnMsDQogICAgICAgICAgICAgICAgICBuID0gMSkgJT4lIE1lcmdlRFRNKCkNCnNhdmUodGlkeV8xXywgZmlsZSA9ICJ0aWR5XzFfc3RlbS5SRGEiKQ0KYGBgDQoNCmBgYHtyfQ0KdGlkeV8yXyA8LSBsYXBwbHkoY2h1bmtzLCBDbGVhblRva2VucywNCiAgICAgICAgICAgICAgICAgIG4gPSAyKSAlPiUgTWVyZ2VEVE0oKQ0Kc2F2ZSh0aWR5XzJfLCBmaWxlID0gInRpZHlfMl9zdGVtLlJEYSIpDQpgYGANCg0KYGBge3J9DQp0aWR5XzNfIDwtIGxhcHBseShjaHVua3MsIENsZWFuVG9rZW5zLA0KICAgICAgICAgICAgICAgICAgbiA9IDMpICU+JSBNZXJnZURUTSgpDQpzYXZlKHRpZHlfM18sIGZpbGUgPSAidGlkeV8zX3N0ZW0uUkRhIikNCmBgYA0KDQpgYGB7cn0NCnRpZHlfNF8gPC0gbGFwcGx5KGNodW5rcywgQ2xlYW5Ub2tlbnMsDQogICAgICAgICAgICAgICAgICBuID0gNCkgJT4lIE1lcmdlRFRNKCkNCnNhdmUodGlkeV80XywgZmlsZSA9ICJ0aWR5XzRfc3RlbS5SRGEiKQ0KYGBgDQogIA0KYGBge3J9DQp1bmlncmFtXyA8LSBXb3JkRnJlcVByb2IodGlkeV8xXykNCmJpZ3JhbV8gPC0gV29yZEZyZXFQcm9iKHRpZHlfMl8pDQp0cmlncmFtXyA8LSBXb3JkRnJlcVByb2IodGlkeV8zXykNCnF1YWdyYW1fIDwtIFdvcmRGcmVxUHJvYih0aWR5XzRfKQ0KYGBgDQoNCmBgYHtyfQ0KIyBlZmZpY2llbmN5IHN0b3JhZ2UgYnkgc2F2aW5nIG9ubHkgdG9wIHJlc3VsdHMgZm9yIGVhY2gNCiMgPz9jaGVjazogYmlhcyB0b3dhcmRzIHN0YXJ0IG9mIGFscGhhYmV0Pz8NCmJpZ3JhbV9jdXQgPC0gVG9wTlByb2JGcmVxKGJpZ3JhbV8sIGsgPSAzKQ0KdHJpZ3JhbV9jdXQgPC0gVG9wTlByb2JGcmVxKHRyaWdyYW1fLCBrID0gMikNCnF1YWdyYW1fY3V0IDwtIFRvcE5Qcm9iRnJlcShxdWFncmFtXywgayA9IDEpDQpgYGANCg0KDQpgYGB7cn0NCnZvY2FiX25fIDwtIHVuaWdyYW1fICU+JQ0KICAgIG11dGF0ZShjdW1zdW0gPSBjdW1zdW0oUCkpICU+JQ0KICAgIHN1bW1hcmlzZSh2b2NhYiA9IHN1bShjdW1zdW0gPD0gMC45KSklPiUNCiAgICBhcy5pbnRlZ2VyKCkNCiAgDQp1bmlncmFtXyA8LSB1bmlncmFtXyAlPiUgc2xpY2VfaGVhZChuID0gdm9jYWJfbl8pDQogIA0KbW9kZWwgPC0gQ3JlYXRlUHJvYlRhYmxlKHVuaWdyYW1fLA0KICAgICAgICAgICAgICAgICAgICAgICAgIGJpZ3JhbV9jdXQsDQogICAgICAgICAgICAgICAgICAgICAgICAgdHJpZ3JhbV9jdXQsDQogICAgICAgICAgICAgICAgICAgICAgICAgcXVhZ3JhbV9jdXQpDQpzYXZlKG1vZGVsLCBmaWxlID0gIm1vZGVsX3N0ZW1fY3V0LlJEYSIpDQpgYGANCg0KYGBge3J9DQpmb3IgKGluZGV4IGluIDE6MTApew0KICBwcmludCh0ZXN0X3N0cmluZ3NbaW5kZXhdKQ0KICBwcmludCgiIikNCiAgcHJpbnQoU3RyaW5nVGFpbG5ncmFtKHRlc3Rfc3RyaW5nc1tpbmRleF0sIHN0ZW0gPSBUUlVFLCBmaWx0ZXIgPSBzdG9wX3dvcmRzKSkNCiAgcHJpbnQoIiIpDQogIHByaW50KE1hdGNoU3RyaW5nUHJlZGljdCh0ZXN0X3N0cmluZ3NbaW5kZXhdLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgbW9kZWwgPSBtb2RlbCwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgIG4gPSAxMCwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgIHN0ZW0gPSBUUlVFKSkNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICNmaWx0ZXIgPSBzdG9wX3dvcmRzKSkNCiAgcHJpbnQoIiIpDQp9DQpgYGANCg0K</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNhcHN0b25lIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NCg0KYGBge3J9DQojIGNvdXJzZXJhIHF1aXogcHJlZGljdGlvbnMNCg0KdGVzdF9zdHJpbmdzIDwtIGMoIlRoZSBndXkgaW4gZnJvbnQgb2YgbWUganVzdCBib3VnaHQgYSBwb3VuZCBvZiBiYWNvbiwgYSBib3VxdWV0LCBhbmQgYSBjYXNlIG9mIiwgIllvdSdyZSB0aGUgcmVhc29uIHdoeSBJIHNtaWxlIGV2ZXJ5ZGF5LiBDYW4geW91IGZvbGxvdyBtZSBwbGVhc2U/IEl0IHdvdWxkIG1lYW4gdGhlIiwgIkhleSBzdW5zaGluZSwgY2FuIHlvdSBmb2xsb3cgbWUgYW5kIG1ha2UgbWUgdGhlIiwgIlZlcnkgZWFybHkgb2JzZXJ2YXRpb25zIG9uIHRoZSBCaWxscyBnYW1lOiBPZmZlbnNlIHN0aWxsIHN0cnVnZ2xpbmcgYnV0IHRoZSIsIkdvIG9uIGEgcm9tYW50aWMgZGF0ZSBhdCB0aGUiLCAiV2VsbCBJJ20gcHJldHR5IHN1cmUgbXkgZ3Jhbm55IGhhcyBzb21lIG9sZCBiYWdwaXBlcyBpbiBoZXIgZ2FyYWdlIEknbGwgZHVzdCB0aGVtIG9mZiBhbmQgYmUgb24gbXkiLCAiT2hoaGhoICNQb2ludEJyZWFrIGlzIG9uIHRvbW9ycm93LiBMb3ZlIHRoYXQgZmlsbSBhbmQgaGF2ZW4ndCBzZWVuIGl0IGluIHF1aXRlIHNvbWUiLCAiQWZ0ZXIgdGhlIGljZSBidWNrZXQgY2hhbGxlbmdlIExvdWlzIHdpbGwgcHVzaCBoaXMgbG9uZyB3ZXQgaGFpciBvdXQgb2YgaGlzIGV5ZXMgd2l0aCBoaXMgbGl0dGxlIiwgIkJlIGdyYXRlZnVsIGZvciB0aGUgZ29vZCB0aW1lcyBhbmQga2VlcCB0aGUgZmFpdGggZHVyaW5nIHRoZSIsICJJZiB0aGlzIGlzbid0IHRoZSBjdXRlc3QgdGhpbmcgeW91J3ZlIGV2ZXIgc2VlbiwgdGhlbiB5b3UgbXVzdCBiZSIpDQoNCmBgYA0KDQpgYGB7cn0NCnNldHdkKCJDOi9Vc2Vycy9KTC9EZXNrdG9wL1N0dWR5L0NvdXJzZXJhL0pvaG5zIEhvcGtpbnMgRGF0YSBTY2llbmNlLzEwIGNhcHN0b25lL0NhcHN0b25lUHJvamVjdF9OYXR1cmFsTGFuZ3VhZ2VQcm9jZXNzaW5nIikNCg0KbGlicmFyeSh0aWR5dmVyc2UpDQpsaWJyYXJ5KHRpZHl0ZXh0KQ0KbGlicmFyeSh0bSkNCmxpYnJhcnkoZ2d0aGVtZXMpDQpsaWJyYXJ5KG9wZW5OTFApDQpsaWJyYXJ5KFIudXRpbHMpDQpsaWJyYXJ5KGRhdGEudGFibGUpDQoNCnNvdXJjZSgiQzovVXNlcnMvSkwvRGVza3RvcC9TdHVkeS9Db3Vyc2VyYS9Kb2hucyBIb3BraW5zIERhdGEgU2NpZW5jZS8xMCBjYXBzdG9uZS9DYXBzdG9uZVByb2plY3RfTmF0dXJhbExhbmd1YWdlUHJvY2Vzc2luZy9oZWxwZXJfZnVuY3Rpb25zLlIiKQ0KDQpkYXRhKCJzdG9wX3dvcmRzIikNCg0KYGBgDQoNCldoYXQgd2UndmUgbGVhcm5lZCBpcyB0aGF0IHRoZSBwcmVkaWN0aXZlIG1vZGVsIGlzIEhpZ2hseSBkZXBlbmRlbnQgb24gdGhlIHRyYWluaW5nIGRhdGEuIEFuZCBzbywgaXQgbXVzdCBiZSByZXByZXNlbnRhdGl2ZSBvZiB0aGUgd2hvbGUgZGF0YXNldCB0byBwcmVkaWN0IGFjY3VyYXRlbHkuIFRoZSBib3R0bGVuZWNrIG9mIHRoaXMgbW9kZWwgaXMgdGhlIHJlYWRpbmcgaW4vbG9hZGluZyBvZiB0aGUgdGV4dCBmaWxlcy4gRXNwZWNpYWxseSB3aXRoIHRoZSBTYW1wbGVMb2FkRmlsZXMgZnVuY3Rpb24uIA0KDQpUbyBjb3VudGVyYWN0IHRoaXMsIGNyZWF0ZWQgc2FtcGxlcyBvZiBlYWNoIGRvY3VtZW50IGFuZCBzdG9yZWQgaW4gc2VwYXJhdGUgZm9sZGVyL3R4dF9maWxlczogMTAsIDI1LCA1MCwgNzUgcGVyY2VudCByZXNwZWN0aXZlbHkuDQoNCg0KDQpgYGB7ciB3YXJuaW5nPUZBTFNFfQ0KIyB0aGlzIGhhcyA0LWdyYW0sIGNhbiBwcmVkaWN0IG9mZiB0aHJlZSB3b3Jkcw0KbW9kZWwgPC0gQ2FsbEFsbCgiZGF0YS9lbl9VUy8xLyIsICAgICMgJSBzYW1wbGUgZWFjaCBkb2MNCiAgICAgICAgICAgICAgICAgc2l6ZSA9IC0xTCwNCiAgICAgICAgICAgICAgICAgY292ZXJhZ2UgPSAwLjkwLA0KICAgICAgICAgICAgICAgICBzdGVtID0gVFJVRSwNCiAgICAgICAgICAgICAgICAgZmlsdGVyID0gc3RvcF93b3JkcykNCmBgYA0KDQpgYGB7ciB3YXJuaW5nPUZBTFNFfQ0KIyBzdGVwcGVkIGNodW5rIHRvIGNvbWJpbmUgZW50aXJlIGRvY3VtZW50IGFuZCBtb2RlbA0KIyBlcXVpdmFsZW50IHRvIENhbGxBbGwoImRhdGEvZW4vX1VTLyIsIHNpemUgPSAtMUwsIGNvdmVyYWdlID0gMC45LCBzdGVtID0gVFJVRSwgZmlsdGVyID0gc3RvcF93b3JkcykNCg0KYmFzZSA8LSBMb2FkRmlsZXMoImRhdGEvZW5fVVMvIiwgc3RlbSA9IFRSVUUpDQoNCmNodW5rcyA8LSBVbmxpc3RERihiYXNlLCBzaXplID0gNWU2KSAjNWU2ID0gNTBtYg0KYGBgDQoNCmBgYHtyIHdhcm5pbmc9RkFMU0V9DQoNCnRpZHlfMV8gPC0gbGFwcGx5KGNodW5rcywgQ2xlYW5Ub2tlbnMsDQogICAgICAgICAgICAgICAgICBuID0gMSkgJT4lIE1lcmdlRFRNKCkNCnNhdmUodGlkeV8xXywgZmlsZSA9ICJ0aWR5XzFfc3RlbS5SRGEiKQ0KYGBgDQoNCmBgYHtyfQ0KdGlkeV8yXyA8LSBsYXBwbHkoY2h1bmtzLCBDbGVhblRva2VucywNCiAgICAgICAgICAgICAgICAgIG4gPSAyKSAlPiUgTWVyZ2VEVE0oKQ0Kc2F2ZSh0aWR5XzJfLCBmaWxlID0gInRpZHlfMl9zdGVtLlJEYSIpDQpgYGANCg0KYGBge3J9DQp0aWR5XzNfIDwtIGxhcHBseShjaHVua3MsIENsZWFuVG9rZW5zLA0KICAgICAgICAgICAgICAgICAgbiA9IDMpICU+JSBNZXJnZURUTSgpDQpzYXZlKHRpZHlfM18sIGZpbGUgPSAidGlkeV8zX3N0ZW0uUkRhIikNCmBgYA0KDQpgYGB7cn0NCnRpZHlfNF8gPC0gbGFwcGx5KGNodW5rcywgQ2xlYW5Ub2tlbnMsDQogICAgICAgICAgICAgICAgICBuID0gNCkgJT4lIE1lcmdlRFRNKCkNCnNhdmUodGlkeV80XywgZmlsZSA9ICJ0aWR5XzRfc3RlbS5SRGEiKQ0KYGBgDQogIA0KYGBge3J9DQp1bmlncmFtXyA8LSBXb3JkRnJlcVByb2IodGlkeV8xXykNCmJpZ3JhbV8gPC0gV29yZEZyZXFQcm9iKHRpZHlfMl8pDQp0cmlncmFtXyA8LSBXb3JkRnJlcVByb2IodGlkeV8zXykNCnF1YWdyYW1fIDwtIFdvcmRGcmVxUHJvYih0aWR5XzRfKQ0KYGBgDQoNCmBgYHtyfQ0KbG9hZCgiQzovVXNlcnMvSkwvRGVza3RvcC9TdHVkeS9Db3Vyc2VyYS9Kb2hucyBIb3BraW5zIERhdGEgU2NpZW5jZS8xMCBjYXBzdG9uZS9DYXBzdG9uZVByb2plY3RfTmF0dXJhbExhbmd1YWdlUHJvY2Vzc2luZy9mdWxsX3VuaWdyYW0uUkRhIikNCnVuaWdyYW1fIDwtIHVuaWdyYW1fICU+JSBmaWx0ZXIoZnJlcSA+IDMpDQpnYygpDQoNCmxvYWQoIkM6L1VzZXJzL0pML0Rlc2t0b3AvU3R1ZHkvQ291cnNlcmEvSm9obnMgSG9wa2lucyBEYXRhIFNjaWVuY2UvMTAgY2Fwc3RvbmUvQ2Fwc3RvbmVQcm9qZWN0X05hdHVyYWxMYW5ndWFnZVByb2Nlc3NpbmcvZnVsbF9iaWdyYW0uUkRhIikNCmJpZ3JhbV8gPC0gYmlncmFtXyAlPiUgZmlsdGVyKGZyZXEgPiAyKQ0KZ2MoKQ0KDQpsb2FkKCJDOi9Vc2Vycy9KTC9EZXNrdG9wL1N0dWR5L0NvdXJzZXJhL0pvaG5zIEhvcGtpbnMgRGF0YSBTY2llbmNlLzEwIGNhcHN0b25lL0NhcHN0b25lUHJvamVjdF9OYXR1cmFsTGFuZ3VhZ2VQcm9jZXNzaW5nL2Z1bGxfdHJpZ3JhbS5SRGEiKQ0KdHJpZ3JhbV8gPC0gdHJpZ3JhbV8gJT4lIGZpbHRlcihmcmVxID4gMikNCmdjKCkNCg0KbG9hZCgiQzovVXNlcnMvSkwvRGVza3RvcC9TdHVkeS9Db3Vyc2VyYS9Kb2hucyBIb3BraW5zIERhdGEgU2NpZW5jZS8xMCBjYXBzdG9uZS9DYXBzdG9uZVByb2plY3RfTmF0dXJhbExhbmd1YWdlUHJvY2Vzc2luZy9mdWxsX3F1YWdyYW0uUkRhIikNCnF1YWdyYW1fIDwtIHF1YWdyYW1fICU+JSBmaWx0ZXIoZnJlcSA+IDEpDQpnYygpDQpgYGANCg0KYGBge3J9DQojIGVmZmljaWVuY3kgc3RvcmFnZSBieSBzYXZpbmcgb25seSB0b3AgcmVzdWx0cyBmb3IgZWFjaA0KIyA/P2NoZWNrOiBiaWFzIHRvd2FyZHMgc3RhcnQgb2YgYWxwaGFiZXQ/Pw0KDQp2b2NhYl9uXyA8LSB1bmlncmFtXyAlPiUNCiAgICBtdXRhdGUoY3Vtc3VtID0gY3Vtc3VtKFApKSAlPiUNCiAgICBzdW1tYXJpc2Uodm9jYWIgPSBzdW0oY3Vtc3VtIDw9IDAuOSkpJT4lDQogICAgYXMuaW50ZWdlcigpDQogIA0KdW5pZ3JhbV8gPC0gdW5pZ3JhbV8gJT4lIHNsaWNlX2hlYWQobiA9IHZvY2FiX25fKQ0KDQpgYGANCg0KYGBge3J9DQptb2RlbCA8LSBDcmVhdGVQcm9iVGFibGUodW5pZ3JhbV8sDQogICAgICAgICAgICAgICAgICAgICAgICAgYmlncmFtXywNCiAgICAgICAgICAgICAgICAgICAgICAgICB0cmlncmFtXywNCiAgICAgICAgICAgICAgICAgICAgICAgICBxdWFncmFtXykNCnNhdmUobW9kZWwsIGZpbGUgPSAibW9kZWxfc3RlbTIuUkRhIikNCmBgYA0KDQoNCmBgYHtyfQ0KbW9kZWxfY3V0IDwtIENyZWF0ZVByb2JUYWJsZSh1bmlncmFtXywNCiAgICAgICAgICAgICAgICAgICAgICAgICBiaWdyYW1fY3V0LA0KICAgICAgICAgICAgICAgICAgICAgICAgIHRyaWdyYW1fY3V0LA0KICAgICAgICAgICAgICAgICAgICAgICAgIHF1YWdyYW1fY3V0KQ0Kc2F2ZShtb2RlbCwgZmlsZSA9ICJtb2RlbF9zdGVtX2N1dC5SRGEiKQ0KYGBgDQoNCmBgYHtyfQ0KZm9yIChpbmRleCBpbiAxOjEwKXsNCiAgcHJpbnQodGVzdF9zdHJpbmdzW2luZGV4XSkNCiAgcHJpbnQoIiIpDQogIHByaW50KFN0cmluZ1RhaWxuZ3JhbSh0ZXN0X3N0cmluZ3NbaW5kZXhdLCBzdGVtID0gVFJVRSkpDQogIHByaW50KCIiKQ0KICBwcmludChNYXRjaFN0cmluZ1ByZWRpY3QodGVzdF9zdHJpbmdzW2luZGV4XSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgIG1vZGVsID0gbW9kZWwsDQogICAgICAgICAgICAgICAgICAgICAgICAgICB0YWJsZSA9IFRSVUUsDQogICAgICAgICAgICAgICAgICAgICAgICAgICBuID0gMTANCiAgICAgICAgICAgICAgICAgICAgICAgICAgICwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgIHN0ZW0gPSBUUlVFKSkNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICNmaWx0ZXIgPSBzdG9wX3dvcmRzKSkNCiAgcHJpbnQoIiIpDQp9DQpgYGANCg0K</div>
 
 
 
