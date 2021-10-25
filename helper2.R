@@ -37,6 +37,20 @@ LoadFiles <- function(directory, pattern = "*.txt", stem = TRUE, n = -1L){
 
 
 
+SOSEOS <- function(string, SOS = TRUE, EOS = TRUE){
+  
+  if (SOS == TRUE){
+    string <- paste("SOS", string, sep = " ")
+  }
+  if (EOS == TRUE){
+    string <- paste(string, "EOS", sep = " ")
+  }
+  string
+}
+
+
+
+
 # LoadSingleFile
 LoadSingleFile <- function(filepath,
                            stem = TRUE,
@@ -63,11 +77,11 @@ LoadSingleFile <- function(filepath,
     setDF(df_)
     
     if (SOS == TRUE){
-      df_[,"text"] <- lapply(paste("SOS", df_[,"text"], sep = " "))
+      df_[, "text"] <- lapply(df_[, "text"], SOSEOS, SOS = TRUE, EOS = FALSE)
     }
     
     if (EOS == TRUE){
-      df_[,"text"] <- lapply(paste(df_[,"text"], "EOS", sep = " "))
+      df_[, "text"] <- lapply(df_[, "text"], SOSEOS, SOS = FALSE, EOS = TRUE)
     }
   }
   df_
@@ -244,14 +258,17 @@ POSsummaryDF <- function(filepath, size = 1e5, chunks = 150){
 CleanTokens <- function(unclean_df, n = 1, filter_df = NULL){
   
   # remove puntuation
-  unclean_df$text <- removePunctuation(unclean_df$text)
-  
+  unclean_df[,"text"] <- lapply(unclean_df[,"text"],
+                                str_replace_all, "[[:punct:]]", "")
+    
   if (n == 1){
     df_ <- unnest_tokens(tbl = unclean_df,
                          output = word,
                          input = text,
                          token = "words",
                          to_lower = TRUE)
+    # remove entries with numbers present
+    df_ <- filter(df_, !grepl(".*\\d+.*", word))
     
     # apply filterwords if provided
     if(!(is.null(filter_df))){
@@ -265,6 +282,9 @@ CleanTokens <- function(unclean_df, n = 1, filter_df = NULL){
                          token = "ngrams",
                          n = n,
                          to_lower = TRUE)
+    
+    # remove entries with numbers present
+    df_ <- filter(df_, !grepl(".*\\d+.*", word))
     
     # apply filterwords if provided
     if(!(is.null(filter_df))){
@@ -312,9 +332,6 @@ CleanTokens <- function(unclean_df, n = 1, filter_df = NULL){
       }
       
     }
-    
-    # remove entries with numbers present
-    df_ <- filter(df_, !grepl(".*\\d+.*", word))
     
     # remove a common error
     df_ <- filter(df_, !grepl("^NA$|^NA NA$|^NA NA NA$|^NA NA NA NA$", word))
@@ -461,166 +478,84 @@ PercentDocLexicon <- function(tidy_dtm, percent = NULL){
 
 
 
-### Building an n-gram model
-### Read 'Language Modeling' slides
-### need P(single word chosen) x
-WordFreqProb <- function(tidy_dtm, k = NULL){
+### Tidy Freqeuncy of each token
+WordFreq <- function(tidy_dtm, k = NULL){
   
   words <- tidy_dtm %>%
     group_by(word) %>%
     summarise(freq = sum(n())) %>%
-    arrange(desc(freq)) %>%
-    mutate(P = freq / sum(freq))
+    arrange(desc(freq))
   
+  # filter tokens by frequency
   if (is.null(k) == FALSE){
-    words <- slice_head(words, n = k)
+    words <- words %>% filter(freq > k)
   }
   words
 }
 
 
 
-# Significant memory storage save by collecting only top n entries
-TopNProbFreq <- function(df, k = 3){
+# Create Freq Table
+CreateFreqTable <- function(unigram, bigram, trigram, quagram){
   
-  if ("word4" %in% colnames(df)){
-    df <- df %>% group_by(word1, word2, word3) %>%
-      slice_max(order_by = P, n = k) %>%
-      arrange(desc(P))
-    
-  } else if ("word3" %in% colnames(df)){
-    df <- df %>% group_by(word1, word2) %>%
-      slice_max(order_by = P, n = k) %>%
-      arrange(desc(P))
-    
-  } else if ("word2" %in% colnames(df)){
-    df <- df %>% group_by(word1) %>%
-      slice_max(order_by = P, n = k) %>%
-      arrange(desc(P))
-  }
+  # formatting
+  unigram_ <- rename(unigram, word1 = word)
+  unigram_ <- unigram_ %>%
+    select(c("word1", "freq"))
+  unigram_[, "word2"] <- NA
+  unigram_[, "word3"] <- NA
+  unigram_[, "word4"] <- NA
   
-  df
-}
-
-
-
-# Create probability table
-CreateProbTable <- function(unigram, bigram, trigram, quagram){
-  
-  # split bigram word into two words
-  # join on the first word with unigram
-  # add freq columns of first word and second
-  # calculate probability
-  # sort
-  bigram_probs <- bigram %>%
+  # formatting
+  bigram_ <- bigram %>%
     separate(word, c("word1", "word2"), sep = " ") %>%
-    left_join(unigram, by = c("word1" = "word"), suffix = c(".x", ".y")) %>% 
-    mutate(P = freq.x / freq.y) %>%
-    drop_na() %>%
-    select(-c("P.x", "P.y")) %>% 
-    arrange(word1, desc(freq.y))
-  
-  # split trigram word into three words
-  # unite the first two words to match bigram
-  # join on the two words with bigram
-  # add freq columns of first word and second
-  # calculate probability
-  # sort
-  trigram_probs <- trigram %>%
-    separate(word, c("word1", "word2", "word3"), sep = " ") %>% 
-    unite(col = word, word1, word2, sep = " ", na.rm = TRUE) %>%
-    left_join(bigram, by = c("word" = "word"), suffix = c(".x", ".y")) %>%
-    drop_na() %>%
-    mutate(P = freq.x / freq.y) %>%
-    select(-c("P.x", "P.y")) %>%
-    arrange(word, desc(freq.y))
-  
-  # split quagram word into four words
-  # unite the first two words to match trigram
-  # join on the three words with trigram
-  # add freq columns of first word and second
-  # calculate probability
-  # sort
-  quagram_probs <- quagram %>%
-    separate(word, c("word1", "word2", "word3", "word4"), sep = " ") %>% 
-    unite(col = word, word1, word2, word3, sep = " ", na.rm = TRUE) %>%
-    left_join(trigram, by = c("word" = "word"), suffix = c(".x", ".y")) %>%
-    drop_na() %>%
-    mutate(P = freq.x / freq.y) %>%
-    select(-c("P.x", "P.y")) %>%
-    arrange(word, desc(freq.y))
+    select(c("word1", "word2", "freq"))
+  bigram_[, "word3"] <- NA
+  bigram_[, "word4"] <- NA
   
   # formatting
-  unigram_probs <- rename(unigram, word1 = word)
-  unigram_probs <- unigram_probs %>%
-    select(c("word1", "P")) %>%
-    drop_na()
-  unigram_probs[, "word2"] <- NA
-  unigram_probs[, "word3"] <- NA
-  unigram_probs[, "word4"] <- NA
+  trigram_ <- trigram %>%
+    separate(word, c("word1", "word2", "word3"), sep = " ") %>%
+    select(c("word1", "word2", "word3", "freq"))
+  trigram_[, "word4"] <- NA
   
   # formatting
-  bigram_probs <- bigram_probs %>%
-    select(c("word1", "word2", "P")) %>%
-    drop_na()
-  bigram_probs[, "word3"] <- NA
-  bigram_probs[, "word4"] <- NA
-  
-  # formatting
-  trigram_probs <- trigram_probs %>%
-    separate(word, c("word1", "word2")) %>%
-    select(c("word1", "word2", "word3", "P")) %>%
-    drop_na()
-  trigram_probs[, "word4"] <- NA
-  
-  # formatting
-  quagram_probs <- quagram_probs %>%
-    separate(word, c("word1", "word2", "word3")) %>%
-    select(c("word1", "word2", "word3", "word4", "P")) %>%
-    drop_na()
-  
-  # store only top '3' results of each
-  bigram_probs <- bigram_probs %>% TopNProbFreq(k = 3)
-  trigram_probs <- trigram_probs %>% TopNProbFreq(k = 3)
-  quagram_probs <- quagram_probs %>% TopNProbFreq(k = 3)
+  quagram_ <- quagram %>%
+    separate(word, c("word1", "word2", "word3", "word4"), sep = " ") %>%
+    select(c("word1", "word2", "word3", "word4", "freq"))
   
   # combine prob tables of all three
-  prob_table <- rbind(unigram_probs,
-                      bigram_probs,
-                      trigram_probs,
-                      quagram_probs) %>%
+  freq_table <- rbind(unigram_,
+                      bigram_,
+                      trigram_,
+                      quagram_) %>%
     select(order(colnames(.)))
   
-  prob_table
+  freq_table
 }
+ 
 
-
-
-# Random 'k' word1 from unigrams
-RandomUnigram <- function(unigram_ptable, k = 3){
-  indices <- sample(seq_len(nrow(unigram_ptable)),
-                    size = k,
-                    prob = unigram_ptable$P)
-  unigram_ptable[indices, "word1", order("P")]
-}
-
-
-
+ 
 # Take a string and find last 3,2,1 words for searching
 StringTailngram <- function(string,
                             ngram = 3,
                             stem = FALSE,
-                            filter = NULL){
+                            filter = NULL,
+                            SOS = TRUE){
   
-  str <- removePunctuation(string)
+  # remove punctuation
+  str <- str_replace_all(string, "[[:punct:]]", "")
+  
+  # add SOS token
+  str <- SOSEOS(str, SOS = TRUE, EOS = FALSE)
   
   if (stem == TRUE){
-    str <- stemDocument(string)
+    str <- stemDocument(str)
   }
   
   if (is.null(filter) == FALSE){
     
-    strdf <- data.table(text = string) %>%
+    strdf <- data.table(text = str) %>%
       unnest_tokens(output = word,
                     input = text,
                     token = "words",
@@ -635,224 +570,286 @@ StringTailngram <- function(string,
     str <- as.list(strsplit(str, '\\s+')[[1]])
   } 
   
-  str_len <- length(string)
+  str_len <- length(str)
   
-  if (ngram == 3 | str_len >= 3){
+  if (ngram == 3){
     search_list <- tail(str, 3)
     
-  } else if (ngram == 2 | str_len == 2){
+  } else if (ngram == 2){
     search_list <- tail(str, 2)
     
-  } else if(ngram == 1 | str_len == 1){
+  } else if(ngram == 1){
     search_list <- tail(str, 1)
     
   }
+  search_list <- lapply(search_list, tolower)
   search_list
 }
 
 
 
-MatchStringPredict <- function(string,
-                               model,
-                               table = FALSE,
-                               n = 3,
-                               ngram = 3,
-                               stem = FALSE,
-                               filter = NULL){
+# bigram prediction with back-off
+#
+# all ngrams have the standard column labels
+# freq, word1, word2, word3, word4 from model
+PredictBigram <- function(string, unigrams, bigrams, gamma,
+                          stem = FALSE, filter = NULL, SOS = TRUE){
   
-  # get list of tokens to search from string
-  str <- StringTailngram(string, ngram, stem, filter)
+  str <- StringTailngram(string, ngram = 1,
+                         stem = stem, filter = filter,
+                         SOS = SOS)
   
-  # get the unigram model from model for random words
-  unigrams <- model %>%
-    filter(is.na(word2)) %>%
-    filter(is.na(word3)) %>%
-    filter(is.na(word4)) %>%
-    select(c("P", "word1"))
+  known_bigrams <- bigrams %>%
+    filter(word1 == str[1], !is.na(word2), is.na(word3))
   
-  results <- data.table(P = c(), prediction = c())
+  unigram_sum <- unigrams %>%
+    filter(word1 == str[1])
+  unigram_sum <- unigram_sum$freq
   
-  # check length of string and check model
-  if (length(str) == 3){
-    
-    # back off algorithm against 3 tokens
-    ptable <- model %>%
-      filter(word1 == str[1],
-             word2 == str[2],
-             word3 == str[3]) %>% 
-      arrange(desc(P)) %>%
-      select(c("P", "word4")) %>%
-      drop_na() %>%
-      head(n)
-    
-    prediction <- ptable$word4
-    
-    results <- rbind(results, data.table(P = ptable[, "P"],
-                                         prediction = ptable[, "word4"]))
-    
-    if (nrow(results) < n){
-      ptable <- model %>%
-        filter(word1 == str[2],
-               word2 == str[3],
-               is.na(word4)) %>% 
-        arrange(desc(P)) %>%
-        select(c("P", "word3")) %>%
-        drop_na() %>%
-        head(n)
-      
-      prediction <- ptable$word3
-      
-      results <- rbind(data.table(P = ptable[, "P"],
-                                  prediction = ptable[, "word3"]))
-      
-      if (nrow(results) < n){
-        ptable <- model %>%
-          filter(word1 == str[3],
-                 is.na(word3),
-                 is.na(word4)) %>%
-          arrange(desc(P)) %>%
-          select(c("P", "word2")) %>%
-          drop_na() %>%
-          head(n)
-        
-        prediction <- ptable$word2
-        
-        results <- rbind(data.table(P = ptable[, "P"],
-                                    prediction = ptable[, "word2"]))
-        
-        if (nrow(results) < n){
-          prediction <- RandomUnigram(unigrams, k = n)
-        }
-      }
-    }
-    
-    
-  } else if (length(str) == 2 | nrow(results) < n){
-    
-    # back off algorithm against 2 tokens
-    ptable <- model %>%
-      filter(word1 == str[1],
-             word2 == str[2],
-             is.na(word4)) %>% 
-      arrange(desc(P)) %>%
-      select(c("P", "word3")) %>%
-      drop_na() %>%
-      head(n)
-    
-    prediction <- ptable$word3
-    
-    results <- rbind(data.table(P = ptable[, "P"],
-                                prediction = ptable[, "word3"]))
-    
-    if (nrow(results) < n){
-      
-      ptable <- model %>%
-        filter(word1 == str[2],
-               is.na(word3),
-               is.na(word4)) %>% 
-        arrange(desc(P)) %>%
-        select(c("P", "word2")) %>%
-        drop_na() %>%
-        head(n)
-      
-      prediction <- ptable$word2
-      
-      results <- rbind(data.table(P = ptable[, "P"],
-                                  prediction = ptable[, "word2"]))
-      
-      if (nrow(results) < n){
-        
-        prediction <- RandomUnigram(unigrams, k = n)
-      }
-    }
-    
-    
-  } else if (length(str) == 1 | nrow(results) < n){
-    
-    # back off algorithm against 1 token
-    ptable <- model %>%
-      filter(word1 == str[1],
-             is.na(word3),
-             is.na(word4)) %>% 
-      arrange(desc(P)) %>%
-      select(c("P", "word2")) %>%
-      drop_na() %>%
-      head(n)
-    
-    prediction <- ptable$word2
-    
-    results <- rbind(data.table(P = ptable[, "P"],
-                                prediction = ptable[, "word2"]))
-    
-    if (nrow(results) < n){
-      
-      prediction <- RandomUnigram(unigrams, k = n)
-    }
-    
-    
-  } else {
-    
-    # random word from weighted unigram model
-    prediction <- RandomUnigram(unigrams, k = n)
-  }
+  # P for known bigrams
+  known_bigrams$P <- (known_bigrams$freq - gamma) / unigram_sum
   
-  if (table == TRUE){
-    results
-  } else {
-    prediction
-  }
+  # p-density for unobserved bigrams
+  alpha <- 1 - sum(known_bigrams$P)
   
+  # all unobserved bigram tails
+  unob_bigrams <- anti_join(unigrams, known_bigrams,
+                            by = c("word1" = "word2"))
   
+  ### Back-off implementation
+  
+  # formatting
+  unob_bigrams$word2 <- unob_bigrams$word1
+  unob_bigrams$word1 <- str[1]
+  
+  # probability of unobserved bigrams
+  unob_sum <- sum(unob_bigrams$freq)
+  unob_bigrams$P <- alpha * (unob_bigrams$freq / unob_sum)
+  
+  ###
+  
+  # collect into one data.table
+  predictions <- rbind(known_bigrams, unob_bigrams) %>%
+    arrange(desc(P))
+  
+  predictions
 }
 
 
 
-
-# This script is for one function to call all other functions to create
-# the final model. This should form the basis for an object class
-CallAll <- function(filepath,
-                    size,
-                    sample = FALSE,
-                    seed = 17373,
-                    stem = TRUE,
-                    coverage = 0.5,
-                    filter = NULL){
+# trigram prediction with back-off
+#
+# all ngrams have the standard column labels
+# freq, word1, word2, word3, word4 from model
+PredictTrigram <- function(string, unigrams, bigrams, trigrams, gamma,
+                           stem = FALSE, filter = NULL, SOS = TRUE){
   
-  if (sample == TRUE){
-    base_ <- SampleLoadFiles(filepath,
-                             n = size,
-                             seed = seed,
-                             stem = stem)
-  } else {
-    base_ <- LoadFiles(filepath,
-                       n = size,
-                       stem = stem)
+  str <- StringTailngram(string, ngram = 2,
+                         stem = stem, filter = filter,
+                         SOS = SOS)
+  
+  known_trigrams <- trigrams %>%
+    filter(word1 == str[1], word2 == str[2], !is.na(word3), is.na(word4))
+  
+  bigram_sum <- bigrams %>%
+    filter(word1 == str[1], word2 == str[2])
+  bigram_sum <- bigram_sum$freq
+  
+  # P for known trigrams
+  known_trigrams$P <- (known_trigrams$freq - gamma) / bigram_sum
+  
+  # P-density for unobserved trigrams
+  alpha1 <- 1 - sum(known_trigrams$P)
+  
+  # all unobserved trigram tails
+  unob_trigrams <- anti_join(unigrams, known_trigrams,
+                             by = c("word1" = "word3"))
+  
+  ### Back-off implementation
+  
+  known_bigrams <- bigrams %>%
+    filter(word1 == str[2], !is.na(word2), is.na(word3))
+  
+  unigram_sum <- unigrams %>%
+    filter(word1 == str[2])
+  unigram_sum <- unigram_sum$freq
+  
+  # P for known bigrams
+  known_bigrams$P <- (known_bigrams$freq - gamma) / unigram_sum
+  
+  # p-density for unobserved bigrams
+  alpha2 <- 1 - sum(known_bigrams$P)
+  
+  # all unobserved bigram tails
+  unob_bigrams <- anti_join(unigrams, known_bigrams,
+                            by = c("word1" = "word2"))
+  
+  ### ### Back-off implementation
+  
+  # formatting
+  unob_bigrams$word2 <- unob_bigrams$word1
+  unob_bigrams$word1 <- str[2]
+  
+  # probability of unobserved bigrams
+  unob_sum <- sum(unob_bigrams$freq)
+  unob_bigrams$P <- alpha2 * (unob_bigrams$freq / unob_sum)
+  
+  ### ###
+  
+  # collect into one data.table
+  bigram_predictions <- rbind(known_bigrams, unob_bigrams) %>%
+    arrange(desc(P))
+  
+  bigram_predictions$P <- alpha1 * bigram_predictions$P
+  
+  ###
+  
+  predictions <- rbind(known_trigrams, bigram_predictions) %>%
+    arrange(desc(P))
+  
+  predictions
+}
+
+
+
+# quagram prediction with back-off
+#
+# all ngrams have the standard column labels
+# freq, word1, word2, word3, word4 from model
+PredictQuagram <- function(string, unigrams, bigrams, trigrams, quagrams, gamma,
+                           stem = FALSE, filter = NULL, SOS = TRUE){
+  
+  str <- StringTailngram(string, ngram = 3,
+                         stem = stem, filter = filter,
+                         SOS = SOS)
+  
+  known_quagrams <- quagrams %>%
+    filter(word1 == str[1], word2 == str[2], word3 == str[3], !is.na(word4))
+  
+  trigram_sum <- trigrams %>%
+    filter(word1 == str[1], word2 == str[2], word3 == str[3])
+  trigram_sum <- trigram_sum$freq
+  
+  # P for known quagrams
+  known_quagrams$P <- (known_quagrams$freq - gamma) / trigram_sum
+  
+  # P-density for unobserved quagrams
+  alpha1 <- 1 - sum(known_quagrams$P)
+  
+  # all unobserved quagram tails
+  unob_quagrams <- anti_join(unigrams, known_quagrams,
+                             by = c("word1" = "word4"))
+  
+  ### Back-off implementation
+  
+  known_trigrams <- trigrams %>%
+    filter(word1 == str[2], word2 == str[3], !is.na(word3), is.na(word4))
+  
+  bigram_sum <- bigrams %>%
+    filter(word1 == str[2], word2 == str[3])
+  bigram_sum <- bigram_sum$freq
+  
+  # P for known trigrams
+  known_trigrams$P <- (known_trigrams$freq - gamma) / bigram_sum
+  
+  # P-density for unobserved trigrams
+  alpha2 <- 1 - sum(known_trigrams$P)
+  
+  # all unobserved trigram tails
+  unob_trigrams <- anti_join(unigrams, known_trigrams,
+                             by = c("word1" = "word3"))
+  
+  ### ### Back-off implementation
+  
+  known_bigrams <- bigrams %>%
+    filter(word1 == str[3], !is.na(word2), is.na(word3))
+  
+  unigram_sum <- unigrams %>%
+    filter(word1 == str[3])
+  unigram_sum <- unigram_sum$freq
+  
+  # P for known bigrams
+  known_bigrams$P <- (known_bigrams$freq - gamma) / unigram_sum
+  
+  # p-density for unobserved bigrams
+  alpha3 <- 1 - sum(known_bigrams$P)
+  
+  # all unobserved bigram tails
+  unob_bigrams <- anti_join(unigrams, known_bigrams,
+                            by = c("word1" = "word2"))
+  
+  ### ### ### Back-off implementation
+  
+  # formatting
+  unob_bigrams$word2 <- unob_bigrams$word1
+  unob_bigrams$word1 <- str[3]
+  
+  # probability of unobserved bigrams
+  unob_sum <- sum(unob_bigrams$freq)
+  unob_bigrams$P <- alpha3 * (unob_bigrams$freq / unob_sum)
+  
+  ### ### ###
+  
+  # collect into one data.table
+  bigram_predictions <- rbind(known_bigrams, unob_bigrams) %>%
+    arrange(desc(P))
+  
+  bigram_predictions$P <- alpha2 * bigram_predictions$P
+  
+  ### ###
+  
+  trigram_predictions <- rbind(known_trigrams, bigram_predictions) %>%
+    arrange(desc(P))
+  
+  trigram_predictions$P <- alpha1 * trigram_predictions$P
+  
+  ###
+  
+  predictions <- rbind(known_quagrams, trigram_predictions) %>%
+    arrange(desc(P))
+  
+  predictions
+}
+
+
+# Wrapper for separate prediction functions
+Predict <- function(string, model, ngram, gamma,
+                    stem = FALSE, filter = NULL, SOS = TRUE){
+  
+  unigrams <- model %>%
+    filter(!is.na(word1), is.na(word2))
+  
+  bigrams <- model %>%
+    filter(!is.na(word2), is.na(word3))
+  
+  trigrams <- model %>%
+    filter(!is.na(word3), is.na(word4))
+  
+  quagrams <- model %>%
+    filter(!is.na(word4))
+  
+  if (ngram == 3){
+    
+    predictions <- PredictQuagram(string, unigrams, bigrams, trigrams, quagrams,
+                                  gamma, stem = stem, filter = filter, SOS = SOS)
+    
+  } else if (ngram == 2){
+    
+    predictions <- PredictTrigram(string, unigrams, bigrams, trigrams,
+                                  gamma, stem = stem, filter = filter, SOS = SOS)
+    
+  } else if (ngram == 1){
+    
+    predictions <- PredictBigram(string, unigrams, bigrams,
+                                 gamma, stem = stem, filter = filter, SOS = SOS)
+    
   }
   
-  tidy_1_ <- lapply(base_, CleanTokens, n = 1, filter_df = filter) %>% MergeDTM()
-  tidy_2_ <- lapply(base_, CleanTokens, n = 2, filter_df = filter) %>% MergeDTM()
-  tidy_3_ <- lapply(base_, CleanTokens, n = 3, filter_df = filter) %>% MergeDTM()
-  tidy_4_ <- lapply(base_, CleanTokens, n = 4, filter_df = filter) %>% MergeDTM()
+  predictions <- predictions %>%
+    unite(col = sent, word1, word2, word3, word4, sep = " ",
+          na.rm = TRUE, remove = TRUE)
   
-  unigram_ <- WordFreqProb(tidy_1_)
-  bigram_ <- WordFreqProb(tidy_2_)
-  trigram_ <- WordFreqProb(tidy_3_)
-  quagram_ <- WordFreqProb(tidy_4_)
+  predictions$word <- as.character(lapply(predictions$sent, word, -1))
   
-  # we shoud be able to filter by frequency, say 
-  # n=2:k=10, n=3:k=5, n=4:k=1
-  
-  vocab_n_ <- unigram_ %>%
-    mutate(cumsum = cumsum(P)) %>%
-    summarise(vocab = sum(cumsum <= coverage))%>%
-    as.integer()
-  
-  unigram_ <- unigram_ %>% slice_head(n = vocab_n_)
-  
-  prob_table_ <- CreateProbTable(unigram_,
-                                 bigram_,
-                                 trigram_,
-                                 quagram_)
-  
-  prob_table_
+  predictions
 }
