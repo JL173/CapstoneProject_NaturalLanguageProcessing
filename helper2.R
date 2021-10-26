@@ -258,7 +258,7 @@ POSsummaryDF <- function(filepath, size = 1e5, chunks = 150){
 CleanTokens <- function(unclean_df, n = 1, filter_df = NULL){
   
   # remove puntuation
-  unclean_df[,"text"] <- lapply(unclean_df[,"text"],
+  unclean_df$text <- lapply(unclean_df$text,
                                 str_replace_all, "[[:punct:]]", "")
     
   if (n == 1){
@@ -662,12 +662,12 @@ PredictTrigram <- function(string, unigrams, bigrams, trigrams, gamma,
   alpha1 <- 1 - sum(known_trigrams$P)
   
   # all unobserved trigram tails
-  unob_trigrams <- anti_join(unigrams, known_trigrams,
-                             by = c("word1" = "word3"))
+  unob_trigrams <- anti_join(bigrams, known_trigrams,
+                             by = c("word2" = "word3"))
   
   ### Back-off implementation
   
-  known_bigrams <- bigrams %>%
+  known_bigrams <- unob_trigrams %>%
     filter(word1 == str[2], !is.na(word2), is.na(word3))
   
   unigram_sum <- unigrams %>%
@@ -682,7 +682,8 @@ PredictTrigram <- function(string, unigrams, bigrams, trigrams, gamma,
   
   # all unobserved bigram tails
   unob_bigrams <- anti_join(unigrams, known_bigrams,
-                            by = c("word1" = "word2"))
+                            by = c("word1" = "word2")) %>%
+    anti_join(known_trigrams, by = c("word1" = "word3"))
   
   ### ### Back-off implementation
   
@@ -737,12 +738,12 @@ PredictQuagram <- function(string, unigrams, bigrams, trigrams, quagrams, gamma,
   alpha1 <- 1 - sum(known_quagrams$P)
   
   # all unobserved quagram tails
-  unob_quagrams <- anti_join(unigrams, known_quagrams,
-                             by = c("word1" = "word4"))
+  unob_quagrams <- anti_join(trigrams, known_quagrams,
+                             by = c("word3" = "word4"))
   
   ### Back-off implementation
   
-  known_trigrams <- trigrams %>%
+  known_trigrams <- unob_quagrams %>%
     filter(word1 == str[2], word2 == str[3], !is.na(word3), is.na(word4))
   
   bigram_sum <- bigrams %>%
@@ -756,12 +757,13 @@ PredictQuagram <- function(string, unigrams, bigrams, trigrams, quagrams, gamma,
   alpha2 <- 1 - sum(known_trigrams$P)
   
   # all unobserved trigram tails
-  unob_trigrams <- anti_join(unigrams, known_trigrams,
-                             by = c("word1" = "word3"))
+  unob_trigrams <- anti_join(bigrams, known_trigrams,
+                             by = c("word2" = "word3")) %>%
+    anti_join(known_quagrams, by = c("word2" = "word4"))
   
   ### ### Back-off implementation
   
-  known_bigrams <- bigrams %>%
+  known_bigrams <- unob_trigrams %>%
     filter(word1 == str[3], !is.na(word2), is.na(word3))
   
   unigram_sum <- unigrams %>%
@@ -776,7 +778,9 @@ PredictQuagram <- function(string, unigrams, bigrams, trigrams, quagrams, gamma,
   
   # all unobserved bigram tails
   unob_bigrams <- anti_join(unigrams, known_bigrams,
-                            by = c("word1" = "word2"))
+                            by = c("word1" = "word2")) %>%
+    anti_join(known_trigrams, by = c("word1" = "word3")) %>%
+    anti_join(known_quagrams, by = c("word1" = "word4"))
   
   ### ### ### Back-off implementation
   
