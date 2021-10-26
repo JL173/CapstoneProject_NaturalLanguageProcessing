@@ -49,9 +49,16 @@ https://smithamilli.com/blog/kneser-ney/
 
 http://davevinson.com/cmscu-tutorial.html
 
-## Dataset of IMDB movie reviews 25,000 +ve, -ve
+## Other datasets
 
+*IMDB reviews, +ve and -ve*
 https://ai.stanford.edu/~amaas/data/sentiment/
+
+- has <br><br /> tags throughout that need removed
+
+*Amazon product reviews*
+https://www.cs.jhu.edu/~mdredze/datasets/sentiment/
+
 
 
 
@@ -162,3 +169,82 @@ for (string in test_strings2){
 }
 ```
 
+
+```{r}
+t <- Sys.time()
+
+imdb <- LoadFiles("data/en_us/IMDB")
+
+n <- Sys.time() - t
+print(n)
+```
+
+```{r}
+t <- Sys.time()
+
+imdb_unigrams <- lapply(imdb, CleanTokens, n = 1) %>%
+  MergeDTM() %>%
+  WordFreq() %>%
+  filter(freq > 1)
+
+n <- Sys.time() - t
+print(n)
+```
+
+```{r}
+t <- Sys.time()
+
+imdb_bigrams <- lapply(imdb, CleanTokens, n = 2) %>%
+  MergeDTM() %>%
+  WordFreq() %>%
+  filter(freq > 1)
+
+n <- Sys.time() - t
+print(n)
+```
+
+
+```{r}
+t <- Sys.time()
+
+imdb_trigrams <- lapply(imdb, CleanTokens, n = 3) %>%
+  MergeDTM() %>%
+  WordFreq() %>%
+  filter(freq > 1)
+
+n <- Sys.time() - t
+print(n)
+```
+
+```{r}
+t <- Sys.time()
+
+imdb_quagrams <- lapply(imdb, CleanTokens, n = 4) %>%
+  MergeDTM() %>%
+  WordFreq() %>%
+  filter(freq > 1)
+
+n <- Sys.time() - t
+print(n)
+```
+
+
+```{r}
+t <- Sys.time()
+
+imdb_model <- CreateFreqTable(imdb_unigrams,
+                              imdb_bigrams,
+                              imdb_trigrams,
+                              imdb_quagrams)
+
+n <- Sys.time() - t
+print(n)
+```
+
+
+```{r}
+for (string in test_strings2){
+  results <- Predict(string, imdb_model, ngram = 3, gamma = 0.3) %>% head(20)
+  print(results)
+}
+```
