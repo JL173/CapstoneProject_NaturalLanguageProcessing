@@ -65,3 +65,4 @@ full_bigram.RDa
 full_quagram.RDa
 full_trigram.RDa
 full_unigram.RDa
+*.txt

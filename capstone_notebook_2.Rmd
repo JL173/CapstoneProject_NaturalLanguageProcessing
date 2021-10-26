@@ -27,6 +27,36 @@ data("stop_words")
 
 ```
 
+# Alternate methods to explore
+
+## Currently using Katz-smoothing
+
+using alpha multiplying the rest (n-1)-grams for the rest of the probability distribution
+
+## Good-Turing smoothing
+
+n-gram occurs r times, it now occurs
+(r + 1) * n + 1 / n   times
+
+example, a 3-gram of freq = 20
+now → 21 * 4/3 = 28 times
+
+## Knesser-Nay smoothing
+
+https://smithamilli.com/blog/kneser-ney/
+
+## New Package for speed
+
+http://davevinson.com/cmscu-tutorial.html
+
+## Dataset of IMDB movie reviews 25,000 +ve, -ve
+
+https://ai.stanford.edu/~amaas/data/sentiment/
+
+
+
+
+
 ```{r}
 base <- LoadSingleFile("data/en_US/10/en_US.twitter.10.txt", SOS = TRUE, EOS = TRUE)
 ```
@@ -101,3 +131,34 @@ for (string in test_strings2){
   print(results)
 }
 ```
+
+```{r}
+load("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/full_unigram.RDa")
+unigram_ <- unigram_ %>% filter(freq > 1)
+gc()
+
+load("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/full_bigram.RDa")
+bigram_ <- bigram_ %>% filter(freq > 1)
+gc()
+
+load("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/full_trigram.RDa")
+trigram_ <- trigram_ %>% filter(freq > 1)
+gc()
+
+load("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/full_quagram.RDa")
+quagram_ <- quagram_ %>% filter(freq > 1)
+gc()
+```
+
+```{r}
+full_model <- CreateFreqTable(unigram_, bigram_,
+                                 trigram_, quagram_)
+```
+
+```{r}
+for (string in test_strings2){
+  results <- Predict(string, full_model, ngram = 3, gamma = 0.3) %>% head(100)
+  print(results)
+}
+```
+
