@@ -43,7 +43,7 @@ Questions to consider
 
 
 
-## Task 3 - Modeling
+## Task Three - Modeling
 
 - Build basic [n-gram model](http://en.wikipedia.org/wiki/N-gram) - using the exploratory analysis you performed, build a basic n-gram model for predicting the next word based on the previous 1, 2, or 3 words.
 
@@ -82,7 +82,7 @@ Here are a few tools that may be of use to you as you work on their algorithm:
 There will likely be a tradeoff that you have to make in between size and runtime. For example, an algorithm that requires a lot of memory, may run faster, while a slower algorithm may require less memory. You will have to find the right balance between the two in order to provide a good experience to the user.
 
 
-## Task 4 - Prediction Model
+## Task Four - Prediction Model
 
 The goal of this exercise is to build and evaluate your first predictive model. You will use the n-gram and backoff models you built in previous tasks to build and evaluate your predictive model. The goal is to make the model efficient and accurate. 
 
@@ -98,3 +98,100 @@ Questions to consider
 - Does perplexity correlate with the other measures of accuracy?
 
 - Can you reduce the size of the model (number of parameters) without reducing performance?
+
+
+## Task Five - Creative Exploration
+
+So far you have used basic models to understand and predict words. In this next task, your goal is to use all the resources you have available to you (from the Data Science Specialization, resources on the web, or your own creativity) to improve the predictive accuracy while reducing computational runtime and model complexity (if you can). Be sure to hold out a test set to evaluate the new, more creative models you are building.
+
+Tasks to accomplish
+
+- Explore new models and data to improve your predictive model.
+
+- Evaluate your new predictions on both accuracy and efficiency. 
+
+Questions to consider
+
+- What are some alternative data sets you could consider using? 
+
+- What are ways in which the n-gram model may be inefficient?
+
+- What are the most commonly missed n-grams? Can you think of a reason why they would be missed and fix that? 
+
+- What are some other things that other people have tried to improve their model? 
+
+- Can you estimate how uncertain you are about the words you are predicting? 
+
+
+## Task Six - The Data Product
+
+The goal of this exercise is to create a product to highlight the prediction algorithm that you have built and to provide an interface that can be accessed by others via a Shiny app...
+
+Tasks to accomplish
+
+ - Create a data product to show off your prediction algorithm You should create a Shiny app that accepts an n-gram and predicts the next word.
+
+Questions to consider
+
+- What are the most interesting ways you could show off your algorithm?
+
+- Are there any data visualizations you think might be helpful (look at the Swiftkey data dashboard if you have it loaded on your phone)?
+
+- How should you document the use of your data product (separately from how you created it) so that others can rapidly deploy your algorithm?
+
+Tips, tricks, and hints
+
+- Consider the size of the predictive model you have developed. You may have to sacrifice some accuracy to have a fast enough/small enough model to load into Shiny.
+
+
+## Task Seven - Slide Deck
+
+The goal of this exercise is to "pitch" your data product to your boss or an investor. The slide deck is constrained to be 5 slides or less and should
+
+1. explain how your model works
+2. describe its predictive performance quantitatively
+3. show off the app and how it works. 
+
+Tasks to accomplish
+
+- Create a slide deck promoting your product. Write 5 slides using RStudio Presenter explaining your product and why it is awesome!
+
+Questions to consider
+
+- How can you briefly explain how your predictive model works?
+
+- How can you succinctly quantitatively summarize the performance of your prediction algorithm?
+
+- How can you show the user how the product works?
+
+Tips, tricks, and hints
+
+- The Rstudio presentation information is available [here](https://support.rstudio.com/hc/en-us/articles/200486468-Authoring-R-Presentations)
+
+
+
+### Review Criteria for Final Submission
+
+**Data Product** A Shiny app that takes as input a phrase (multiple words) in a text box input and outputs a prediction of the next word.
+
+- Does the link lead to a Shiny app with a text input box that is running on shinyapps.io?
+
+- Does the app load to the point where it can accept input?
+
+- When you type a phrase in the input box do you get a prediction of a single word after pressing submit and/or a suitable delay for the model to compute the answer?
+
+- Put five phrases drawn from Twitter or news articles in English leaving out the last word. Did it give a prediction for every one?
+
+**Slide Deck** pitching your algorithm and app as if you were presenting to your boss or an investor.
+
+- Does the link lead to a 5 slide deck on R Pubs?
+
+- Does the slide deck contain a description of the algorithm used to make the prediction?
+
+- Does the slide deck describe the app, give instructions, and describe how it functions?
+
+- How would you describe the experience of using this app?
+
+- Does the app present a novel approach and/or is particularly well done?
+
+- Would you hire this person for your own data science startup company?

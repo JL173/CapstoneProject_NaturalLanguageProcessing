@@ -1,5 +1,12 @@
 # Read in all txt files from a directory as a list of files
-# Returns a list of dataframes
+#
+# diectory = filepath from working directory eg. "data/en_US/"
+# pattern = pattern to match all documents
+# stem = stem words found in files
+# n = number of lines to read, -1L is all lines
+#
+# Returns a list of data.tables with observations of a line, with variables
+# line = line number, text = <char> contents of line, document = document name
 LoadFiles <- function(directory, pattern = "*.txt", stem = TRUE, n = -1L){
   filenames <- list.files(directory, pattern = pattern, full.names = TRUE)
   shortnames <- list.files(directory, pattern = pattern, full.names = FALSE)
@@ -36,7 +43,12 @@ LoadFiles <- function(directory, pattern = "*.txt", stem = TRUE, n = -1L){
 }
 
 
-
+# Function to add prefix and suffix to a string
+#
+# string = input string
+# SOS/EOS = adding 'sos' <start of sentence> etc.
+#
+# Returns string with sos/eos appended
 SOSEOS <- function(string, SOS = TRUE, EOS = TRUE){
   
   if (SOS == TRUE){
@@ -51,7 +63,17 @@ SOSEOS <- function(string, SOS = TRUE, EOS = TRUE){
 
 
 
-# LoadSingleFile
+# Loads a single document
+# Analagous to LoadFiles, except for single file
+#
+# filepath = filepath to document (include file extension)
+# stem = stems words in each line
+# n = number of lines to read, -1L is all lines
+# SOS/EOS = function call to SOSEOS
+#
+# Returns a data.table with observations on each line of document
+# with variables line = line number, text = <chr> contents of line
+# document = name of document
 LoadSingleFile <- function(filepath,
                            stem = TRUE,
                            n = -1L,
@@ -93,6 +115,13 @@ LoadSingleFile <- function(filepath,
 
 
 # LoadFiles with sampling
+# see 'LoadFiles'
+#
+# n = number of lines to sample
+# seed = random seed to use for sampling
+#
+# returns list of data.tables with observations on each line with variables
+# line = line number, text = <chr> content of line, document = document name
 SampleLoadFiles <- function(directory, pattern = "*.txt", stem = TRUE, n = 1000, seed = NULL){
   filenames <- list.files(directory, pattern = pattern, full.names = TRUE)
   shortnames <- list.files(directory, pattern = pattern, full.names = FALSE)
@@ -149,7 +178,12 @@ SampleLoadFiles <- function(directory, pattern = "*.txt", stem = TRUE, n = 1000,
 
 
 
-# split dataframe for efficiency
+# splits dataframe for memory efficiency
+#
+# df = dataframe to be split
+# size = max size of each dataframe to be returned
+#
+# Returns a list of dataframes
 SplitDF <- function(df, size = 5e6){
   #5e6 = 50mb
   chunks <- object.size(df) %>%
@@ -165,8 +199,11 @@ SplitDF <- function(df, size = 5e6){
 
 
 # takes list of lists of dataframes
-# turns into one list of dataframes
-# more efficient memory tasking for large dataframes
+#
+# df_list = list of dataframes
+# size = parameter to be passed to SplitDF
+#
+# Returns a list of dataframes
 UnlistDF <- function(df_list, size = 5e6){
   list <- lapply(df_list, SplitDF, size) %>%
     unlist(recursive = F)
@@ -175,7 +212,12 @@ UnlistDF <- function(df_list, size = 5e6){
 
 
 
-## Parts Of Speech annotator for a string
+# Parts Of Speech annotator for a string
+#
+# string = string to be annotated
+#
+# Returns a Maxent_POS_Tag_Annotator object feature
+# a list of POS tags for said string
 POSstring <- function(string){
   initial_result = string %>% 
     annotate(list(Maxent_Sent_Token_Annotator(),
@@ -189,8 +231,12 @@ POSstring <- function(string){
 
 
 
-## POS summary
-## Takes a dataframe, calculates POS tags and summarises
+# Takes a dataframe, calculates POS tags and summarises
+#
+# df = dataframe input, with variables line, text, document and
+# row observations on each line of document, see 'LoadFiles' or equivalent
+#
+# Returns dataframe with POS tag summaries
 POSsumDF <- function(df){
   options(java.parameters = "-Xmx8000m")
   
@@ -203,8 +249,14 @@ POSsumDF <- function(df){
 
 
 
-# Function to create POS_summary dataframe from file_folder
+# Wrapper function to create POS_summary dataframe from file_folder
 # Memory constraints and time need consideration with size and chunks
+#
+# filepath = directory location for files
+# size = maximum memory allocation to each dataframe. see 'UnlistDF'
+# chunks = number of further splits to be made for java memory optimisation
+#
+# Returns a dataframe of POS tag sumamries for documents
 POSsummaryDF <- function(filepath, size = 1e5, chunks = 150){
   
   #create chunks to optimise memory usage
@@ -496,6 +548,13 @@ WordFreq <- function(tidy_dtm, k = NULL){
 
 
 # Create Freq Table
+#
+# *gram = dataframe of ngrams spit into separate word/token variables
+# with frequency column. see 'CleanTokens' function
+#
+# Returns data.table of combined *grams, frequency sorted with
+# observations on each word combination with variables
+# word1, word2, word3, word4, freq
 CreateFreqTable <- function(unigram, bigram, trigram, quagram){
   
   # formatting
@@ -537,6 +596,14 @@ CreateFreqTable <- function(unigram, bigram, trigram, quagram){
 
  
 # Take a string and find last 3,2,1 words for searching
+#
+# string = string used for predicting next word
+# ngram = prediction level desired
+# stem = stem string
+# filter = apply a filter to words in string
+# SOS = apply SOSEOS function
+#
+# Returns a list of <chr> strings
 StringTailngram <- function(string,
                             ngram = 3,
                             stem = FALSE,
@@ -592,6 +659,14 @@ StringTailngram <- function(string,
 #
 # all ngrams have the standard column labels
 # freq, word1, word2, word3, word4 from model
+#
+# string = string to predict next word
+# *grams_ = ngrams to be passed to predictor
+# gamma = discount variable to weigh larger ngram predictions less
+# stem/filter/SOS = paramters to pass to StringTailngram
+#
+# Returns a dataframe of predictions, observations on prediction with variables
+# P = probability, word = prediction, word* = prediction basis from model
 PredictBigram <- function(string, unigrams, bigrams, gamma,
                           stem = FALSE, filter = NULL, SOS = TRUE){
   
@@ -641,6 +716,14 @@ PredictBigram <- function(string, unigrams, bigrams, gamma,
 #
 # all ngrams have the standard column labels
 # freq, word1, word2, word3, word4 from model
+#
+# string = string to predict next word
+# *grams_ = ngrams to be passed to predictor
+# gamma = discount variable to weigh larger ngram predictions less
+# stem/filter/SOS = paramters to pass to StringTailngram
+#
+# Returns a dataframe of predictions, observations on prediction with variables
+# P = probability, word = prediction, word* = prediction basis from model
 PredictTrigram <- function(string, unigrams, bigrams, trigrams, gamma,
                            stem = FALSE, filter = NULL, SOS = TRUE){
   
@@ -717,6 +800,14 @@ PredictTrigram <- function(string, unigrams, bigrams, trigrams, gamma,
 #
 # all ngrams have the standard column labels
 # freq, word1, word2, word3, word4 from model
+#
+# string = string to predict next word
+# *grams_ = ngrams to be passed to predictor
+# gamma = discount variable to weigh larger ngram predictions less
+# stem/filter/SOS = paramters to pass to StringTailngram
+#
+# Returns a dataframe of predictions, observations on prediction with variables
+# P = probability, word = prediction, word* = prediction basis from model
 PredictQuagram <- function(string, unigrams, bigrams, trigrams, quagrams, gamma,
                            stem = FALSE, filter = NULL, SOS = TRUE){
   
@@ -856,4 +947,24 @@ Predict <- function(string, model, ngram, gamma,
   predictions$word <- as.character(lapply(predictions$sent, word, -1))
   
   predictions
+}
+
+
+
+# Load CSV lyrics
+LoadCSV <- function(directory){
+  filenames <- list.files(directory, pattern = "*.csv", full.names = TRUE)
+  shortnames <- list.files(directory, pattern = "*.csv", full.names = FALSE)
+  
+  for (index in length(filenames)){
+    
+    df <- read_csv(filenames[index], na = "NA")
+    df <- select(df, Lyric)
+    write.table(df, file = paste(filenames[index], ".txt", sep = ""),
+                sep = "\n",
+                row.names = FALSE,
+                col.names = FALSE)
+    rm(df)
+  }
+  
 }

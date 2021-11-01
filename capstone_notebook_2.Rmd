@@ -140,29 +140,6 @@ for (string in test_strings2){
 ```
 
 ```{r}
-load("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/full_unigram.RDa")
-unigram_ <- unigram_ %>% filter(freq > 1)
-gc()
-
-load("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/full_bigram.RDa")
-bigram_ <- bigram_ %>% filter(freq > 1)
-gc()
-
-load("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/full_trigram.RDa")
-trigram_ <- trigram_ %>% filter(freq > 1)
-gc()
-
-load("C:/Users/JL/Desktop/Study/Coursera/Johns Hopkins Data Science/10 capstone/CapstoneProject_NaturalLanguageProcessing/full_quagram.RDa")
-quagram_ <- quagram_ %>% filter(freq > 1)
-gc()
-```
-
-```{r}
-full_model <- CreateFreqTable(unigram_, bigram_,
-                                 trigram_, quagram_)
-```
-
-```{r}
 for (string in test_strings2){
   results <- Predict(string, full_model, ngram = 3, gamma = 0.3) %>% head(100)
   print(results)
@@ -173,7 +150,7 @@ for (string in test_strings2){
 ```{r}
 t <- Sys.time()
 
-imdb <- LoadFiles("data/en_us/IMDB")
+imdb <- LoadFiles("data/IMDB")
 
 n <- Sys.time() - t
 print(n)
@@ -247,4 +224,80 @@ for (string in test_strings2){
   results <- Predict(string, imdb_model, ngram = 3, gamma = 0.3) %>% head(20)
   print(results)
 }
+```
+
+```{r}
+load("output/full_unigram.RDa")
+unigram_ <- unigram_ %>% filter(freq > 1)
+load("output/full_bigram.Rda")
+bigram_ <- bigram_ %>% filter(freq > 1)
+load("output/full_trigram.Rda")
+trigram_ <- trigram_ %>% filter(freq > 1)
+load("output/full_quagram.RDa")
+quagram_ <- quagram_ %>% filter(freq > 1)
+
+en_US_model <- CreateFreqTable(unigram_,
+                              bigram_,
+                              trigram_,
+                              quagram_)
+
+save(en_US_model, file = "models/en_US_freq_model.RDa")
+```
+
+```{r}
+# sticking two models together
+
+load("models/imdb_freq_model.RDa")
+load("models/en_US_freq_model.RDa")
+```
+
+```{r}
+merged_model <- rbind(en_US_model, imdb_model, lyrics_model) %>%
+  group_by(word1, word2, word3, word4) %>%
+  summarise(freq = sum(freq)) %>%
+  ungroup()
+```
+
+
+```{r}
+for (string in test_strings2){
+  results <- Predict(string, merged_model, ngram = 3, gamma = 0.3) %>% head(20)
+  print(results)
+}
+```
+
+
+```{r}
+lyrics <- LoadSingleFile("data/ARTISTS/")
+```
+
+```{r}
+
+lyrics_unigrams <- lapply(lyrics, CleanTokens, n = 1, filter_df = filter) %>%
+  MergeDTM() %>%
+  WordFreq() %>%
+  filter(freq > 1)
+
+lyrics_bigrams <- lapply(lyrics, CleanTokens, n = 2, filter_df = filter) %>%
+  MergeDTM() %>%
+  WordFreq() %>%
+  filter(freq > 1)
+
+lyrics_trigrams <- lapply(lyrics, CleanTokens, n = 3, filter_df = filter) %>%
+  MergeDTM() %>%
+  WordFreq() %>%
+  filter(freq > 1)
+
+lyrics_quagrams <- lapply(lyrics, CleanTokens, n = 4, filter_df = filter) %>%
+  MergeDTM() %>%
+  WordFreq() %>%
+  filter(freq > 1)
+```
+
+```{r}
+lyrics_model <- CreateFreqTable(lyrics_unigrams,
+                                 lyrics_bigrams,
+                                 lyrics_trigrams,
+                                 lyrics_quagrams)
+save(lyrics_model, file = "models/lyrics_freq_model.RDa")
 ```

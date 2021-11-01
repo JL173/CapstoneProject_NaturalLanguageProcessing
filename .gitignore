@@ -66,3 +66,7 @@ full_quagram.RDa
 full_trigram.RDa
 full_unigram.RDa
 *.txt
+*.review
+*.balanced
+*.random
+*.csv
