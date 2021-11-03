@@ -31,7 +31,7 @@ load("models/blogs_freq_model.RDa") # blogs_model
 #
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
-
+    
     output$inputString <- renderText({
         print(input$inputString)
     })
@@ -39,20 +39,36 @@ shinyServer(function(input, output) {
         print(input$modelChoice)
     })
     output$depth <- renderText({
-        print(userDepth)
+        print(input$depth)
     })
     output$gamma <- renderText({
-        print(userGamma)
+        print(input$gamma)
     })
     
     
-    parameters <- reactive({
+    userString <- eventReactive(input$runButton, {
         
-        userString <- input$inputString
+        userStr <- input$inputString
         
-        userGamma <- input$gamma
+        userStr
+    })
+    
+    userGamma <- eventReactive(input$runButton, {
         
-        userDepth <- input$depth
+        userG <- input$gamma
+        
+        userG
+    })
+    
+    userDepth <- eventReactive(input$runButton, {
+        
+        userD <- input$depth
+        
+        userD
+    })
+
+    
+    model <- eventReactive(input$runButton, {
         
         if (input$modelChoice == "Twitter"){
             userModel <- twitter_model
@@ -68,43 +84,38 @@ shinyServer(function(input, output) {
             userModel <- en_US_model
         }
         
+        userModel
     })
     
-    predictions <- reactive({
-        
-        enable(runButton)
-        
-        if (input$runButton == 0){
-            return()
+    predictions <- eventReactive(input$runButton, {
+        if(is.null(input$inputString)){
+            df <- data.table(word = c("no predictions"),
+                             P = 1)
         }
         
-        disable(runButton)
-        predictions <- data.table()
         
-        if (userString != ""){
-            predictions <- isolate(Predict(
-                userString, userModel,
-                ngram = userDepth,
-                gamma = userGamma))
-        }
+        df <- isolate(Predict(
+            userString(), model(),
+            ngram = userDepth(),
+            gamma = userGamma()))
         
-        enable(runButton)
-        predictions
+        df
         
     })
     
-    output$predictionTable <- renderTable({
-        predictions
-    })
+    
+    
+    output$predictionTable <- renderDataTable({predictions() %>% head(100)})
+        
     
     output$predictionPlot <- renderPlot({
         
-        results <- predictions %>% head(10)
+        results <- predictions() %>% head(10)
         
         results$word <- factor(results$word, levels = results$word[order(results$P, decreasing = FALSE)])
         
         ggplot(results, aes(y = word, x = P)) + 
-            theme_wsj() +
+            theme_few() +
             scale_fill_tableau() +
             scale_colour_tableau() +
             geom_col(orientation = "y") +
@@ -119,5 +130,5 @@ shinyServer(function(input, output) {
     
     
     
-
+    
 })

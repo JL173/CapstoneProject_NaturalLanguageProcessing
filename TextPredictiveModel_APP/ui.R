@@ -34,7 +34,7 @@ shinyUI(fluidPage(
             
             sliderInput(
                 "depth", label = "Prediction depth:",
-                min = 0, value = 3, max = 3
+                min = 1, value = 3, max = 3
             ),
             sliderInput(
                 "gamma", label = "Gamma:",
@@ -50,24 +50,28 @@ shinyUI(fluidPage(
             p("Enter some words (a sentence perhaps) into the textbox in the sidebar"),
             p("Choose the source text for our algorithm to work with"),
             p("Choose the depth for our prediction algorithm"),
-            p("Hit 'Run' and see how well we did!"),
-            p("If you write 'bottom to the' with depth 3, you should get 'top' as a prediction."),
+            p("\n"),
+            p("An empty 'text' will show you the most frequent words"),
             
             tabsetPanel(
                 tabPanel("Summary",
-                         h4("Your text: "),
+                         h4("Your input text: "),
                          verbatimTextOutput("inputString"),
+                         h4("The words we are using to predict: "),
+                         verbatimTextOutput("predictWords"),
                          h4("Your model choice: "),
                          verbatimTextOutput("modelChoice"),
-                         h4("Our predictions")
+                         h4("Our predictions"),
+                         verbatimTextOutput("finalPrediction"),
+                         h4("View 'Plot' and 'Table' to see other predictions")
                          ),
                 
                 tabPanel("Plot",
-                         plotOutput("predictionPlot")
+                         plotOutput("predictionPlot",
+                                    width = "90%")
                          ),
                 
                 tabPanel("Table",
-                         h4("These are the possible words that could have been chosen"),
                          dataTableOutput("predictionTable")
                          )
             )
