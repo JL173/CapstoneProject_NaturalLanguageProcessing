@@ -23,7 +23,7 @@ load("models/lyrics_freq_model.RDa") # lyics_model
 load("models/twitter_freq_model.RDa") # twitter_model
 load("models/news_freq_model.RDa") # news_model
 load("models/blogs_freq_model.RDa") # blogs_model
-load("models/en_US_freq_model.RDa") # en_US_model
+load("models/merged_model.RDa") # merged_model
 
 #
 #
@@ -99,8 +99,8 @@ shinyServer(function(input, output) {
             userModel <- lyrics_model
         } else if (input$modelChoice == "Movie Reviews"){
             userModel <- imdb_model
-        } else{
-            userModel <- en_US_model
+        } else if (input$modelChoice == "Everything"){
+            userModel <- merged_model
         }
         
         userModel

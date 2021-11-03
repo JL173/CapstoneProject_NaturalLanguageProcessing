@@ -304,7 +304,7 @@ load("models/en_US_freq_model.RDa")
 ```
 
 ```{r}
-merged_model <- rbind(en_US_model, imdb_model, lyrics_model) %>%
+merged_model <- rbind(twitter_model, news_model, blogs_model, imdb_model, lyrics_model) %>%
   group_by(word1, word2, word3, word4) %>%
   summarise(freq = sum(freq)) %>%
   ungroup()
@@ -320,37 +320,51 @@ for (string in test_strings2){
 
 
 ```{r}
-lyrics <- LoadSingleFile("data/ARTISTS/")
+lyrics <- LoadFiles("data/ARTISTS/")
 ```
 
 ```{r}
+filter <- read_table("text_filter.txt", col_names = FALSE)
+colnames(filter) <- "word"
+```
 
+```{r}
 lyrics_unigrams <- lapply(lyrics, CleanTokens, n = 1, filter_df = filter) %>%
   MergeDTM() %>%
   WordFreq() %>%
-  filter(freq > 1)
+  filter(freq > 5)
 
 lyrics_bigrams <- lapply(lyrics, CleanTokens, n = 2, filter_df = filter) %>%
   MergeDTM() %>%
   WordFreq() %>%
-  filter(freq > 1)
+  filter(freq > 3)
 
 lyrics_trigrams <- lapply(lyrics, CleanTokens, n = 3, filter_df = filter) %>%
   MergeDTM() %>%
   WordFreq() %>%
-  filter(freq > 1)
+  filter(freq > 3)
 
 lyrics_quagrams <- lapply(lyrics, CleanTokens, n = 4, filter_df = filter) %>%
   MergeDTM() %>%
   WordFreq() %>%
-  filter(freq > 1)
+  filter(freq > 3)
 ```
 
 ```{r}
-lyrics_model <- CreateFreqTable(lyrics_unigrams,
-                                 lyrics_bigrams,
-                                 lyrics_trigrams,
-                                 lyrics_quagrams)
+secondfilter <- function(df){
+  df <- df %>%
+    filter(!str_detect(word, "nigg")) %>%
+    filter(!str_detect(word, "fuck"))%>%
+    filter(!str_detect(word, "bitc"))
+  df
+}
+```
+
+```{r}
+lyrics_model <- CreateFreqTable(secondfilter(lyrics_unigrams),
+                                 secondfilter(lyrics_bigrams),
+                                 secondfilter(lyrics_trigrams),
+                                 secondfilter(lyrics_quagrams))
 save(lyrics_model, file = "models/lyrics_freq_model.RDa")
 ```
 

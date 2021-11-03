@@ -79,3 +79,6 @@ TextPredictiveModel_APP/models/imdb_freq_model.RDa
 TextPredictiveModel_APP/models/lyrics_freq_model.RDa
 TextPredictiveModel_APP/models/news_freq_model.RDa
 TextPredictiveModel_APP/models/twitter_freq_model.RDa
+models/merged_model.RDa
+TextPredictiveModel_APP/models/merged_model.RDa
+*.RDa

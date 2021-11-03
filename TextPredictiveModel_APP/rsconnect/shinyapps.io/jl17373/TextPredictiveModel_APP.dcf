@@ -1,0 +1,13 @@
+name: TextPredictiveModel_APP
+title: TextPredictiveModel_APP
+username:
+account: jl17373
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5033360
+bundleId: 5207352
+url: https://jl17373.shinyapps.io/TextPredictiveModel_APP/
+when: 1635942845.02883
+lastSyncTime: 1635942845.02883
+asMultiple: FALSE
+asStatic: FALSE
