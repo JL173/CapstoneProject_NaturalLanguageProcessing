@@ -23,7 +23,7 @@ load("models/lyrics_freq_model.RDa") # lyics_model
 load("models/twitter_freq_model.RDa") # twitter_model
 load("models/news_freq_model.RDa") # news_model
 load("models/blogs_freq_model.RDa") # blogs_model
-#load("models/en_US_freq_model.RDa") # en_US_model
+load("models/en_US_freq_model.RDa") # en_US_model
 
 #
 #
@@ -36,13 +36,32 @@ shinyServer(function(input, output) {
         print(input$inputString)
     })
     output$modelChoice <- renderText({
-        print(input$modelChoice)
+        paste("Source = ", input$modelChoice,
+              " Depth = ", input$depth,
+              " Gamma = ", input$gamma,
+        sep = " ")
     })
     output$depth <- renderText({
         print(input$depth)
     })
     output$gamma <- renderText({
         print(input$gamma)
+    })
+    
+    output$predictWords <- renderText({searchWords()})
+    
+    searchWords <- reactive({
+        wordlist <- StringTailngram(input$inputString,
+                              ngram = input$depth,
+                              stem = FALSE,
+                              filter = NULL,
+                              SOS = TRUE)
+        words <- sapply(wordlist, paste0, collapse="")
+        words
+    })
+    
+    output$finalPrediction <- renderText({
+        paste(userString(), predictions()[1, "word"], sep = " ")
     })
     
     

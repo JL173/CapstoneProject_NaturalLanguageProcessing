@@ -61,9 +61,9 @@ shinyUI(fluidPage(
                          verbatimTextOutput("predictWords"),
                          h4("Your model choice: "),
                          verbatimTextOutput("modelChoice"),
-                         h4("Our predictions"),
+                         h4("Our prediction"),
                          verbatimTextOutput("finalPrediction"),
-                         h4("View 'Plot' and 'Table' to see other predictions")
+                         h5("View 'Plot' and 'Table' to see other predictions")
                          ),
                 
                 tabPanel("Plot",
