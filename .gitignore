@@ -70,3 +70,12 @@ full_unigram.RDa
 *.balanced
 *.random
 *.csv
+models/news_freq_model.RDa
+models/twitter_freq_model.RDa
+models/blogs_freq_model.RDa
+TextPredictiveModel_APP/models/blogs_freq_model.RDa
+TextPredictiveModel_APP/models/en_US_freq_model.RDa
+TextPredictiveModel_APP/models/imdb_freq_model.RDa
+TextPredictiveModel_APP/models/lyrics_freq_model.RDa
+TextPredictiveModel_APP/models/news_freq_model.RDa
+TextPredictiveModel_APP/models/twitter_freq_model.RDa
