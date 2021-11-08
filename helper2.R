@@ -681,6 +681,9 @@ PredictBigram <- function(string, unigrams, bigrams, gamma,
     filter(word1 == str[1])
   unigram_sum <- unigram_sum$freq
   
+  if (sum(unigram_sum) == 0){
+    unigram_sum <- sum(unigrams$freq)}
+  
   # P for known bigrams
   known_bigrams$P <- (known_bigrams$freq - gamma) / unigram_sum
   
@@ -738,6 +741,9 @@ PredictTrigram <- function(string, unigrams, bigrams, trigrams, gamma,
     filter(word1 == str[1], word2 == str[2])
   bigram_sum <- bigram_sum$freq
   
+  if (sum(bigram_sum) == 0){
+    bigram_sum <- sum(bigrams$freq)}
+  
   # P for known trigrams
   known_trigrams$P <- (known_trigrams$freq - gamma) / bigram_sum
   
@@ -756,6 +762,9 @@ PredictTrigram <- function(string, unigrams, bigrams, trigrams, gamma,
   unigram_sum <- unigrams %>%
     filter(word1 == str[2])
   unigram_sum <- unigram_sum$freq
+  
+  if (sum(unigram_sum) == 0){
+    unigram_sum <- sum(unigrams$freq)}
   
   # P for known bigrams
   known_bigrams$P <- (known_bigrams$freq - gamma) / unigram_sum
@@ -822,6 +831,9 @@ PredictQuagram <- function(string, unigrams, bigrams, trigrams, quagrams, gamma,
     filter(word1 == str[1], word2 == str[2], word3 == str[3])
   trigram_sum <- trigram_sum$freq
   
+  if (sum(trigram_sum) == 0){
+    trigram_sum <- sum(trigrams$freq)}
+  
   # P for known quagrams
   known_quagrams$P <- (known_quagrams$freq - gamma) / trigram_sum
   
@@ -840,6 +852,9 @@ PredictQuagram <- function(string, unigrams, bigrams, trigrams, quagrams, gamma,
   bigram_sum <- bigrams %>%
     filter(word1 == str[2], word2 == str[3])
   bigram_sum <- bigram_sum$freq
+  
+  if (sum(bigram_sum) == 0){
+    bigram_sum <- sum(bigrams$freq)}
   
   # P for known trigrams
   known_trigrams$P <- (known_trigrams$freq - gamma) / bigram_sum
@@ -860,6 +875,9 @@ PredictQuagram <- function(string, unigrams, bigrams, trigrams, quagrams, gamma,
   unigram_sum <- unigrams %>%
     filter(word1 == str[3])
   unigram_sum <- unigram_sum$freq
+  
+  if (sum(unigram_sum) == 0){
+    unigram_sum <- sum(unigrams$freq)}
   
   # P for known bigrams
   known_bigrams$P <- (known_bigrams$freq - gamma) / unigram_sum

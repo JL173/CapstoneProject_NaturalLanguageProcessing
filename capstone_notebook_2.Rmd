@@ -146,17 +146,6 @@ save(blogs_model, file = "models/blogs_freq_model.RDa")
 ```
 
 ```{r}
-Predict("sos in the", twitter_model, ngram = 3, gamma = 0.5)
-```
-
-```{r}
-for (string in test_strings2){
-  results <- Predict(string, twitter_model, ngram = 3, gamma = 0.5) %>% head(10)
-  print(results)
-}
-```
-
-```{r}
 base_files <- LoadFiles("data/en_US/10/")
 ```
 ```{r}
@@ -184,99 +173,8 @@ full_quagrams <- lapply(base_files, CleanTokens, n = 4) %>%
 full_model_10 <- CreateFreqTable(full_unigrams, full_bigrams,
                                  full_trigrams, full_quagrams)
 ```
-```{r}
-for (string in test_strings2){
-  results <- Predict(string, full_model_10, ngram = 3, gamma = 0.3) %>% head(10)
-  print(results)
-}
-```
-
-```{r}
-for (string in test_strings2){
-  results <- Predict(string, full_model, ngram = 3, gamma = 0.3) %>% head(100)
-  print(results)
-}
-```
 
 
-```{r}
-t <- Sys.time()
-
-imdb <- LoadFiles("data/IMDB")
-
-n <- Sys.time() - t
-print(n)
-```
-
-```{r}
-t <- Sys.time()
-
-imdb_unigrams <- lapply(imdb, CleanTokens, n = 1) %>%
-  MergeDTM() %>%
-  WordFreq() %>%
-  filter(freq > 1)
-
-n <- Sys.time() - t
-print(n)
-```
-
-```{r}
-t <- Sys.time()
-
-imdb_bigrams <- lapply(imdb, CleanTokens, n = 2) %>%
-  MergeDTM() %>%
-  WordFreq() %>%
-  filter(freq > 1)
-
-n <- Sys.time() - t
-print(n)
-```
-
-
-```{r}
-t <- Sys.time()
-
-imdb_trigrams <- lapply(imdb, CleanTokens, n = 3) %>%
-  MergeDTM() %>%
-  WordFreq() %>%
-  filter(freq > 1)
-
-n <- Sys.time() - t
-print(n)
-```
-
-```{r}
-t <- Sys.time()
-
-imdb_quagrams <- lapply(imdb, CleanTokens, n = 4) %>%
-  MergeDTM() %>%
-  WordFreq() %>%
-  filter(freq > 1)
-
-n <- Sys.time() - t
-print(n)
-```
-
-
-```{r}
-t <- Sys.time()
-
-imdb_model <- CreateFreqTable(imdb_unigrams,
-                              imdb_bigrams,
-                              imdb_trigrams,
-                              imdb_quagrams)
-
-n <- Sys.time() - t
-print(n)
-```
-
-
-```{r}
-for (string in test_strings2){
-  results <- Predict(string, imdb_model, ngram = 3, gamma = 0.3) %>% head(20)
-  print(results)
-}
-```
 
 ```{r}
 load("output/full_unigram.RDa")
@@ -296,59 +194,6 @@ en_US_model <- CreateFreqTable(unigram_,
 save(en_US_model, file = "models/en_US_freq_model.RDa")
 ```
 
-```{r}
-# sticking two models together
-
-load("models/imdb_freq_model.RDa")
-load("models/en_US_freq_model.RDa")
-```
-
-```{r}
-merged_model <- rbind(twitter_model, news_model, blogs_model, imdb_model, lyrics_model) %>%
-  group_by(word1, word2, word3, word4) %>%
-  summarise(freq = sum(freq)) %>%
-  ungroup()
-```
-
-
-```{r}
-for (string in test_strings2){
-  results <- Predict(string, twittwe_model, ngram = 3, gamma = 0.3) %>% head(20)
-  print(results)
-}
-```
-
-
-```{r}
-lyrics <- LoadFiles("data/ARTISTS/")
-```
-
-```{r}
-filter <- read_table("text_filter.txt", col_names = FALSE)
-colnames(filter) <- "word"
-```
-
-```{r}
-lyrics_unigrams <- lapply(lyrics, CleanTokens, n = 1, filter_df = filter) %>%
-  MergeDTM() %>%
-  WordFreq() %>%
-  filter(freq > 5)
-
-lyrics_bigrams <- lapply(lyrics, CleanTokens, n = 2, filter_df = filter) %>%
-  MergeDTM() %>%
-  WordFreq() %>%
-  filter(freq > 3)
-
-lyrics_trigrams <- lapply(lyrics, CleanTokens, n = 3, filter_df = filter) %>%
-  MergeDTM() %>%
-  WordFreq() %>%
-  filter(freq > 3)
-
-lyrics_quagrams <- lapply(lyrics, CleanTokens, n = 4, filter_df = filter) %>%
-  MergeDTM() %>%
-  WordFreq() %>%
-  filter(freq > 3)
-```
 
 ```{r}
 secondfilter <- function(df){
@@ -368,21 +213,226 @@ lyrics_model <- CreateFreqTable(secondfilter(lyrics_unigrams),
 save(lyrics_model, file = "models/lyrics_freq_model.RDa")
 ```
 
+# From here I need to create two things
 
+- Train/Test sets of the n-grams (trigrams, quagrams)
+- Evaluating function for testing
+
+We'll work with the twitter data to build up the function, then transfer it into the helper2.R file when complete
 
 ```{r}
-results <- Predict("from the bottom", news_model, ngram = 2, gamma = 0.3) %>% arrange(desc(P)) %>% head(5)
-results
+base <- LoadSingleFile("data/en_US/25/en_US.twitter.25.txt", SOS = TRUE, EOS = TRUE)
 ```
 
 ```{r}
-results$word <- factor(results$word, levels = results$word[order(results$P, decreasing = FALSE)])
+twitter_unigrams <- CleanTokens(base, n = 1) %>%
+  WordFreq() %>%
+  filter(freq > 2) 
 
+twitter_bigrams <- CleanTokens(base, n = 2) %>%
+  WordFreq() %>%
+  filter(freq > 1)
 
-ggplot(results, aes(y = word, x = P)) + 
-  theme_wsj() +
-  scale_fill_tableau() +
-  scale_colour_tableau() +
-  geom_col(orientation = "y") +
-  labs(title = "Predictions", x = "Probability", y = "Next Word")
+twitter_trigrams <- CleanTokens(base, n = 3) %>%
+  WordFreq() %>%
+  filter(freq > 1)
+
+twitter_quagrams <- CleanTokens(base, n = 4) %>%
+  WordFreq() %>%
+  filter(freq > 1)
 ```
+
+## Here we create the test/train splits for trigrams and quagrams
+
+- trigrams to check if the model can predict an unseen trigram
+- quagrams to check if the model can predict an unseen quagram
+
+We'll have to sample from each set of ngrams. This will force the model to have never seen them as it removes them from the training set of ngrams without replacement.
+
+```{r}
+TrainTestSplit <- function(df, percent = 0.75, seed = 17373){
+  smp_size <- floor(percent * nrow(df))
+  set.seed(seed)
+  train_ind <- sample(seq_len(nrow(df)), size = smp_size)
+  
+  train <- df[train_ind, ]
+  test <- df[-train_ind, ]
+  
+  results <- list(train = train, test = test)
+}
+```
+
+```{r}
+trigrams_ <-TrainTestSplit(twitter_trigrams, 0.75)
+
+test_twitter_trigrams <- trigrams_$test
+train_twitter_trigrams <- trigrams_$train
+rm(trigrams_)
+
+quagrams_ <-TrainTestSplit(twitter_quagrams, 0.75)
+
+test_twitter_quagrams <- quagrams_$test
+train_twitter_quagrams <- quagrams_$train
+rm(quagrams_)
+```
+
+## Some of the trigrams have identical bigrams preceding
+
+We'll need to filter these out so we have only one possible solution for each trigram
+Likewise for identical trigrams preceding quagrams
+
+```{r}
+RemoveTestDuplicates <- function(df, ngram){
+  
+  if (ngram == 3){
+    
+    df <- df %>%
+    separate(word, c("word1", "word2", "word3"), sep = " ") %>%
+    select(c("word1", "word2", "word3", "freq"))
+    df[, "word4"] <- NA
+    
+    df <- distinct(df, word1, word2, .keep_all = TRUE)
+  } else if (ngram == 4){
+    
+    df <- df %>%
+    separate(word, c("word1", "word2", "word3", "word4"), sep = " ") %>%
+    select(c("word1", "word2", "word3", "word4", "freq"))
+    
+    df <- distinct(df, word1, word2, word3, .keep_all = TRUE)
+  }
+  
+  df
+}
+```
+
+```{r}
+test_twitter_trigrams <- test_twitter_trigrams %>%
+  RemoveTestDuplicates(ngram = 3) %>%
+  filter(!is.na(word1))
+
+test_twitter_quagrams <- test_twitter_quagrams %>%
+  RemoveTestDuplicates(ngram = 4) %>% 
+  filter(!is.na(word1))
+```
+
+## Now we have unique values for our testing sets
+
+Now we must have an evaluating function that uses the 'trained model' to predict the next word (word3 for trigram, word4 for quagram) and check it against the actual word3/word4
+
+- Grab the string to use for the predict function
+We'll simply append the string to each row of the testset
+
+- Grab both the word and the probability of the top result from the predict result
+Create a function that calls Predict with parameters, but returns top result values
+- Collect these results into another data.table
+append these to the testset using lapply function of above
+
+```{r}
+CreatePredictionString <- function(df, ngram){
+  
+  if (ngram == 3){
+    
+    df <- df %>%
+    unite(col = string, word1, word2, sep = " ",
+          na.rm = TRUE, remove = FALSE)
+    
+  } else if (ngram == 4){
+    
+    df <- df %>%
+    unite(col = string, word1, word2, word3, sep = " ",
+          na.rm = TRUE, remove = FALSE)
+  }
+  
+}
+```
+
+```{r}
+test_twitter_trigrams <- test_twitter_trigrams %>%
+  CreatePredictionString(ngram = 3)
+test_twitter_quagrams <- test_twitter_quagrams %>%
+  CreatePredictionString(ngram = 4)
+```
+
+```{r}
+t <- Sys.time()
+test_copy <- test_twitter_trigrams
+
+test_strings <- test_copy[["string"]]
+
+result_words <- c()
+result_P <- c()
+index = 0
+
+for (string in test_strings){
+  index =  index + 1
+  if ((index %% 10) == 0){
+    print(index / length(test_strings))
+  }
+  
+  result <- Predict(string,
+                    model = twitter_train_model,
+                    ngram = 2,
+                    gamma = 0.3) %>%
+    head(1)
+
+  result_words <- c(result_words, result[1, "word"])
+  result_P <- c(result_P, result[1, "P"])
+}
+
+test_twitter_trigrams$predictions <- result_words
+test_twitter_trigrams$probability <- result_P
+
+n <- Sys.time()
+t <- n - t
+print(t)
+
+save(test_twitter_trigrams, file = "output/test_twitter_trigrams.RDa")
+```
+```{r}
+t <- Sys.time()
+test_copy <- test_twitter_quagrams
+
+test_strings <- test_copy[["string"]]
+
+result_words <- c()
+result_P <- c()
+index = 0
+
+for (string in test_strings){
+  index =  index + 1
+  print(index / length(test_strings))
+  
+  result <- Predict(string,
+                    model = twitter_train_model,
+                    ngram = 3,
+                    gamma = 0.3) %>%
+    head(1)
+  
+  result_words <- c(result_words, result[1, "word"])
+  result_P <- c(result_P, result[1, "P"])
+}
+
+test_twitter_quagrams$predictions <- result_words
+test_twitter_quagrams$probability <- result_P
+
+n <- Sys.time()
+t <- n - t
+print(t)
+
+save(test_twitter_quagrams, file = "output/test_twitter_quagrams.RDa")
+```
+
+
+```{r}
+twitter_train_model <- CreateFreqTable(twitter_unigrams,
+                                 twitter_bigrams,
+                                 train_twitter_trigrams,
+                                 train_twitter_quagrams)
+
+#save(twitter_train_model, file = "models/twitter_train_model.RDa")
+```
+
+## Now a function that evaluates the accuracy, somehow
+
+- We want to maximise Probability when correct
+- Minimise probability when incorrect
