@@ -1,0 +1,44 @@
+A Predictive Text Model
+========================================================
+author: JL
+date: Nov 2021
+autosize: true
+output: slidy_presentation
+
+Purpose
+========================================================
+
+For more details on authoring R presentations please visit <https://support.rstudio.com/hc/en-us/articles/200486468>.
+
+- Bullet 1
+- Bullet 2
+- Bullet 3
+
+Evaluating Accuracy
+========================================================
+
+```{r}
+summary(cars)
+```
+
+Evaluation
+========================================================
+
+We took the a 25% sample of the 'Twitter' source data to inspect the effect of test split on prediction accuracy.
+
+We see
+- Quagrams lead to more accurate predictions (expected) regardless of split
+- 'Cost' lowers with larger training set (smaller test set). this is indicative of better probability assignment
+
+
+```{r, echo=FALSE}
+   knitr::include_graphics('./Split Evaluation strata.png')
+```
+
+
+Evaluation
+========================================================
+
+```{r, echo=FALSE}
+   knitr::include_graphics('./Source Evaluation strata.png')
+```

@@ -436,3 +436,166 @@ twitter_train_model <- CreateFreqTable(twitter_unigrams,
 
 - We want to maximise Probability when correct
 - Minimise probability when incorrect
+
+#### CostCheck
+- penalises high probability with incorrect prediction
+- penalises low probability with correct prediction
+
+```{r}
+twitter_qua_50 <- loadRData("output/test/test_twitter_quagrams_50.Rda")
+twitter_qua_5 <- loadRData("output/test/test_twitter_quagrams_5.Rda")
+twitter_qua_25 <- loadRData("output/test/test_twitter_quagrams_25.Rda")
+twitter_qua_10 <- loadRData("output/test/test_twitter_quagrams_10.Rda")
+twitter_tri_5 <- loadRData("output/test/test_twitter_trigrams_5.Rda")
+twitter_tri_25 <- loadRData("output/test/test_twitter_trigrams_25.Rda")
+twitter_tri_50 <- loadRData("output/test/test_twitter_trigrams_50.Rda")
+twitter_tri_10 <- loadRData("output/test/test_twitter_trigrams_10.Rda")
+
+twitter_tri <- list(twitter_tri_5, twitter_tri_10, twitter_tri_25, twitter_tri_50)
+twitter_qua <- list(twitter_qua_5, twitter_qua_10, twitter_qua_25, twitter_qua_50)
+
+#split_test_tri <- lapply(twitter_tri, CostCheck, "word3")
+#split_test_qua <- lapply(twitter_qua, CostCheck, "word4")
+```
+
+```{r}
+splits_test_df <- data.table(split = 5, depth = "tri", cost = CostCheck(twitter_tri[[1]], "word3")[1], percent = CostCheck(twitter_tri[[1]], "word3")[2])
+
+splits_test_df <- rbind(splits_test_df,
+                        data.table(split = 10, depth = "tri", cost = CostCheck(twitter_tri[[2]], "word3")[1], percent = CostCheck(twitter_tri[[2]], "word3")[2]))
+
+splits_test_df <- rbind(splits_test_df,
+                        data.table(split = 25, depth = "tri", cost = CostCheck(twitter_tri[[3]], "word3")[1], percent = CostCheck(twitter_tri[[3]], "word3")[2]))
+
+splits_test_df <- rbind(splits_test_df,
+                        data.table(split = 50, depth = "tri", cost = CostCheck(twitter_tri[[4]], "word3")[1], percent = CostCheck(twitter_tri[[4]], "word3")[2]))
+
+splits_test_df <- rbind(splits_test_df,
+                        data.table(split = 5, depth = "qua", cost = CostCheck(twitter_qua[[1]], "word4")[1], percent = CostCheck(twitter_qua[[1]], "word4")[2]))
+
+splits_test_df <- rbind(splits_test_df,
+                        data.table(split = 10, depth = "qua", cost = CostCheck(twitter_qua[[2]], "word4")[1], percent = CostCheck(twitter_qua[[2]], "word4")[2]))
+
+splits_test_df <- rbind(splits_test_df,
+                        data.table(split = 25, depth = "qua", cost = CostCheck(twitter_qua[[3]], "word4")[1], percent = CostCheck(twitter_qua[[3]], "word4")[2]))
+
+splits_test_df <- rbind(splits_test_df,
+                        data.table(split = 50, depth = "qua", cost = CostCheck(twitter_qua[[4]], "word4")[1], percent = CostCheck(twitter_qua[[4]], "word4")[2]))
+
+splits_test_df$split <- as.factor(splits_test_df$split)
+splits_test_df$depth <- as.factor(splits_test_df$depth)
+splits_test_df <- melt(splits_test_df)
+
+splits_test_df <- splits_test_df %>% mutate(depth = recode(depth, "tri" = "Trigram", "qua" = "Quagram"))
+```
+
+```{r}
+ggplot(splits_test_df, aes(x = factor(split), y = value)) +
+  theme_stata() + scale_colour_stata() +
+  geom_col(aes(fill = variable), position = "dodge") +
+  ylim(c(0, 0.6)) +
+  facet_grid(~depth) +
+  ggtitle("Prediction Evaluation dependent on Test Split") +
+  xlab("Test Split (%)") + ylab("Value") +
+  scale_fill_discrete(labels = c("Cost Value", "Percent Correct")) +
+  theme(legend.title = element_blank())
+```
+
+Our expectations in accuracy are 'low'. Due ot the nature of the problem, we know that 'correct values' between 0.1 and 0.3, "overall", are good expectations. As the n-gram depth increases, we should expect this to increase, but not in large values.
+
+From the plot above, we can see that as the Training split gets larger (test split gets smaller) we are able to get the 'cost value' quite low. That is, the probabilities of the predictions are closer to what we would expect of a better model. A lesser number of both highly probable incorrect predictions and low probable correct predictions. As a result the percent correct does suffer, but this is highly dependent on the choice of 'gamma' in the model and prediction. These results are highly dependent on the data, though our aim is to reduce the 'Cost Value' over getting single correct predictions. If the correct prediction is within, say the 'top three guesses', we have succeeded, though we have only evaluated the top prediction here.
+
+We can see that quagrams have a higher likelihood to be predicted, which is to be expected given the fact that there is more information to use in the prediction. 
+
+> blogs_tri <- loadRData("output/test/test_blogs_trigrams_5.RDa")
+> imdb_neg_tri <- loadRData("output/test/test_imdb_neg_trigrams_5.RDa")
+> imdb_pos_tri <- loadRData("output/test/test_imdb_pos_trigrams_5.RDa")
+> lyrics_tri <- loadRData("output/test/test_lyrics_trigrams_5.RDa")
+> news_tri <- loadRData("output/test/test_news_trigrams_5.RDa")
+> twitter_tri <- loadRData("output/test/test_twitter_trigrams_5.RDa")
+> blogs_qua <- loadRData("output/test/test_blogs_quagrams_5.RDa")
+> imdb_neg_qua <- loadRData("output/test/test_imdb_neg_quagrams_5.RDa")
+> imdb_pos_qua <- loadRData("output/test/test_imdb_pos_quagrams_5.RDa")
+> lyrics_qua <- loadRData("output/test/test_lyrics_quagrams_5.RDa")
+> news_qua <- loadRData("output/test/test_news_quagrams_5.RDa")
+> twitter_qua <- loadRData("output/test/test_twitter_quagrams_5.RDa")
+> test_tri <- list(blogs_tri, imdb_neg_tri, imdb_pos_tri, lyrics_tri, news_tri, twitter_tri)
+> test_qua <- list(blogs_qua, imdb_neg_qua, imdb_pos_qua, lyrics_qua, news_qua, twitter_qua)
+> lapply(test_tri, CostCheck, "word3")
+> lapply(test_qua, CostCheck, "word4")
+
+
+```{r}
+blogs_tri <- loadRData("output/test/test_blogs_trigrams_5.RDa")
+imdb_neg_tri <- loadRData("output/test/test_imdb_neg_trigrams_5.RDa")
+imdb_pos_tri <- loadRData("output/test/test_imdb_pos_trigrams_5.RDa")
+lyrics_tri <- loadRData("output/test/test_lyrics_trigrams_5.RDa")
+news_tri <- loadRData("output/test/test_news_trigrams_5.RDa")
+twitter_tri <- loadRData("output/test/test_twitter_trigrams_5.RDa")
+blogs_qua <- loadRData("output/test/test_blogs_quagrams_5.RDa")
+imdb_neg_qua <- loadRData("output/test/test_imdb_neg_quagrams_5.RDa")
+imdb_pos_qua <- loadRData("output/test/test_imdb_pos_quagrams_5.RDa")
+lyrics_qua <- loadRData("output/test/test_lyrics_quagrams_5.RDa")
+news_qua <- loadRData("output/test/test_news_quagrams_5.RDa")
+twitter_qua <- loadRData("output/test/test_twitter_quagrams_5.RDa")
+
+test_tri <- list(blogs_tri, imdb_neg_tri, imdb_pos_tri, lyrics_tri, news_tri, twitter_tri)
+test_qua <- list(blogs_qua, imdb_neg_qua, imdb_pos_qua, lyrics_qua, news_qua, twitter_qua)
+
+#lapply(test_tri, CostCheck, "word3")
+#lapply(test_qua, CostCheck, "word4")
+```
+
+```{r}
+source_test_df <- data.table(source = "Blogs", depth = "tri", cost = CostCheck(test_tri[[1]], "word3")[1], percent = CostCheck(test_tri[[1]], "word3")[2])
+
+source_test_df <- rbind(source_test_df,
+                        data.table(source = "Movie_neg", depth = "tri", cost = CostCheck(test_tri[[2]], "word3")[1], percent = CostCheck(test_tri[[2]], "word3")[2]))
+
+source_test_df <- rbind(source_test_df,
+                        data.table(source = "Movie_pos", depth = "tri", cost = CostCheck(test_tri[[3]], "word3")[1], percent = CostCheck(test_tri[[3]], "word3")[2]))
+
+source_test_df <- rbind(source_test_df,
+                        data.table(source = "Lyrics", depth = "tri", cost = CostCheck(test_tri[[4]], "word3")[1], percent = CostCheck(test_tri[[4]], "word3")[2]))
+
+source_test_df <- rbind(source_test_df,
+                        data.table(source = "News", depth = "tri", cost = CostCheck(test_tri[[5]], "word3")[1], percent = CostCheck(test_tri[[5]], "word3")[2]))
+
+source_test_df <- rbind(source_test_df,
+                        data.table(source = "Twitter", depth = "tri", cost = CostCheck(test_tri[[6]], "word3")[1], percent = CostCheck(test_tri[[6]], "word3")[2]))
+
+source_test_df <- rbind(source_test_df,
+                        data.table(source = "Blogs", depth = "qua", cost = CostCheck(test_qua[[1]], "word4")[1], percent = CostCheck(test_qua[[1]], "word4")[2]))
+
+source_test_df <- rbind(source_test_df,
+                        data.table(source = "Movie_neg", depth = "qua", cost = CostCheck(test_qua[[2]], "word4")[1], percent = CostCheck(test_qua[[2]], "word4")[2]))
+
+source_test_df <- rbind(source_test_df,
+                        data.table(source = "Movie_pos", depth = "qua", cost = CostCheck(test_qua[[3]], "word4")[1], percent = CostCheck(test_qua[[3]], "word4")[2]))
+
+source_test_df <- rbind(source_test_df,
+                        data.table(source = "Lyrics", depth = "qua", cost = CostCheck(test_qua[[4]], "word4")[1], percent = CostCheck(test_qua[[4]], "word4")[2]))
+
+source_test_df <- rbind(source_test_df,
+                        data.table(source = "News", depth = "qua", cost = CostCheck(test_qua[[5]], "word4")[1], percent = CostCheck(test_qua[[5]], "word4")[2]))
+
+source_test_df <- rbind(source_test_df,
+                        data.table(source = "Twitter", depth = "qua", cost = CostCheck(test_qua[[6]], "word4")[1], percent = CostCheck(test_qua[[6]], "word4")[2]))
+
+source_test_df$source <- as.factor(source_test_df$source)
+source_test_df$depth <- as.factor(source_test_df$depth)
+source_test_df <- melt(source_test_df)
+
+source_test_df <- source_test_df %>% mutate(depth = recode(depth, "tri" = "Trigram", "qua" = "Quagram"))
+```
+
+```{r}
+ggplot(source_test_df, aes(x = factor(source), y = value)) +
+  theme_stata() + scale_colour_stata() +
+  geom_col(aes(fill = variable), position = "dodge") +
+  facet_grid(~depth) +
+  ggtitle("Prediction Evaluation dependent on Source text") +
+  xlab("Source Text") + ylab("Value") +
+  scale_fill_discrete(labels = c("Cost Value", "Percent Correct")) +
+  theme(legend.title = element_blank())
+```

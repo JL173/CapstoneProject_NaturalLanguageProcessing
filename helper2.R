@@ -986,3 +986,48 @@ LoadCSV <- function(directory){
   }
   
 }
+
+
+
+# Cost function to check accuracy of predictions
+#
+# df = dataframe containing true values and predictions
+# word = column heading containing true values
+#
+# returns normalised sum of the differences between a match (1, else 0) and
+# the probability given for that match. This punishes low P for correct match
+# and high P for incorrect match.
+CostCheck <- function(df, word, table = FALSE){
+  
+  df[, "match"] <- 0
+  
+  for (index in 1:nrow(df)){
+    if (df[index, word] == df[index, "predictions"]){
+      df[index, "match"] <- 1
+    }
+  }
+  
+  df$probability <- as.numeric(df$probability)
+  
+  df <- df%>% mutate(cost = abs(match - probability))
+  
+  cost_value <- sum(df$cost) / nrow(df)
+  percent_correct <- mean(df$match)
+  
+  if (table == FALSE){
+    c(cost_value, percent_correct)
+  } else {
+    df
+  }
+  
+}
+
+
+
+
+loadRData <- function(fileName){
+  #loads an RData file, and returns it
+  load(fileName)
+  get(ls()[ls() != "fileName"])
+}
+#d <- loadRData("~/blah/ricardo.RData")
